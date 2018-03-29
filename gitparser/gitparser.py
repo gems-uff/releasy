@@ -8,6 +8,7 @@ GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1e'
 class History():
     def __init__(self):
         self.history = dict()
+        self.last = None
 
     def commit(self, commit_hash, parent_hashes, commit_message, commit_date):
         parent_commit = list()
@@ -16,13 +17,23 @@ class History():
 
         commit = Commit(commit_hash, parent_commit, commit_message, commit_date)
         self.history[commit_hash] = commit
+        self.last = commit
 
+    def build(self, commit = None):
+        if commit is None:
+            commit = self.last
+
+        for parent in commit.parent:
+            parent.child.append(commit)
+            self.build(parent)
+ 
 class Commit():
     def __init__(self, hash, parent, message, date):
         self.hash = hash
         self.parent = parent
         self.message = message
         self.date = date
+        self.child = list()
 
 def main():
     # adapted from https://stackoverflow.com/questions/2715847/python-read-streaming-input-from-subprocess-communicate/17698359#17698359
@@ -38,5 +49,7 @@ def main():
             commit_message = log_info[2]
             commit_date = log_info[3]
             history.commit(commit_hash, parent_hash, commit_message, commit_date)
+    
+    history.build()
 
 main()
