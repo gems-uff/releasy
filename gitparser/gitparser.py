@@ -37,7 +37,7 @@ class Commit():
 
 def main():
     # adapted from https://stackoverflow.com/questions/2715847/python-read-streaming-input-from-subprocess-communicate/17698359#17698359
-    log = subprocess.Popen('git log --reverse --format="%s"' % GIT_FORMAT,
+    log = subprocess.Popen('git log --reverse --all --format="%s"' % GIT_FORMAT,
                            stdout=subprocess.PIPE, bufsize=1)
 
     history = History()
