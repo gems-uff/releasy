@@ -15,6 +15,7 @@ class Tag():
 class Release():
     def __init__(self, tag):
         self.tag = tag
+        self.commits = list()
 
 class Branch():
     def __init__(self, name, commit):
@@ -48,7 +49,8 @@ class HistoryBuilder():
             'parent': list(),
             'author': {
                 'date': data[3]
-            }
+            },
+            'tags': list()
         }
 
         for parent_hash in data[1].split():
@@ -75,10 +77,13 @@ class HistoryBuilder():
                     ref = ref.replace('tag: ', '')
                     tag = Tag(ref, commit)
                     self.tag.append(tag)
+                    commit.tags.append(tag)
 
                     # todo: check if tag is a release
                     release = Release(tag)
                     self.release.append(release)
+
+                    move_back_until_release(commit, release)
                 else:
                     branch = Branch(ref, commit)
                     self.branch.append(branch)
@@ -110,8 +115,12 @@ class History():
         self.tag = tag
         self.release = release
 
-if __name__ == "__main__":
-    hitory_builder = HistoryBuilder()
-    history = hitory_builder.build()
+def move_back_until_release(commit, release):
+    if commit not in release.commits:
+        release.commits.append(commit)
+        for parent in commit.parent:
+            if not parent.tags:
+                move_back_until_release(parent, release)
+    else:
+        print(release.tag.name, "commit", commit.hash)
 
-    print(len(history.release))
