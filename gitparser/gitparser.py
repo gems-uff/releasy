@@ -1,5 +1,6 @@
 # import os
 #import argparse
+import sys
 import subprocess
 
 # inspired on http://blog.lost-theory.org/post/how-to-parse-git-log-output/
@@ -10,6 +11,10 @@ class Tag():
     def __init__(self, name, commit):
         self.name = name
         self.commit = commit
+
+class Release():
+    def __init__(self, tag):
+        self.tag = tag
 
 class Branch():
     def __init__(self, name, commit):
@@ -31,6 +36,7 @@ class HistoryBuilder():
         self.commit = dict()
         self.branch = list()
         self.tag = list()
+        self.release = list()
 
     def add_commit(self, raw_data): # pylint: disable=E0202
         ''' Record a commit '''
@@ -69,6 +75,10 @@ class HistoryBuilder():
                     ref = ref.replace('tag: ', '')
                     tag = Tag(ref, commit)
                     self.tag.append(tag)
+
+                    # todo: check if tag is a release
+                    release = Release(tag)
+                    self.release.append(release)
                 else:
                     branch = Branch(ref, commit)
                     self.branch.append(branch)
@@ -77,26 +87,31 @@ class HistoryBuilder():
         ''' Build the whole history '''
         # adapted from [1]
         # [1]: https://stackoverflow.com/questions/2715847/python-read-streaming-input-from-subprocess-communicate/17698359#17698359
+        if len(sys.argv) > 1:
+            working_dir = str(sys.argv[1])
+        else:
+            working_dir = '.'
+
         log = subprocess.Popen('git log --reverse --all --format="%s"' % GIT_FORMAT,
-                               stdout=subprocess.PIPE, bufsize=1)
+                               cwd=working_dir ,stdout=subprocess.PIPE, bufsize=1)
 
         with log.stdout:
             for raw_data in iter(log.stdout.readline, b''):
                 self.add_commit(raw_data.decode('utf-8'))
 
-        history = History(self.branch, self.tag)
+        history = History(self.branch, self.tag, self.release)
         return history
 
 class History():
     ''' Store the commit and tag history '''
 
-    def __init__(self, branch, tag):
+    def __init__(self, branch, tag, release):
         self.branch = branch
         self.tag = tag
+        self.release = release
 
-def main():
-    ''' The main method '''
+if __name__ == "__main__":
     hitory_builder = HistoryBuilder()
     history = hitory_builder.build()
 
-main()
+    print(len(history.release))
