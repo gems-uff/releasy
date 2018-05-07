@@ -2,6 +2,8 @@
 #import argparse
 import sys
 import subprocess
+# from datetime import datetime
+import dateutil.parser
 
 # inspired on http://blog.lost-theory.org/post/how-to-parse-git-log-output/
 GIT_FORMAT = ['%H', '%P', '%s', '%cI', '%D', '']
@@ -47,10 +49,11 @@ class HistoryBuilder():
             'hash': data[0],
             'message': data[2],
             'parent': list(),
-            'author': {
-                'date': data[3]
+            'commiter': {
+                'date': dateutil.parser.parse(data[3])
             },
-            'tags': list()
+            'tags': list(),
+            'release': None
         }
 
         for parent_hash in data[1].split():
@@ -116,11 +119,17 @@ class History():
         self.release = release
 
 def move_back_until_release(commit, release):
-    if commit not in release.commits:
-        release.commits.append(commit)
-        for parent in commit.parent:
-            if not parent.tags:
-                move_back_until_release(parent, release)
-    else:
-        print(release.tag.name, "commit", commit.hash)
-
+    release.commits.append(commit)
+    # if not commit.release:
+    #    commit.release = release
+    # else:
+    #    print(commit.hash, commit.release.tag.name, release.tag.name)
+    for parent in commit.parent:
+        if not parent.tags and parent not in release.commits:
+            move_back_until_release(parent, release)
+        #if parent.commiter['date'] > commit.commiter['date']:
+        #    print(release.tag.name, 'bad commit', commit.hash)
+        #if not parent.tags and parent in release.commits:
+        #   print(release.tag.name, 'join commit', commit.hash)
+        #   pass
+        
