@@ -8,9 +8,17 @@ last = history.release[-1]
 print(last.tag.name)
 print(len(last.commits))
 
-count = 0
+release_count = 0
+feature_count = 0
 for release in history.release:
-    print(release.tag.name, len(release.commits))
-    count += len(release.commits)
+    print(release.tag.name, len(release.commits), len(release.features))
+    release_count += len(release.commits)
+    feature_count += len(release.features)
 
-print(count)
+print(release_count, feature_count)
+feature_count = 0
+
+feature_count = 0
+for commit_hash, commit in history.commits.items():
+    feature_count += len(commit.features)
+print(release_count, feature_count)

@@ -4,10 +4,21 @@ import sys
 import subprocess
 # from datetime import datetime
 import dateutil.parser
+import re
 
 # inspired on http://blog.lost-theory.org/post/how-to-parse-git-log-output/
 GIT_FORMAT = ['%H', '%P', '%s', '%cI', '%D', '']
 GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1e'
+
+COMMIT_INFO = [
+    {'hash': '%H'},
+    {'parent.hash': '%P'},
+    {'subject': '%s'},
+    {'commiter': [
+        {'date': '%cI'}
+    ]},
+    {'refs': '%D'}
+]
 
 class Tag():
     def __init__(self, name, commit):
@@ -18,6 +29,11 @@ class Release():
     def __init__(self, tag):
         self.tag = tag
         self.commits = list()
+        self.features = list()
+
+class Feature(object):
+    def __init__(self, number):
+        self.number = number
 
 class Branch():
     def __init__(self, name, commit):
@@ -47,13 +63,14 @@ class HistoryBuilder():
 
         commit_data = {
             'hash': data[0],
-            'message': data[2],
+            'subject': data[2],
             'parent': list(),
             'commiter': {
                 'date': dateutil.parser.parse(data[3])
             },
             'tags': list(),
-            'release': None
+            'release': list(),
+            'features': list()
         }
 
         for parent_hash in data[1].split():
@@ -67,6 +84,14 @@ class HistoryBuilder():
             commit = Commit(**commit_data)
 
         self.commit[commit.hash] = commit
+
+        feature_match = re.search(r'#([0-9]+)', commit.subject)
+        feature = None
+        if feature_match:
+            feature_number = feature_match.group(1)
+            feature = Feature(feature_number)
+            if feature not in commit.features:
+                commit.features.append(feature)
 
         if data[4]:
             refs = str(data[4]).split(',')
@@ -90,6 +115,7 @@ class HistoryBuilder():
                 else:
                     branch = Branch(ref, commit)
                     self.branch.append(branch)
+        
 
     def build(self):
         ''' Build the whole history '''
@@ -107,29 +133,25 @@ class HistoryBuilder():
             for raw_data in iter(log.stdout.readline, b''):
                 self.add_commit(raw_data.decode('utf-8'))
 
-        history = History(self.branch, self.tag, self.release)
+        history = History(self.commit, self.branch, self.tag, self.release)
         return history
 
 class History():
     ''' Store the commit and tag history '''
 
-    def __init__(self, branch, tag, release):
+    def __init__(self, commits, branch, tag, release):
         self.branch = branch
         self.tag = tag
         self.release = release
+        self.commits = commits
 
 def move_back_until_release(commit, release):
     release.commits.append(commit)
-    # if not commit.release:
-    #    commit.release = release
-    # else:
-    #    print(commit.hash, commit.release.tag.name, release.tag.name)
+
+    for feature in commit.features:
+        if feature not in release.features:
+            release.features.append(feature)
+
     for parent in commit.parent:
         if not parent.tags and parent not in release.commits:
             move_back_until_release(parent, release)
-        #if parent.commiter['date'] > commit.commiter['date']:
-        #    print(release.tag.name, 'bad commit', commit.hash)
-        #if not parent.tags and parent in release.commits:
-        #   print(release.tag.name, 'join commit', commit.hash)
-        #   pass
-        
