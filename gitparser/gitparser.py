@@ -30,6 +30,7 @@ class Release():
         self.tag = tag
         self.commits = list()
         self.features = list()
+        self.duration = 0
 
 class Feature(object):
     def __init__(self, number):
@@ -109,6 +110,8 @@ class HistoryBuilder():
 
                     # todo: check if tag is a release
                     release = Release(tag)
+                    if self.release:
+                        release.duration = (release.tag.commit.commiter['date'] - self.release[-1].tag.commit.commiter['date']).days
                     self.release.append(release)
 
                     move_back_until_release(commit, release)
