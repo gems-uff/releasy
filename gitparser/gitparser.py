@@ -5,20 +5,19 @@ import subprocess
 # from datetime import datetime
 import dateutil.parser
 import re
+import collections
 
+GIT_LOG_FORMAT = collections.OrderedDict([
+    ('hash', '%H'),
+    ('parent.hash', '%P'),
+    ('subject', '%s'),
+    ('commiter_date', '%cI'),
+    ('refs', '%D'),
+    ('author_name', '%an')
+])
 # inspired on http://blog.lost-theory.org/post/how-to-parse-git-log-output/
-GIT_FORMAT = ['%H', '%P', '%s', '%cI', '%D', '']
+GIT_FORMAT = [v for k, v in GIT_LOG_FORMAT.items()]
 GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1e'
-
-COMMIT_INFO = [
-    {'hash': '%H'},
-    {'parent.hash': '%P'},
-    {'subject': '%s'},
-    {'commiter': [
-        {'date': '%cI'}
-    ]},
-    {'refs': '%D'}
-]
 
 class Tag():
     def __init__(self, name, commit):
@@ -31,6 +30,7 @@ class Release():
         self.commits = list()
         self.features = list()
         self.duration = 0
+        self.authors = list()
 
 class Feature(object):
     def __init__(self, number):
@@ -68,6 +68,9 @@ class HistoryBuilder():
             'parent': list(),
             'commiter': {
                 'date': dateutil.parser.parse(data[3])
+            },
+            'author': {
+                'name': data[5]
             },
             'tags': list(),
             'release': list(),
@@ -150,6 +153,8 @@ class History():
 
 def move_back_until_release(commit, release):
     release.commits.append(commit)
+    if commit.author not in release.authors:
+        release.authors.append(commit.author)
 
     for feature in commit.features:
         if feature not in release.features:
