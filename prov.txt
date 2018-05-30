@@ -1,0 +1,15 @@
+document
+  agent(u1)
+  agent(u2)
+  entity(release)
+  entity(feat1)
+  activity(c1)
+  activity(c2)
+
+  wasAssociatedWith(c1, u1, -)
+  wasAssociatedWith(c2, u2, -)
+  wasDerivedFrom(release, feat1, -)
+  wasGeneratedBy(release, c1, -)
+  wasGeneratedBy(feat1, c2, -)
+
+endDocument
