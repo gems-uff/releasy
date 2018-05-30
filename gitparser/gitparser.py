@@ -13,11 +13,17 @@ GIT_LOG_FORMAT = collections.OrderedDict([
     ('subject', '%s'),
     ('commiter_date', '%cI'),
     ('refs', '%D'),
-    ('author_name', '%an')
+    ('author_name', '%an'),
+    ('commiter_name', '%cn')
 ])
 # inspired on http://blog.lost-theory.org/post/how-to-parse-git-log-output/
 GIT_FORMAT = [v for k, v in GIT_LOG_FORMAT.items()]
 GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1e'
+
+class Issue():
+    def __init__(self, number, subject):
+        self.number = number
+        self.subject = subject
 
 class Tag():
     def __init__(self, name, commit):
@@ -31,6 +37,7 @@ class Release():
         self.features = list()
         self.duration = 0
         self.authors = list()
+        self.commiters = list()
 
 class Feature(object):
     def __init__(self, number):
@@ -61,12 +68,14 @@ class HistoryBuilder():
     def add_commit(self, raw_data): # pylint: disable=E0202
         ''' Record a commit '''
         data = raw_data.split('\x1f')
+        
 
         commit_data = {
             'hash': data[0],
             'subject': data[2],
             'parent': list(),
             'commiter': {
+                'name': data[6],
                 'date': dateutil.parser.parse(data[3])
             },
             'author': {
@@ -153,8 +162,14 @@ class History():
 
 def move_back_until_release(commit, release):
     release.commits.append(commit)
-    if commit.author not in release.authors:
-        release.authors.append(commit.author)
+    
+    author = commit.author['name']
+    if author not in release.authors:
+        release.authors.append(author)
+
+    commiter = commit.commiter['name']
+    if commiter not in release.commiters:
+        release.commiters.append(commiter)
 
     for feature in commit.features:
         if feature not in release.features:

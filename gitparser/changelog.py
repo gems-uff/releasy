@@ -11,7 +11,11 @@ for release in history.release:
     if release.authors:
         print("  Authors:")
         for author in release.authors:
-            print("    - %s" % author['name'])
+            print("    - %s" % author)
+    if release.commiters:
+        print("  Commiters:")
+        for commiter in release.commiters:
+            print("    - %s" % commiter)
     if release.features:
         print("  Features:")
         for feature in release.features:
