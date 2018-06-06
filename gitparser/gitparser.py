@@ -56,6 +56,9 @@ class Merge(Commit):
     def __init__(self, **commit):
         self.__dict__.update(commit)
 
+class User(object):
+    pass
+
 class HistoryBuilder():
     ''' Build the commit history '''
 
