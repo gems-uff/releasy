@@ -11,7 +11,7 @@ print(len(last.commits))
 release_count = 0
 feature_count = 0
 for release in history.release:
-    print(releaserun.tag.name, len(release.commits), len(release.features))
+    print(release.tag.name, len(release.commits), len(release.features))
     release_count += len(release.commits)
     feature_count += len(release.features)
 

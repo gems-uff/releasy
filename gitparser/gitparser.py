@@ -20,6 +20,7 @@ GIT_LOG_FORMAT = collections.OrderedDict([
 GIT_FORMAT = [v for k, v in GIT_LOG_FORMAT.items()]
 GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1e'
 
+# Data structures
 class Issue():
     def __init__(self, number, subject):
         self.number = number
@@ -38,10 +39,13 @@ class Release():
         self.duration = 0
         self.authors = list()
         self.commiters = list()
+        self.direct_commits = list()
+        self.previous = list()
 
 class Feature(object):
     def __init__(self, number):
         self.number = number
+        self.commits = list()
 
 class Branch():
     def __init__(self, name, commit):
@@ -59,6 +63,7 @@ class Merge(Commit):
 class User(object):
     pass
 
+# History builder - where the magic starts
 class HistoryBuilder():
     ''' Build the commit history '''
 
@@ -71,7 +76,6 @@ class HistoryBuilder():
     def add_commit(self, raw_data): # pylint: disable=E0202
         ''' Record a commit '''
         data = raw_data.split('\x1f')
-        
 
         commit_data = {
             'hash': data[0],
@@ -90,8 +94,11 @@ class HistoryBuilder():
         }
 
         for parent_hash in data[1].split():
-            parent = self.commit[parent_hash]
-            commit_data['parent'].append(parent)
+            if parent_hash in self.commit:
+                parent = self.commit[parent_hash]
+                commit_data['parent'].append(parent)
+            else:
+                print("missing parent %s" % parent_hash)
 
         commit = None
         if len(commit_data['parent']) > 1:
@@ -106,6 +113,7 @@ class HistoryBuilder():
         if feature_match:
             feature_number = feature_match.group(1)
             feature = Feature(feature_number)
+            feature.commits.append(commit)
             if feature not in commit.features:
                 commit.features.append(feature)
 
@@ -165,6 +173,7 @@ class History():
 
 def move_back_until_release(commit, release):
     release.commits.append(commit)
+    release.direct_commits.append(commit)
     
     author = commit.author['name']
     if author not in release.authors:

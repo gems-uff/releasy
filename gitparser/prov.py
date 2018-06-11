@@ -9,12 +9,12 @@ print('document')
 for release in history.release:
     if release.tag.name == '4.4.15':
         print("  entity(%s)" % release.tag.name)
-        print("  activity(%s)" % 'authored')
-        print("  wasGeneratedBy(%s, %s, -)" % (release.tag.name, 'authored'))
+        print("  activity(%s)" % 'implement')
+        print("  wasGeneratedBy(%s, %s, -)" % (release.tag.name, 'develop'))
         if release.authors:
             for author in release.authors:
                 print("  agent(%s)" % author)
-                print("  wasAssociatedWith(%s, %s, -)" % ('authored', author))
+                print("  wasAssociatedWith(%s, %s, -)" % ('develop', author))
         if release.commiters:
             for commiter in release.commiters:
                 pass
