@@ -37,6 +37,7 @@ class Tag():
 class Release():
     def __init__(self, tag):
         self.tag = tag
+        self.name = tag.name
         self.commits = list()
         self.issues = list()
         self.duration = 0
@@ -181,7 +182,8 @@ class History():
 # TODO transform into a interactive function
 def move_back_until_release(commit, release):
     release.commits.append(commit)
-    release.direct_commits.append(commit)
+    if not commit.issues:
+        release.direct_commits.append(commit)
 
     found = False
     for author in release.authors:
