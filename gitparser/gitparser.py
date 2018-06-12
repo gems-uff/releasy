@@ -75,11 +75,15 @@ class Contributor(object):
 class HistoryBuilder():
     ''' Build the commit history '''
 
-    def __init__(self):
+    def __init__(self, issues = None):
         self.commit = dict()
         self.branch = list()
         self.tag = list()
         self.release = list()
+        self.issue = dict()
+        if issues:
+            for issue in issues:
+                self.issue[issue.number] = issue
 
     def add_commit(self, raw_data): # pylint: disable=E0202
         ''' Record a commit '''
@@ -120,7 +124,11 @@ class HistoryBuilder():
         issue = None
         if issue_match:
             issue_id = int(issue_match.group(1))
-            issue = Issue(issue_id, "", ["feature"])
+            if self.issue[issue_id]:
+                issue = self.issue[issue_id]
+            else:
+                issue = Issue(issue_id, "", [])
+                
             issue.commits.append(commit)
             if issue not in commit.issues:
                 commit.issues.append(issue)

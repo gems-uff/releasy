@@ -1,7 +1,9 @@
 
 import gitparser
+from issue_download import load_issues
 
-history_builder = gitparser.HistoryBuilder()
+issues = load_issues('https://api.github.com/repos/gems-uff/sapos/issues')
+history_builder = gitparser.HistoryBuilder(issues)
 history = history_builder.build()
 
 release_name = '4.4.15'
