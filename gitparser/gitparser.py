@@ -145,7 +145,7 @@ class HistoryBuilder():
                         release.duration = (release.tag.commit.commiter['date'] - self.release[-1].tag.commit.commiter['date']).days
                     self.release.append(release)
 
-                    move_back_until_release(commit, release)
+                    find_previous_releases(commit, release)
                 else:
                     branch = Branch(ref, commit)
                     self.branch.append(branch)
@@ -205,3 +205,47 @@ def move_back_until_release(commit, release):
             move_back_until_release(parent, release)
         else:
             release.previous.append
+
+def find_previous_releases(commit, release):
+    commit_stack = [commit]
+
+    while commit_stack:
+        cur_commit = commit_stack.pop()
+
+        cur_commit.release.append(release)
+        release.commits.append(cur_commit)
+
+        # This commit does not implement a feature
+        if not cur_commit.issues:
+            release.direct_commits.append(cur_commit)
+
+        # Unique authors
+        found = False
+        for author in release.authors:
+            if author.email == cur_commit.author.email:
+                found = True
+        if not found:
+            release.authors.append(cur_commit.author)
+
+        commiter = cur_commit.commiter['name']
+        if commiter not in release.commiters:
+            release.commiters.append(commiter)
+
+        # Assign issues to release
+        for issue in cur_commit.issues:
+            if issue not in release.issues:
+                release.issues.append(issue)
+
+        # Navigate to parent commits
+        for parent_commit in cur_commit.parent:
+            if not parent_commit.release: # and parent_commit not in release.commits:
+                commit_stack.append(parent_commit)
+
+            for previous_release in parent_commit.release:
+                new_base_release = True
+                for base_release in release.previous:
+                    if base_release.name == previous_release.name:
+                        new_base_release = False
+
+                if previous_release.name != release.name and new_base_release:
+                    release.previous.append(previous_release)

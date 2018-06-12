@@ -5,6 +5,7 @@ history_builder = gitparser.HistoryBuilder()
 history = history_builder.build()
 
 release_name = '4.4.15'
+release_name = '1.6.6'
 
 release = None
 for rls in history.release:
@@ -17,7 +18,7 @@ if not release:
 
 else:
     print("Information about release %s" % release.tag.name)
-    print("Based on: %s" % release.previous)
+    print("Based on: %s" % ' '.join(rls.name for rls in release.previous))
     print("Date: %s" % release.tag.commit.commiter['date'])
     print("Commits: %d" % len(release.commits))
 
