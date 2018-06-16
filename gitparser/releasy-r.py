@@ -1,13 +1,14 @@
 
 import gitparser
-from issue_download import load_issues
+from issue_download import load_local_issues
 
-issues = load_issues('https://api.github.com/repos/gems-uff/sapos/issues')
+# issues = load_issues('https://api.github.com/repos/gems-uff/sapos/issues')
+issues = load_local_issues('sapos.issues.json')
 history_builder = gitparser.HistoryBuilder(issues)
 history = history_builder.build()
 
 release_name = '4.4.15'
-release_name = '1.6.6'
+# release_name = '1.6.6'
 
 release = None
 for rls in history.release:
@@ -30,4 +31,7 @@ else:
 
     print("\n\nIssues:")
     for issue in release.issues:
-        print("  - [%s] %d: %s" % (issue.main_label, issue.id, issue.subject))
+        if issue.main_label:
+            print("  - [%s] %d: %s" % (issue.main_label, issue.id, issue.subject))
+        else:
+            print("  - %d: %s" % (issue.id, issue.subject))

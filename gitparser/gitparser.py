@@ -20,14 +20,17 @@ GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1f%x1e'
 
 # Data structures
 class Issue():
-    def __init__(self, id, subject, labels = list()):
+    def __init__(self, id, subject):
         self.id = id
         self.subject = subject
-        self.labels = labels
+        self.labels = list()
         self.main_label = None
-        if labels:
-            self.main_label = labels[0]
         self.commits = list()
+        self.author = None
+        self.created = None
+        self.closed = None
+        self.released = None
+        self.started = None
 
 class Tag():
     def __init__(self, name, commit):
@@ -81,15 +84,32 @@ class HistoryBuilder():
         self.tag = list()
         self.release = list()
         self.issue = dict()
+        self.reg_issues = list()
+        self.developers = list()
+        self.first_commit = None
+        self.last_commit = None
         if issues:
             for issue in issues:
-                self.issue[issue.number] = issue
+                self.issue[issue.id] = issue
+                for label in issue.labels:
+                    if re.search(r'^bug', label):
+                        issue.main_label = 'bug'
+                    if re.search(r'^feat', label):
+                        issue.main_label = 'feature'
 
     def add_commit(self, raw_data): # pylint: disable=E0202
         ''' Record a commit '''
         data = raw_data.split('\x1f')
 
         author = Contributor(data[5], data[7])
+
+        dev_found = False
+        for developer in self.developers:
+            if developer.name == author.name:
+                dev_found = True
+
+        if not dev_found:
+            self.developers.append(author)
 
         commit_data = {
             'hash': data[0],
@@ -99,6 +119,7 @@ class HistoryBuilder():
                 'name': data[6],
                 'date': dateutil.parser.parse(data[3])
             },
+            'time': dateutil.parser.parse(data[3]),
             'author': author,
             'tags': list(),
             'release': list(),
@@ -118,17 +139,27 @@ class HistoryBuilder():
         else:
             commit = Commit(**commit_data)
 
+        if not self.first_commit:
+            self.first_commit = commit
+        self.last_commit = commit
+
         self.commit[commit.hash] = commit
 
         issue_match = re.search(r'#([0-9]+)', commit.subject)
         issue = None
         if issue_match:
             issue_id = int(issue_match.group(1))
-            if self.issue[issue_id]:
+            if issue_id in self.issue:
                 issue = self.issue[issue_id]
             else:
-                issue = Issue(issue_id, "", [])
-                
+                issue = Issue(issue_id, "")
+                self.issue[issue_id] = issue
+            if issue_id not in self.reg_issues:
+                self.reg_issues.append(issue_id)
+
+            if not issue.started or issue.started > commit.time:
+                issue.started = commit.time
+            
             issue.commits.append(commit)
             if issue not in commit.issues:
                 commit.issues.append(issue)
@@ -175,44 +206,20 @@ class HistoryBuilder():
             for raw_data in iter(log.stdout.readline, b''):
                 self.add_commit(raw_data.decode('utf-8'))
 
-        history = History(self.commit, self.branch, self.tag, self.release)
+        history = History(self.commit, self.branch, self.tag, self.release, list(self.issue.values()), self.developers)
         return history
 
 class History():
     ''' Store the commit and tag history '''
 
-    def __init__(self, commits, branch, tag, release):
+    def __init__(self, commits, branch, tag, release, issues, developers):
         self.branch = branch
         self.tag = tag
         self.release = release
         self.commits = commits
-
-# TODO transform into a interactive function
-def move_back_until_release(commit, release):
-    release.commits.append(commit)
-    if not commit.issues:
-        release.direct_commits.append(commit)
-
-    found = False
-    for author in release.authors:
-        if author.email == commit.author.email:
-            found = True
-    if not found:
-        release.authors.append(commit.author)
-
-    commiter = commit.commiter['name']
-    if commiter not in release.commiters:
-        release.commiters.append(commiter)
-
-    for issue in commit.issues:
-        if issue not in release.issues:
-            release.issues.append(issue)
-
-    for parent in commit.parent:
-        if not parent.tags and parent not in release.commits:
-            move_back_until_release(parent, release)
-        else:
-            release.previous.append
+        self.issues = issues
+        self.developers = developers
+        self.first_commit = None
 
 def find_previous_releases(commit, release):
     commit_stack = [commit]
@@ -243,6 +250,8 @@ def find_previous_releases(commit, release):
         for issue in cur_commit.issues:
             if issue not in release.issues:
                 release.issues.append(issue)
+                if not issue.released or issue.released > release.tag.commit.time:
+                    issue.released = release.tag.commit.time
 
         # Navigate to parent commits
         for parent_commit in cur_commit.parent:

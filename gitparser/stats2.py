@@ -14,7 +14,7 @@ major_version = None
 release_duration = list()
 xticks = list()
 for release in history.release:
-    release_count.append(len(release.features))
+    release_count.append(len(release.issues))
     release_number.append(release.tag.name)
     duration = 0
     if release_duration:
