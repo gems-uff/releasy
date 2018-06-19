@@ -7,7 +7,7 @@ issues = load_local_issues('sapos.issues.json')
 history_builder = gitparser.HistoryBuilder(issues)
 history = history_builder.build()
 
-release_name = '4.4.15'
+release_name = '4.4.14'
 # release_name = '1.6.6'
 
 release = None
