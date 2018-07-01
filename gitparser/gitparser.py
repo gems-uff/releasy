@@ -73,6 +73,7 @@ class Contributor(object):
     def __init__(self, name, email):
         self.name = name
         self.email = email
+        self.first_commit = None
     
 # History builder - where the magic starts
 class HistoryBuilder():
@@ -126,6 +127,7 @@ class HistoryBuilder():
             'issues': list()
         }
 
+
         for parent_hash in data[1].split():
             if parent_hash in self.commit:
                 parent = self.commit[parent_hash]
@@ -138,6 +140,9 @@ class HistoryBuilder():
             commit = Merge(**commit_data)
         else:
             commit = Commit(**commit_data)
+        
+        if not author.first_commit:
+            author.first_commit = commit 
 
         if not self.first_commit:
             self.first_commit = commit
