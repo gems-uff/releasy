@@ -24,6 +24,8 @@ def load_issues(url):
                     issue.labels.append(label["name"])
                 issues.append(issue)
             page += 1
+            if page > 40: # todo: handle github limits
+                has_next = False
         else:
             has_next = False
 
@@ -61,3 +63,4 @@ def load_local_issues(file):
     return issues
 
 # save_issues('https://api.github.com/repos/gems-uff/sapos/issues', 'sapos.issues.json')
+# save_issues('https://api.github.com/repos/Homebrew/brew/issues', 'brew.issues.json')

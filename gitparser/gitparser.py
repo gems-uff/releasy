@@ -204,6 +204,7 @@ class HistoryBuilder():
         else:
             working_dir = '.'
 
+        # print('git log --reverse --all --format="%s"' % GIT_FORMAT)
         log = subprocess.Popen('git log --reverse --all --format="%s"' % GIT_FORMAT,
                                cwd=working_dir ,stdout=subprocess.PIPE, bufsize=1)
 
@@ -233,7 +234,13 @@ def find_previous_releases(commit, release):
         cur_commit = commit_stack.pop()
 
         cur_commit.release.append(release)
-        release.commits.append(cur_commit)
+
+        commit_found = False
+        for r_commit in release.commits:
+            if r_commit.hash == cur_commit.hash:
+                commit_found = True
+        if not commit_found:
+            release.commits.append(cur_commit)
 
         # This commit does not implement a feature
         if not cur_commit.issues:
