@@ -28,5 +28,5 @@ $ releasy 1.0.0
 
 Show commits of the release 1.0.0
 ```
-$ releasy 1.0.0
+$ releasy 1.0.0 show commit
 ```
