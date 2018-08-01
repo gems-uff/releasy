@@ -26,7 +26,12 @@ Show information about the release 1.0.0
 $ releasy 1.0.0
 ```
 
-Show commits of the release 1.0.0
+List the commits of the release 1.0.0
 ```
-$ releasy 1.0.0 show commit
+$ releasy 1.0.0 ls commit
+```
+
+List the issues of the release 1.0.0
+```
+$ releasy 1.0.0 ls issue
 ```
