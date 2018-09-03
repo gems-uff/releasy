@@ -18,4 +18,3 @@ List commits of the release 1.0.0
 ```
 $ releasy 1.0.0 ls commit
 ```
-
