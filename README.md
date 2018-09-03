@@ -1,5 +1,3 @@
-*Disclaimer: The following README is under construction and show desire outputs, some not yet implemented*
-
 Releasy
 =======
 
@@ -11,22 +9,13 @@ Usage
 -----
 
 ```
-$ releasy [release-name] [option]
+$ releasy [release-name] <command> [options]
 ```
 
 ### E.g.:
 
-Show information about the actual release
-``` 
-$ releasy
+List commits of the release 1.0.0
+```
+$ releasy 1.0.0 ls commit
 ```
 
-Show information about the release 1.0.0
-``` 
-$ releasy 1.0.0
-```
-
-Show commits of the release 1.0.0
-```
-$ releasy 1.0.0 show commit
-```
