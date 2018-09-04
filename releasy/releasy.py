@@ -2,7 +2,6 @@ import argparse
 import sys
 
 import cli
-#from cli.ls import Ls
 
 class Releasy(object):
     def __init__(self):
