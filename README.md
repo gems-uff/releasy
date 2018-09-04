@@ -6,13 +6,13 @@ by parsing the software version control and issue tracking
 systems.
 
 Usage
------
+=====
 
 ```
 $ releasy [release-name] <command> [options]
 ```
 
-### E.g.:
+## E.g.:
 
 List commits of the release 1.0.0
 ```

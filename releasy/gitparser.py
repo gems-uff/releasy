@@ -199,10 +199,7 @@ class HistoryBuilder():
         ''' Build the whole history '''
         # adapted from [1]
         # [1]: https://stackoverflow.com/questions/2715847/python-read-streaming-input-from-subprocess-communicate/17698359#17698359
-        if len(sys.argv) > 1:
-            working_dir = str(sys.argv[1])
-        else:
-            working_dir = '.'
+        working_dir = '.'
 
         # print('git log --reverse --all --format="%s"' % GIT_FORMAT)
         log = subprocess.Popen('git log --reverse --all --format="%s"' % GIT_FORMAT,

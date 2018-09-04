@@ -3,10 +3,10 @@ import argparse
 from cli.cli import Cli
 
 class Ls(Cli):
-    def __init__(self, argv):
+    def __init__(self):
         parser = argparse.ArgumentParser(description='list release data')
         parser.add_argument('command', help='subcommand to run')
-        super().__init__(argv, parser)
+        super().__init__(parser)
 
     def run(self):
         commands = {

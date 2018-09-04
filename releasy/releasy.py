@@ -15,11 +15,12 @@ class Releasy(object):
 
         args = parser.parse_args(sys.argv[1:3])
         commands = {
-            'ls': lambda: cli.ls.Ls(sys.argv[3:]),
-            'show': lambda: cli.show.Show(sys.argv[3:])
+            'ls': lambda: cli.ls.Ls(),
+            'show': lambda: cli.show.Show()
         }
         command = commands.get(args.command, lambda: print("Invalid command"))()
-        command.parse()
+        command.parse(sys.argv[3:])
+        command.release = args.release
         command.run()
 
 if __name__ == '__main__':
