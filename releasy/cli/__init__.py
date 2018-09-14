@@ -1,2 +1,2 @@
-import cli.ls
-import cli.show
+import releasy.cli.ls
+import releasy.cli.show

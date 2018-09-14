@@ -1,6 +1,6 @@
 import argparse
 
-from cli.cli import Cli
+from releasy.cli.cli import Cli
 
 class Ls(Cli):
     def __init__(self):

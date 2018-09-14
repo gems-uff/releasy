@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-import cli
+import releasy.cli
 
 class Releasy(object):
     def __init__(self):
@@ -14,8 +14,8 @@ class Releasy(object):
 
         args = parser.parse_args(sys.argv[1:3])
         commands = {
-            'ls': lambda: cli.ls.Ls(),
-            'show': lambda: cli.show.Show()
+            'ls': lambda: releasy.cli.ls.Ls(),
+            'show': lambda: releasy.cli.show.Show()
         }
         command = commands.get(args.command, lambda: print("Invalid command"))()
         command.parse(sys.argv[3:])

@@ -1,7 +1,7 @@
 import argparse
 
-import gitparser
-from cli.cli import Cli
+import releasy.gitparser
+from releasy.cli.cli import Cli
 
 class Show(Cli):
     def __init__(self):
@@ -9,7 +9,7 @@ class Show(Cli):
         super().__init__(parser)
 
     def run(self):
-        history_builder = gitparser.HistoryBuilder(None)
+        history_builder = releasy.gitparser.HistoryBuilder(None)
         history = history_builder.build()
 
         release = None
