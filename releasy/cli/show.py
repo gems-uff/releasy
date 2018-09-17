@@ -1,5 +1,6 @@
 import argparse
 
+import releasy.download
 import releasy.gitparser
 from releasy.cli.cli import Cli
 
@@ -9,7 +10,8 @@ class Show(Cli):
         super().__init__(parser)
 
     def run(self):
-        history_builder = releasy.gitparser.HistoryBuilder(None)
+        issues = releasy.download.load_local_issues()
+        history_builder = releasy.gitparser.HistoryBuilder(issues)
         history = history_builder.build()
 
         release = None

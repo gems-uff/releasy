@@ -10,3 +10,6 @@ class Cli(object):
 
     def run(self):
         pass
+
+    def getArgs(self):
+        return self.args

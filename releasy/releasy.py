@@ -15,8 +15,12 @@ class Releasy(object):
         args = parser.parse_args(sys.argv[1:3])
         commands = {
             'ls': lambda: releasy.cli.ls.Ls(),
-            'show': lambda: releasy.cli.show.Show()
+            'show': lambda: releasy.cli.show.Show(),
+            'overview': lambda: releasy.cli.overview.Overview(),
+            'prov': lambda: releasy.cli.prov.Prov(),
+            'download': lambda: releasy.cli.download.Download()
         }
+
         command = commands.get(args.command, lambda: print("Invalid command"))()
         command.parse(sys.argv[3:])
         command.release = args.release

@@ -1,10 +1,11 @@
 import requests
 import json
 import dateutil.parser
-from gitparser import Issue
+from releasy.gitparser import Issue
 
 def load_issues(url):
     issues = list()
+    print(url)
     url += '?state=all'
 
     has_next = True
@@ -31,8 +32,7 @@ def load_issues(url):
 
     return issues
 
-
-def save_issues(url, file):
+def save_issues(url, file='issues.json'):
     issues = load_issues(url)
     issues_json = list()
     for issue in issues:
@@ -41,7 +41,7 @@ def save_issues(url, file):
     with open(file, "w") as issues_json_file:
         issues_json_file.write(json.dumps(issues_json, indent=2))
 
-def load_local_issues(file):
+def load_local_issues(file='issues.json'):
 
     data = None
     with open(file) as issues_json_file:

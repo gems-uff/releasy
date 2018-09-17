@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='releasy2',
+    name='releasy-uff',
     version='1.0.1',
     author="Felipe Curty",
     author_email="felipecrp@gmail.com",
@@ -15,5 +15,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'python-dateutil',
+        'requests'
     ]
 )
