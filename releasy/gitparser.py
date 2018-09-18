@@ -203,7 +203,7 @@ class HistoryBuilder():
 
         # print('git log --reverse --all --format="%s"' % GIT_FORMAT)
         log = subprocess.Popen('git log --reverse --all --format="%s"' % GIT_FORMAT,
-                               cwd=working_dir ,stdout=subprocess.PIPE, bufsize=1)
+                               cwd=working_dir ,stdout=subprocess.PIPE, bufsize=1, shell=True)
 
         with log.stdout:
             for raw_data in iter(log.stdout.readline, b''):
