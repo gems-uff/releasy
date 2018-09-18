@@ -42,10 +42,15 @@ def release_prov(release):
         print("  wasAssociatedWith(%s-%s,%s,-)" % ("develop", author.email, author.email))
 
     for issue in release.issues:
-        print("  entity(%d, [Timestamp=%s])" % (issue.id, issue.closed.strftime('%Y-%m-%dT%H:%M:%S')))
+        if issue.closed:
+            print("  entity(%d, [Timestamp=%s])" % (issue.id, issue.closed.strftime('%Y-%m-%dT%H:%M:%S')))
+            print("  activity(%s-%d, [Label=%s, Timestamp=%s])" % ("implement", issue.id, "implement", issue.closed.strftime('%Y-%m-%dT%H:%M:%S')))
+        else:
+            print("  entity(%d)" % (issue.id))
+            print("  activity(%s-%d, [Label=%s])" % ("implement", issue.id, "implement"))
+
         print("  used(%s-%s,%d,-)" % ('implement', release.name, issue.id))
 
-        print("  activity(%s-%d, [Label=%s, Timestamp=%s])" % ("implement", issue.id, "implement", issue.closed.strftime('%Y-%m-%dT%H:%M:%S')))
         print("  wasGeneratedBy(%d,%s-%d,-)" % (issue.id, "implement", issue.id))
 
         for commit in issue.commits:

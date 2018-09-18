@@ -5,7 +5,6 @@ from releasy.gitparser import Issue
 
 def load_issues(url):
     issues = list()
-    print(url)
     url += '?state=all'
 
     has_next = True
@@ -44,8 +43,11 @@ def save_issues(url, file='issues.json'):
 def load_local_issues(file='issues.json'):
 
     data = None
-    with open(file) as issues_json_file:
-        data = json.load(issues_json_file)
+    try:
+        with open(file) as issues_json_file:
+            data = json.load(issues_json_file)
+    except:
+        return None
 
     issues = list()
 
