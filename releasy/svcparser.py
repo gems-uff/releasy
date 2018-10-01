@@ -4,12 +4,13 @@ import re
 import collections
 
 from releasy.entity import Commit
+from releasy.entity import Tag
 from releasy.entity import Developer
+from releasy.entity import Release
 
 class SvcParser():
     def __init__(self, project):
         self.project = project
-        self.tag = {}
 
     def get_developer(self, email, name):
         if email not in self.project.developer.keys():
@@ -20,6 +21,16 @@ class SvcParser():
         if hash not in self.project.release['ALL'].commit.keys():
             self.project.release['ALL'].commit[hash] = Commit(hash)
         return self.project.release['ALL'].commit[hash]
+
+    def get_tag(self, ref):
+        if ref not in self.project.tag.keys():
+            self.project.tag[ref] = Tag(ref)
+        return self.project.tag[ref]
+
+    def get_release(self, tag):
+        if tag.ref not in self.project.release.keys():
+            self.project.release[tag.ref] = Release(tag)
+        return self.project.release[tag.ref]
 
     def add_commit(self, commit, release=None):
         self.project.release['ALL'].commit[commit.hash] = commit
@@ -54,6 +65,8 @@ class GitParser(SvcParser):
                 data = raw_data.decode('utf-8').split('\x1f')
                 self.parse_commit(data)
 
+        self.parse_releases()
+
     def parse_commit(self, data):
         commiter = self.get_developer(data[4], data[5])
         commit_time = dateutil.parser.parse(data[6])
@@ -81,7 +94,36 @@ class GitParser(SvcParser):
                 ref = ref.strip()
                 if ref.startswith('tag'):
                     ref = ref.replace('tag: ', '')
-                    self.tag[ref] = commit
+                    tag = self.get_tag(ref)
+                    tag.commit = commit
+                    commit.tag.append(tag)
+
+                    # todo if tag is release
+                    if True:
+                        self.get_release(tag) #todo rename to build release
 
         self.add_commit(commit)
 
+    def parse_releases(self):
+        for ref,release in self.project.release.items():
+            if isinstance(release, Release):
+                add_commit_to_release(release.tag.commit, release)
+
+def add_commit_to_release(commit, release):
+    commit_stack = [commit]
+
+    while commit_stack:
+        cur_commit = commit_stack.pop()
+
+        release.get_commit()[cur_commit.hash] = cur_commit
+        cur_commit.release.append(release)
+
+        # add developers to release
+        # add issues to release
+
+        # Navigate to parent commits
+        for parent_commit in cur_commit.parent:
+            if not parent_commit.release: # and parent_commit not in release.commits:
+                commit_stack.append(parent_commit)
+
+            # add base release
