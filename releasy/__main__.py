@@ -1,5 +1,42 @@
-from releasy import releasy
+import argparse
+import sys
+
+from releasy.cli.ls import Ls
+from releasy.cli.show import Show
+from releasy.cli.overview import Overview
+from releasy.cli.prov import Prov
+from releasy.cli.download import Download
+
+from releasy.svcparser import GitParser
+from releasy.entity import Project
+
+class Releasy(object):
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            description='Retrieve information from software releases'
+        )
+
+        parser.add_argument('release', help='release number')
+        parser.add_argument('command', help='subcommand to run')
+
+        args = parser.parse_args(sys.argv[1:3])
+        commands = {
+            'ls': lambda: Ls(),
+            'show': lambda: Show(),
+            'overview': lambda: Overview(),
+            'prov': lambda: Prov(),
+            'download': lambda: Download()
+        }
+
+        project = Project()
+        svcparser = GitParser(project)
+        svcparser.parse()
+
+#        command = commands.get(args.command, lambda: print("Invalid command"))()
+#        command.parse(sys.argv[3:])
+#        command.release = args.release
+#        command.run()
+
 
 if __name__ == '__main__':
-    releasy.Releasy()
-
+    Releasy()
