@@ -3,6 +3,7 @@ import argparse
 class Cli(object):
     '''Command Line Interface superclass'''
     def __init__(self, parser):
+        self.release = None
         self.parser = parser
 
     def parse(self, argv):

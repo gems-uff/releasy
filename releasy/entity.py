@@ -8,8 +8,8 @@ class Developer(object):
         return "%s <%s>" % (self.name, self.email)
 
 class Tag(object):
-    def __init__(self, ref, commit=None):
-        self.ref = ref
+    def __init__(self, name, commit=None):
+        self.name = name
         self.commit = commit
 
 class Commit(object):
@@ -23,19 +23,36 @@ class Commit(object):
         self.development_time = development_time
         self.tag = []
         self.release = []
+        self.issue = []
 
     def __str__(self):
         return self.hash
 
+class Issue():
+    def __init__(self, id, subject=None):
+        self.id = id
+        self.subject = subject
+        # --- #
+        self.labels = list()
+        self.main_label = None
+        self.commits = list()
+        self.author = None
+        self.created = None
+        self.closed = None
+        self.released = None
+        self.started = None
+
 class CommitGroup(object):
     def __init__(self):
         self.commit = {}
+        self.issue = {}
 
     def get_commit(self):
         return self.commit
 
 class Release(CommitGroup):
     def __init__(self, tag):
+        super().__init__()
         self.tag = tag
 #        self.name = tag.name
 #        self.commits = list()

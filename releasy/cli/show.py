@@ -10,34 +10,20 @@ class Show(Cli):
         super().__init__(parser)
 
     def run(self):
-        issues = releasy.download.load_local_issues()
-        history_builder = releasy.gitparser.HistoryBuilder(issues)
-        history = history_builder.build()
+        print("Information about release %s" % self.release.tag.name)
+        # print("Based on: %s" % ' '.join(rls.name for rls in self.release.previous))
+        print("Date: %s" % self.release.tag.commit.commit_time)
+        print("Commits: %d" % len(self.release.commit))
 
-        release = None
-        for rls in history.release:
-            if rls.tag.name == self.release:
-                release = rls
-                break
+        print("\n\nDevelopers:")
+        #for developer in self.release.developers:
+        #    print("  - %s <%s>" % (developer.name, developer.email))
 
-        if not release:
-            print("Release %s not found" % self.release)
-
-        else:
-            print("Information about release %s" % release.tag.name)
-            print("Based on: %s" % ' '.join(rls.name for rls in release.previous))
-            print("Date: %s" % release.tag.commit.commiter['date'])
-            print("Commits: %d" % len(release.commits))
-
-            print("\n\nAuthors:")
-            for author in release.authors:
-                print("  - %s <%s>" % (author.name, author.email))
-
-            print("\n\nIssues:")
-            for issue in release.issues:
-                if issue.main_label:
-                    print("  - %d: [%s] %s" % (issue.id, issue.main_label, issue.subject))
-                else:
-                    print("  - %d: %s" % (issue.id, issue.subject))
+        print("\n\nIssues:")
+        for issue in self.release.issue.values():
+            #if issue.main_label:
+            #    print("  - %d: [%s] %s" % (issue.id, issue.main_label, issue.subject))
+            #else:
+            print("  - %d: %s" % (issue.id, issue.subject))
 
 

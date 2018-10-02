@@ -28,15 +28,22 @@ class Releasy(object):
             'download': lambda: Download()
         }
 
+        command = commands.get(args.command, lambda: print("Invalid command"))()
+        command.parse(sys.argv[3:])
+
         project = Project()
         svcparser = GitParser(project)
         svcparser.parse()
 
-#        command = commands.get(args.command, lambda: print("Invalid command"))()
-#        command.parse(sys.argv[3:])
-#        command.release = args.release
-#        command.run()
+        release_name = args.release
+        release = None
+        if release_name == 'ALL':
+            release = project.release['ALL']
+        elif release_name in project.release.keys():
+            release = project.release[release_name]
 
+        command.release = release
+        command.run()
 
 if __name__ == '__main__':
     Releasy()

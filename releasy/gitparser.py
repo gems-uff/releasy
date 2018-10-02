@@ -20,7 +20,7 @@ GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1f%x1e'
 
 # Data structures
 class Issue():
-    def __init__(self, id, subject):
+    def __init__(self, id, subject=None):
         self.id = id
         self.subject = subject
         self.labels = list()

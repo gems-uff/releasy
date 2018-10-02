@@ -5,6 +5,7 @@ import collections
 
 from releasy.entity import Commit
 from releasy.entity import Tag
+from releasy.entity import Issue
 from releasy.entity import Developer
 from releasy.entity import Release
 
@@ -27,10 +28,15 @@ class SvcParser():
             self.project.tag[ref] = Tag(ref)
         return self.project.tag[ref]
 
+    def get_issue(self, issue_id):
+        if issue_id not in self.project.release['ALL'].issue.keys():
+            self.project.release['ALL'].issue[issue_id] = Issue(issue_id)
+        return self.project.release['ALL'].issue[issue_id]
+
     def get_release(self, tag):
-        if tag.ref not in self.project.release.keys():
-            self.project.release[tag.ref] = Release(tag)
-        return self.project.release[tag.ref]
+        if tag.name not in self.project.release.keys():
+            self.project.release[tag.name] = Release(tag)
+        return self.project.release[tag.name]
 
     def add_commit(self, commit, release=None):
         self.project.release['ALL'].commit[commit.hash] = commit
@@ -68,10 +74,8 @@ class GitParser(SvcParser):
         self.parse_releases()
 
     def parse_commit(self, data):
-        commiter = self.get_developer(data[4], data[5])
-        commit_time = dateutil.parser.parse(data[6])
-        developer = self.get_developer(data[7], data[8])
-        development_time = dateutil.parser.parse(data[9])
+        commit = self.get_commit(data[0])
+        commit.subject = data[2]
 
         parents = []
         for parent_hash in data[1].split():
@@ -79,15 +83,14 @@ class GitParser(SvcParser):
             if not parent:
                 print("missing parent %s" % parent_hash)
             parents.append(parent)
-
-        commit = self.get_commit(data[0])
-        commit.subject = data[2]
         commit.parent = parents
-        commit.commiter = commiter
-        commit.commit_time = commit_time
-        commit.developer = developer
-        commit.development_time = development_time
 
+        commit.commiter = self.get_developer(data[4], data[5])
+        commit.commit_time = dateutil.parser.parse(data[6])
+        commit.developer = self.get_developer(data[7], data[8])
+        commit.development_time = dateutil.parser.parse(data[9])
+
+        # tags
         if data[3]:
             refs = str(data[3]).split(',')
             for ref in refs:
@@ -100,14 +103,25 @@ class GitParser(SvcParser):
 
                     # todo if tag is release
                     if True:
-                        self.get_release(tag) #todo rename to build release
+                        release = self.get_release(tag) #todo rename to build release
+                        commit.release.append(release)
 
         self.add_commit(commit)
+
+        # issues
+        issue_match = re.search(r'#([0-9]+)', commit.subject)
+        issue = None
+        if issue_match:
+            issue_id = int(issue_match.group(1))
+            issue = self.get_issue(issue_id)
+            if issue not in commit.issue:
+                commit.issue.append(issue)
 
     def parse_releases(self):
         for ref,release in self.project.release.items():
             if isinstance(release, Release):
                 add_commit_to_release(release.tag.commit, release)
+
 
 def add_commit_to_release(commit, release):
     commit_stack = [commit]
@@ -116,12 +130,17 @@ def add_commit_to_release(commit, release):
         cur_commit = commit_stack.pop()
 
         release.get_commit()[cur_commit.hash] = cur_commit
-        cur_commit.release.append(release)
+        if release not in cur_commit.release:
+            cur_commit.release.append(release)
 
         # add developers to release
         # add issues to release
+        if commit.issue:
+            for issue in commit.issue:
+                release.issue[issue.id] = issue
 
         # Navigate to parent commits
+        #todo releases that point to same commit
         for parent_commit in cur_commit.parent:
             if not parent_commit.release: # and parent_commit not in release.commits:
                 commit_stack.append(parent_commit)
