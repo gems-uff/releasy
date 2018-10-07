@@ -12,6 +12,9 @@ class Tag(object):
         self.name = name
         self.commit = commit
 
+    def __str__(self):
+        return "%s" % self.name
+
 class Commit(object):
     def __init__(self, hash, subject=None, parent=None, commiter=None, developer=None, commit_time=None, development_time=None):
         self.hash = hash
@@ -42,6 +45,9 @@ class Issue():
         self.released = None
         self.started = None
 
+    def __str__(self):
+        return "%i" % self.id
+
 class CommitGroup(object):
     def __init__(self):
         self.commit = {}
@@ -62,6 +68,9 @@ class Release(CommitGroup):
 #        self.commiters = list()
 #        self.direct_commits = list()
 #        self.previous = list()
+
+    def __str__(self):
+        return "%s" % self.tag.name
 
 class Project(object):
     def __init__(self):

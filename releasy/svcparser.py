@@ -105,6 +105,7 @@ class GitParser(SvcParser):
                     if True:
                         release = self.get_release(tag) #todo rename to build release
                         commit.release.append(release)
+                        release.commit[commit.hash] = commit
 
         self.add_commit(commit)
 
@@ -124,6 +125,7 @@ class GitParser(SvcParser):
 
 
 def add_commit_to_release(commit, release):
+    print("%10s - %s" % (commit, release))
     commit_stack = [commit]
 
     while commit_stack:
@@ -135,8 +137,8 @@ def add_commit_to_release(commit, release):
 
         # add developers to release
         # add issues to release
-        if commit.issue:
-            for issue in commit.issue:
+        if cur_commit.issue:
+            for issue in cur_commit.issue:
                 release.issue[issue.id] = issue
 
         # Navigate to parent commits
@@ -144,5 +146,7 @@ def add_commit_to_release(commit, release):
         for parent_commit in cur_commit.parent:
             if not parent_commit.release: # and parent_commit not in release.commits:
                 commit_stack.append(parent_commit)
+            else:
+                print("end")
 
             # add base release
