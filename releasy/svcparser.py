@@ -12,34 +12,33 @@ from releasy.entity import Release
 class SvcParser():
     def __init__(self, project):
         self.project = project
+        self.commit = {}
+        self.developer = {}
+        self.issue = {}
+        self.tag = {}
 
     def get_developer(self, email, name):
-        if email not in self.project.developer.keys():
-            self.project.developer[email] = Developer(email, name)
-        return self.project.developer.get(email)
+        if email not in self.developer.keys():
+            self.developer[email] = Developer(email, name)
+        return self.developer.get(email)
 
     def get_commit(self, hash):
-        if hash not in self.project.release['ALL'].commit.keys():
-            self.project.release['ALL'].commit[hash] = Commit(hash)
-        return self.project.release['ALL'].commit[hash]
+        if hash not in self.commit.keys():
+            self.commit[hash] = Commit(hash)
+        return self.commit[hash]
 
     def get_tag(self, ref):
-        if ref not in self.project.tag.keys():
-            self.project.tag[ref] = Tag(ref)
-        return self.project.tag[ref]
+        if ref not in self.tag.keys():
+            self.tag[ref] = Tag(ref)
+        return self.tag[ref]
 
     def get_issue(self, issue_id):
-        if issue_id not in self.project.release['ALL'].issue.keys():
-            self.project.release['ALL'].issue[issue_id] = Issue(issue_id)
-        return self.project.release['ALL'].issue[issue_id]
-
-    def get_release(self, tag):
-        if tag.name not in self.project.release.keys():
-            self.project.release[tag.name] = Release(tag)
-        return self.project.release[tag.name]
+        if issue_id not in self.issue.keys():
+            self.issue[issue_id] = Issue(issue_id)
+        return self.issue[issue_id]
 
     def add_commit(self, commit, release=None):
-        self.project.release['ALL'].commit[commit.hash] = commit
+        self.commit[commit.hash] = commit
 
 class GitParser(SvcParser):
     GIT_LOG_FORMAT = collections.OrderedDict([
@@ -62,7 +61,7 @@ class GitParser(SvcParser):
         super().__init__(project)
 
     def parse(self):
-        print('git log --all --format="%s"' % GitParser.GIT_FORMAT)
+        # print('git log --all --format="%s"' % GitParser.GIT_FORMAT)
         log = subprocess.Popen('git log --all --format="%s"' % GitParser.GIT_FORMAT,
                                stdout=subprocess.PIPE, bufsize=1, shell=True)
 
@@ -103,9 +102,10 @@ class GitParser(SvcParser):
 
                     # todo if tag is release
                     if True:
-                        release = self.get_release(tag) #todo rename to build release
+                        release = Release(tag)
+                        self.project.add_release(release) #todo rename to build release
                         commit.release.append(release)
-                        release.commit[commit.hash] = commit
+                        release.add_commit(commit)
 
         self.add_commit(commit)
 
@@ -115,38 +115,28 @@ class GitParser(SvcParser):
         if issue_match:
             issue_id = int(issue_match.group(1))
             issue = self.get_issue(issue_id)
-            if issue not in commit.issue:
-                commit.issue.append(issue)
+            if issue not in commit.issues:
+                commit.issues.append(issue)
 
     def parse_releases(self):
-        for ref,release in self.project.release.items():
-            if isinstance(release, Release):
-                add_commit_to_release(release.tag.commit, release)
+        for release in self.project.releases:
+            self.add_commit_to_release(release.tag.commit, release)
 
+    def add_commit_to_release(self, commit, release):
+        commit_stack = [commit]
 
-def add_commit_to_release(commit, release):
-    print("%10s - %s" % (commit, release))
-    commit_stack = [commit]
+        while commit_stack:
+            cur_commit = commit_stack.pop()
+            release.add_commit(cur_commit)
 
-    while commit_stack:
-        cur_commit = commit_stack.pop()
+            if release not in cur_commit.release:
+                cur_commit.release.append(release)
 
-        release.get_commit()[cur_commit.hash] = cur_commit
-        if release not in cur_commit.release:
-            cur_commit.release.append(release)
-
-        # add developers to release
-        # add issues to release
-        if cur_commit.issue:
-            for issue in cur_commit.issue:
-                release.issue[issue.id] = issue
-
-        # Navigate to parent commits
-        #todo releases that point to same commit
-        for parent_commit in cur_commit.parent:
-            if not parent_commit.release: # and parent_commit not in release.commits:
-                commit_stack.append(parent_commit)
-            else:
-                print("end")
-
-            # add base release
+            # Navigate to parent commits
+            #todo releases that point to same commit
+            for parent_commit in cur_commit.parent:
+                if not parent_commit.release: # and parent_commit not in release.commits:
+                    commit_stack.append(parent_commit)
+                else:
+                    for rls in parent_commit.release:
+                        release.add_base_release(rls)

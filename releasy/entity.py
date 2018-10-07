@@ -16,17 +16,19 @@ class Tag(object):
         return "%s" % self.name
 
 class Commit(object):
-    def __init__(self, hash, subject=None, parent=None, commiter=None, developer=None, commit_time=None, development_time=None):
+    def __init__(self, hash, subject=None, parent=None, commiter=None,
+                 developer=None, commit_time=None, development_time=None):
         self.hash = hash
         self.subject = subject
         self.parent = parent
-        self.developer = developer
         self.commiter = commiter
         self.commit_time = commit_time
+        self.developer = developer
         self.development_time = development_time
+        self.issues = []
+        #---#
         self.tag = []
         self.release = []
-        self.issue = []
 
     def __str__(self):
         return self.hash
@@ -34,7 +36,7 @@ class Commit(object):
 class Issue():
     def __init__(self, id, subject=None):
         self.id = id
-        self.subject = subject
+        self.__subject = subject
         # --- #
         self.labels = list()
         self.main_label = None
@@ -45,35 +47,77 @@ class Issue():
         self.released = None
         self.started = None
 
+    @property
+    def subject(self):
+        if self.__subject:
+            return self.__subject
+        else:
+            return ""
+
     def __str__(self):
         return "%i" % self.id
 
-class CommitGroup(object):
-    def __init__(self):
-        self.commit = {}
-        self.issue = {}
 
-    def get_commit(self):
-        return self.commit
-
-class Release(CommitGroup):
+class Release:
     def __init__(self, tag):
         super().__init__()
         self.tag = tag
-#        self.name = tag.name
-#        self.commits = list()
-#        self.issues = list()
-#        self.duration = 0
-#        self.authors = list()
-#        self.commiters = list()
-#        self.direct_commits = list()
-#        self.previous = list()
+        self.__commits = {}
+        self.__base_releases = []
+
+    @property
+    def name(self):
+        return self.tag.name
+
+    @property
+    def commits(self):
+        ''' return all commits of the release '''
+        return self.__commits.values()
+
+    def add_commit(self, commit):
+        if commit.hash not in self.__commits.keys():
+            self.__commits[commit.hash] = commit
+
+    @property
+    def developers(self):
+        ''' return all developers of the release '''
+        developers = {}
+        for commit in self.__commits.values():
+            developers[commit.developer.email] = commit.developer
+        return developers.values()
+
+    @property
+    def issues(self):
+        ''' return all issues of the release '''
+        issues = {}
+        for commit in self.__commits.values():
+            for issue in commit.issues:
+                issues[issue.id] = issue
+        return issues.values()
+
+    @property
+    def base_releases(self):
+        return self.__base_releases
+
+    def add_base_release(self, release):
+        self.__base_releases.append(release)
 
     def __str__(self):
         return "%s" % self.tag.name
 
 class Project(object):
     def __init__(self):
-        self.release = {'ALL': CommitGroup()}
-        self.developer = {}
-        self.tag = {}
+        self.__releases = {}
+
+    @property
+    def releases(self):
+        return self.__releases.values()
+
+    def release(self, ref):
+        return self.__releases[ref]
+
+    def add_release(self, release):
+        self.__releases[release.tag.name] = release
+
+    def contains_release(self, ref):
+        return ref in self.__releases.keys()

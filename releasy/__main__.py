@@ -35,12 +35,10 @@ class Releasy(object):
         svcparser = GitParser(project)
         svcparser.parse()
 
-        release_name = args.release
+        release_ref = args.release
         release = None
-        if release_name == 'ALL':
-            release = project.release['ALL']
-        elif release_name in project.release.keys():
-            release = project.release[release_name]
+        if project.contains_release(release_ref):
+            release = project.release(release_ref)
 
         command.release = release
         command.run()
