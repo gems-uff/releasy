@@ -61,7 +61,6 @@ class GitParser(SvcParser):
         super().__init__(project)
 
     def parse(self):
-        # print('git log --all --format="%s"' % GitParser.GIT_FORMAT)
         log = subprocess.Popen('git log --all --format="%s"' % GitParser.GIT_FORMAT,
                                stdout=subprocess.PIPE, bufsize=1, shell=True)
 
@@ -98,14 +97,13 @@ class GitParser(SvcParser):
                     ref = ref.replace('tag: ', '')
                     tag = self.get_tag(ref)
                     tag.commit = commit
-                    commit.tag.append(tag)
 
                     # todo if tag is release
                     if True:
                         release = Release(tag)
                         self.project.add_release(release) #todo rename to build release
-                        commit.release.append(release)
                         release.add_commit(commit)
+                        commit.release.append(release)
 
         self.add_commit(commit)
 

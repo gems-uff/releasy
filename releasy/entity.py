@@ -26,8 +26,8 @@ class Commit(object):
         self.developer = developer
         self.development_time = development_time
         self.issues = []
-        #---#
-        self.tag = []
+
+        #todo remove:
         self.release = []
 
     def __str__(self):
@@ -37,7 +37,8 @@ class Issue():
     def __init__(self, id, subject=None):
         self.id = id
         self.__subject = subject
-        # --- #
+
+        #todo parse
         self.labels = list()
         self.main_label = None
         self.commits = list()
@@ -61,13 +62,21 @@ class Issue():
 class Release:
     def __init__(self, tag):
         super().__init__()
-        self.tag = tag
+        self.__tag = tag
         self.__commits = {}
         self.__base_releases = []
 
     @property
     def name(self):
-        return self.tag.name
+        return self.__tag.name
+
+    @property
+    def tag(self):
+        return self.__tag
+
+    @property
+    def time(self):
+        return self.tag.commit.commit_time
 
     @property
     def commits(self):
@@ -117,7 +126,7 @@ class Project(object):
         return self.__releases[ref]
 
     def add_release(self, release):
-        self.__releases[release.tag.name] = release
+        self.__releases[release.name] = release
 
     def contains_release(self, ref):
         return ref in self.__releases.keys()
