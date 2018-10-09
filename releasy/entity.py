@@ -11,6 +11,10 @@ class Tag(object):
     def __init__(self, name, commit=None):
         self.name = name
         self.commit = commit
+        self.release = None
+
+    def is_release(self):
+        return True
 
     def __str__(self):
         return "%s" % self.name
@@ -27,8 +31,19 @@ class Commit(object):
         self.development_time = development_time
         self.issues = []
 
+        self.__tags = []
         #todo remove:
         self.release = []
+
+    @property
+    def tags(self):
+        ''' Return the tags that point to this commit '''
+        return self.__tags
+
+    def add_tag(self, tag):
+        ''' Add a tag to this commit '''
+        if tag not in self.__tags:
+            self.__tags.append(tag)
 
     def __str__(self):
         return self.hash
@@ -109,7 +124,8 @@ class Release:
         return self.__base_releases
 
     def add_base_release(self, release):
-        self.__base_releases.append(release)
+        if release not in self.__base_releases:
+            self.__base_releases.append(release)
 
     def __str__(self):
         return "%s" % self.tag.name
