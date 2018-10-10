@@ -13,6 +13,10 @@ class Tag(object):
         self.commit = commit
         self.release = None
 
+    @property
+    def time(self):
+        return self.commit.commit_time
+
     def is_release(self):
         return True
 
@@ -84,6 +88,10 @@ class Release:
     @property
     def name(self):
         return self.__tag.name
+
+    @property
+    def time(self):
+        return self.__tag.time
 
     @property
     def tag(self):

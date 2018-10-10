@@ -119,7 +119,7 @@ class GitParser(SvcParser):
                 commit.issues.append(issue)
 
     def parse_releases(self):
-        for release in sorted(self.project.releases, key=lambda release: release.tag.name):
+        for release in sorted(self.project.releases, key=lambda release: release.time):
             self.add_commit_to_release(release.tag.commit, release)
 
     def add_commit_to_release(self, commit, release):
