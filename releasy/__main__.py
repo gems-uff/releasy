@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+from releasy.config import Config
 from releasy.cli.ls import Ls
 from releasy.cli.show import Show
 from releasy.cli.overview import Overview
@@ -31,9 +32,14 @@ class Releasy(object):
         command = commands.get(args.command, lambda: print("Invalid command"))()
         command.parse(sys.argv[3:])
 
+        config = Config()
+
         project = Project()
         svcparser = GitParser(project)
         svcparser.parse()
+
+        if "issue_tracker" in config.prop:
+            pass
 
         release_ref = args.release
         release = None

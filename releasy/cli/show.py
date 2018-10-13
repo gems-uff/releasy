@@ -12,7 +12,9 @@ class Show(Cli):
     def run(self):
         print("Information about release %s" % self.release.name)
         print("Based on: %s" % ' '.join(rls.name for rls in self.release.base_releases))
+        print("Type: %s" % self.release.type)
         print("Date: %s" % self.release.time)
+        print("Duration: %s" % self.release.duration)
         print("Commits: %d" % len(self.release.commits))
 
         print("\nDevelopers:")

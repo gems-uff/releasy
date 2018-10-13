@@ -1,3 +1,4 @@
+import re
 
 class Developer(object):
     def __init__(self, name, email):
@@ -79,11 +80,15 @@ class Issue():
 
 
 class Release:
+    __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+).*')
+
     def __init__(self, tag):
         super().__init__()
         self.__tag = tag
         self.__commits = {}
         self.__base_releases = []
+        self.__first_commit = None
+        self.__last_commit = None
 
     @property
     def name(self):
@@ -106,9 +111,37 @@ class Release:
         ''' return all commits of the release '''
         return self.__commits.values()
 
+    @property
+    def first_commit(self):
+        return self.__first_commit
+
+    @property
+    def last_commit(self):
+        return self.__last_commit
+
+    @property
+    def duration(self):
+        return self.__last_commit.commit_time - self.__first_commit.commit_time
+
+    @property
+    def type(self):
+        type = 'PATCH'
+        current = Release.__re.match(self.name)
+        for b_release in self.base_releases:
+            base = Release.__re.match(b_release.name)
+            if current.group('major') != base.group('major'):
+                return 'MAJOR'
+            if current.group('minor') != base.group('minor'):
+                return 'MINOR'
+        return type
+
     def add_commit(self, commit):
         if commit.hash not in self.__commits.keys():
             self.__commits[commit.hash] = commit
+            if not self.__first_commit or commit.commit_time < self.__first_commit.commit_time:
+                self.__first_commit = commit
+            if not self.__last_commit or commit.commit_time > self.__last_commit.commit_time:
+                self.__last_commit = commit
 
     @property
     def developers(self):
