@@ -174,6 +174,7 @@ class Release:
 class Project(object):
     def __init__(self):
         self.__releases = {}
+        self.issues = {}
 
     @property
     def releases(self):

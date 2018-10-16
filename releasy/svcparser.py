@@ -33,9 +33,9 @@ class SvcParser():
         return self.tag[ref]
 
     def get_issue(self, issue_id):
-        if issue_id not in self.issue.keys():
-            self.issue[issue_id] = Issue(issue_id)
-        return self.issue[issue_id]
+        if issue_id not in self.project.issues:
+            self.project.issues[issue_id] = Issue(issue_id)
+        return self.project.issues[issue_id]
 
     def add_commit(self, commit, release=None):
         self.commit[commit.hash] = commit

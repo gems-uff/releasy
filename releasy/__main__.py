@@ -4,14 +4,17 @@ import argparse
 import sys
 
 from releasy.config import Config
-from releasy.cli.ls import Ls
 from releasy.cli.show import Show
+from releasy.cli.update import Update
+
+from releasy.cli.ls import Ls
 from releasy.cli.overview import Overview
 from releasy.cli.prov import Prov
 from releasy.cli.download import Download
 
 from releasy.svcparser import GitParser
 from releasy.entity import Project
+from releasy.issueparser import IssueParser
 
 from releasy.cli.cli import Cli
 
@@ -49,23 +52,22 @@ class Releasy(object):
             help='Update project issues'
         )
         cmd_update_parser.add_argument(
-            '-u','--user',
+            '-u','--username',
             metavar='username',
-            required=True,
             help='the issue tracker username'
         )
         cmd_update_parser.add_argument(
-            '-p',
-            action='store_true',
-            help='ask for username password'
+            '-t',
+            metavar='token',
+            dest='token',
+            help='the OAUTH token'
         )
 
         args = parser.parse_args()
 
         commands = {
             'update': lambda: Update(
-                username=args.user,
-                ask_password=args.p
+                token=args.token
             ),
             'show': lambda: Show(
                 release_name=args.release
@@ -75,8 +77,10 @@ class Releasy(object):
 
         cmd = commands.get(args.cmd)()
         cmd.config = Config()
-        if cmd.require_project():
+        if 'require_project' in dir(cmd):
             project = Project()
+            issueparser = IssueParser(project)
+            issueparser.parse()
             svcparser = GitParser(project)
             svcparser.parse()
             cmd.project = project

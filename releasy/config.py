@@ -4,6 +4,7 @@ import yaml
 class Config:
     CONFIG_DIR = os.path.join(os.getcwd(), ".releasy")
     CONFIG_FILE = os.path.join(CONFIG_DIR, "config.yml")
+    ISSUES_FILE = os.path.join(CONFIG_DIR, "issues.yml")
 
     def __init__(self):
         self.__config = {}
@@ -34,7 +35,6 @@ class Config:
             return True
         else:
             return False
-
 
     def save(self):
         self.__write_config()
