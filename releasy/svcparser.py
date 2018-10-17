@@ -70,6 +70,7 @@ class GitParser(SvcParser):
                 self.parse_commit(data)
 
         self.parse_releases()
+        self.sort_commit_on_issues()
 
     def parse_commit(self, data):
         commit = self.get_commit(data[0])
@@ -117,6 +118,7 @@ class GitParser(SvcParser):
             issue = self.get_issue(issue_id)
             if issue not in commit.issues:
                 commit.issues.append(issue)
+                issue.commits.append(commit)
 
     def parse_releases(self):
         for release in sorted(self.project.releases, key=lambda release: release.time):
@@ -141,3 +143,8 @@ class GitParser(SvcParser):
                     for tag in parent_commit.tags:
                         if tag.is_release():
                             release.add_base_release(tag.release)
+
+    def sort_commit_on_issues(self):
+        for issue in self.project.issues.values():
+            if issue.commits:
+                issue.commits = sorted(issue.commits, key=lambda commit: commit.commit_time)

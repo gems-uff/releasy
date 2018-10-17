@@ -57,16 +57,24 @@ class Issue():
     def __init__(self, id, subject=None):
         self.id = id
         self.__subject = subject
+        self.commits = []
 
         #todo parse
         self.labels = list()
         self.main_label = None
-        self.commits = list()
         self.author = None
         self.created = None
         self.closed = None
         self.released = None
         self.started = None
+
+    @property
+    def first_commit(self):
+        return self.commits[0]
+
+    @property
+    def last_commit(self):
+        return self.commits[-1]
 
     @property
     def subject(self):
