@@ -48,7 +48,7 @@ def fetch_issues(url, token=None):
                 for label in issue_data['labels']:
                     issue.labels.append(label["name"])
                 issues.append(issue)
-                page += 1
+            page += 1
             #if page > 1: # todo: handle github limits
             #    has_next = False
         else:
