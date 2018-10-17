@@ -10,12 +10,13 @@ from releasy.entity import Developer
 from releasy.entity import Release
 
 class SvcParser():
-    def __init__(self, project):
+    def __init__(self, project, config):
         self.project = project
         self.commit = {}
         self.developer = {}
         self.issue = {}
         self.tag = {}
+        self.config = config
 
     def get_developer(self, email, name):
         if email not in self.developer.keys():
@@ -57,8 +58,8 @@ class GitParser(SvcParser):
     GIT_FORMAT = [v for k, v in GIT_LOG_FORMAT.items()]
     GIT_FORMAT = '%x1f'.join(GIT_FORMAT) + '%x1f%x1e'
     
-    def __init__(self, project):
-        super().__init__(project)
+    def __init__(self, project, config):
+        super().__init__(project=project, config=config)
 
     def parse(self):
         log = subprocess.Popen('git log --all --format="%s"' % GitParser.GIT_FORMAT,

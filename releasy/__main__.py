@@ -78,10 +78,11 @@ class Releasy(object):
         cmd = commands.get(args.cmd)()
         cmd.config = Config()
         if 'require_project' in dir(cmd):
+            config = Config()
             project = Project()
-            issueparser = IssueParser(project)
+            issueparser = IssueParser(project, config=config)
             issueparser.parse()
-            svcparser = GitParser(project)
+            svcparser = GitParser(project, config=config)
             svcparser.parse()
             cmd.project = project
         cmd.run()

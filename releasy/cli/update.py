@@ -14,6 +14,7 @@ class Update():
         url = self.config.prop['issue_tracker']['url']
         issues = fetch_issues(url, self.token)
         if issues:
+            #todo fix
             save_issues(issues, filename=Config.ISSUES_FILE)
 
 

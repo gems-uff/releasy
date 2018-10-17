@@ -8,12 +8,13 @@ from releasy.entity import Issue
 from releasy.config import Config
 
 class IssueParser:
-    def __init__(self, project):
+    def __init__(self, project, config):
         self.project = project
+        self.config = config
 
     def parse(self):
-        if os.path.exists(Config.ISSUES_FILE):
-            with open(Config.ISSUES_FILE, 'r') as stream:
+        if os.path.exists(self.config.issues_file):
+            with open(self.config.issues_file, 'r') as stream:
                 try:
                     issues = yaml.load(stream)
                     for issue in issues:
