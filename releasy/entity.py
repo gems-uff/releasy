@@ -77,6 +77,10 @@ class Issue():
         return self.commits[-1]
 
     @property
+    def duration(self):
+        return self.last_commit.commit_time - self.first_commit.commit_time
+
+    @property
     def subject(self):
         if self.__subject:
             return self.__subject
