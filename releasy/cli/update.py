@@ -6,7 +6,7 @@ from releasy.config import Config
 from releasy.issueparser import fetch_issues
 from releasy.issueparser import save_issues
 
-class Update():
+class Update(Cmd):
     def __init__(self, token=None):
         self.token = token
 
@@ -15,6 +15,4 @@ class Update():
         issues = fetch_issues(url, self.token)
         if issues:
             #todo fix
-            save_issues(issues, filename=Config.ISSUES_FILE)
-
-
+            save_issues(issues, filename=self.config.issues_file)

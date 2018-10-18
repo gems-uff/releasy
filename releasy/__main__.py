@@ -29,7 +29,12 @@ class Releasy(object):
             dest='cmd'
         )
 
-        cmd_release_parser = parent_parser = argparse.ArgumentParser(add_help=False)
+        parser.add_argument(
+            '-w',
+            help='working dir'
+        )
+
+        cmd_release_parser = argparse.ArgumentParser(add_help=False)
         cmd_release_parser.add_argument(
             'release',
             help='the release version'
@@ -76,13 +81,16 @@ class Releasy(object):
         }
 
         cmd = commands.get(args.cmd)()
-        cmd.config = Config()
+        if args.w:
+            cmd.config = Config(base_dir=args.w)
+        else:
+            cmd.config = Config()
+
         if 'require_project' in dir(cmd):
-            config = Config()
             project = Project()
-            issueparser = IssueParser(project, config=config)
+            issueparser = IssueParser(project, config=cmd.config)
             issueparser.parse()
-            svcparser = GitParser(project, config=config)
+            svcparser = GitParser(project, config=cmd.config)
             svcparser.parse()
             cmd.project = project
         cmd.run()

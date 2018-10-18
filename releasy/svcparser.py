@@ -63,7 +63,8 @@ class GitParser(SvcParser):
 
     def parse(self):
         log = subprocess.Popen('git log --all --format="%s"' % GitParser.GIT_FORMAT,
-                               stdout=subprocess.PIPE, bufsize=1, shell=True)
+                               stdout=subprocess.PIPE, bufsize=1, shell=True,
+                               cwd=self.config.base_dir)
 
         with log.stdout:
             for raw_data in iter(log.stdout.readline, b''):
