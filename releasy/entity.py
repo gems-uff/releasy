@@ -141,9 +141,9 @@ class Release:
         current = Release.__re.match(self.name)
         for b_release in self.base_releases:
             base = Release.__re.match(b_release.name)
-            if current.group('major') != base.group('major'):
+            if base and current.group('major') != base.group('major'):
                 return 'MAJOR'
-            if current.group('minor') != base.group('minor'):
+            if base and current.group('minor') != base.group('minor'):
                 return 'MINOR'
         return type
 
