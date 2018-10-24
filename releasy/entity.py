@@ -92,7 +92,7 @@ class Issue():
 
 
 class Release:
-    __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+).*')
+    __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
 
     def __init__(self, tag):
         super().__init__()
