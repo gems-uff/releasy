@@ -123,24 +123,26 @@ class GitParser(SvcParser):
                 issue.commits.append(commit)
 
     def parse_releases(self):
-        for release in sorted(self.project.releases, key=lambda release: release.time):
+        for release in self.project.releases:
             self.add_commit_to_release(release.tag.commit, release)
 
     def add_commit_to_release(self, commit, release):
         commit_stack = [commit]
+        loop_detection = []
 
         while commit_stack:
             cur_commit = commit_stack.pop()
+            loop_detection.append(cur_commit)
+
             release.add_commit(cur_commit)
 
             if release not in cur_commit.release:
                 cur_commit.release.append(release)
 
-            # Navigate to parent commits
-            #todo releases that point to same commit
             for parent_commit in cur_commit.parent:
-                if not parent_commit.release:
-                    commit_stack.append(parent_commit)
+                if not parent_commit.tags: #todo check if the tag is a release
+                    if parent_commit not in loop_detection:
+                        commit_stack.append(parent_commit)
                 else:
                     for tag in parent_commit.tags:
                         if tag.is_release():

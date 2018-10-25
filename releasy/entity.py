@@ -139,9 +139,9 @@ class Release:
     def type(self):
         current = Release.__re.match(self.name)
         if current:
-            if current.group('PATCH') != '0':
+            if current.group('patch') != '0':
                 return 'PATCH'
-            elif current.group('MINOR') != '0':
+            elif current.group('minor') != '0':
                 return 'MINOR'
             else:
                 return 'MAJOR'
