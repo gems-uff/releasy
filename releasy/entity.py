@@ -137,15 +137,16 @@ class Release:
 
     @property
     def type(self):
-        type = 'PATCH'
         current = Release.__re.match(self.name)
-        for b_release in self.base_releases:
-            base = Release.__re.match(b_release.name)
-            if base and current.group('major') != base.group('major'):
-                return 'MAJOR'
-            if base and current.group('minor') != base.group('minor'):
+        if current:
+            if current.group('PATCH') != '0':
+                return 'PATCH'
+            elif current.group('MINOR') != '0':
                 return 'MINOR'
-        return type
+            else:
+                return 'MAJOR'
+        else:
+            return 'UNKNOW'
 
     def add_commit(self, commit):
         if commit.hash not in self.__commits.keys():
