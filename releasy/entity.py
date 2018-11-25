@@ -1,3 +1,5 @@
+from builtins import property
+
 import re
 
 class Developer(object):
@@ -102,6 +104,38 @@ class Release:
         self.__first_commit = None
         self.__last_commit = None
 
+    # Release metrics
+    @property
+    def size(self):
+        return len(self.commits)
+
+    @property
+    def duration(self):
+        return self.__last_commit.commit_time - self.__first_commit.commit_time
+
+    @property
+    def number_of_contributors(self):
+        contributors = {}
+        for commit in self.commits:
+            contributors[commit.commiter] = 1
+        return len(contributors.keys())
+
+    @property
+    def number_of_merges(self):
+        merges = 0
+        for commit in self.commits:
+            if len(commit.parent) > 1:
+                merges += 1
+        return merges
+
+    @property
+    def bugfix_effort(self):
+        bugfix = 0
+        for issue in self.issues:
+
+
+    # End of release metrics
+
     @property
     def name(self):
         return self.__tag.name
@@ -132,10 +166,6 @@ class Release:
         return self.__last_commit
 
     @property
-    def duration(self):
-        return self.__last_commit.commit_time - self.__first_commit.commit_time
-
-    @property
     def type(self):
         current = Release.__re.match(self.name)
         if current:
@@ -146,7 +176,7 @@ class Release:
             else:
                 return 'MAJOR'
         else:
-            return 'UNKNOW'
+            return 'UNKNOWN'
 
     def add_commit(self, commit):
         if commit.hash not in self.__commits.keys():
