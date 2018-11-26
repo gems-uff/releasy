@@ -27,6 +27,7 @@ class Tag(object):
         return "%s" % self.name
 
 class Commit(object):
+    # old
     def __init__(self, hash, subject=None, parent=None, commiter=None,
                  developer=None, commit_time=None, development_time=None):
         self.hash = hash
@@ -94,8 +95,8 @@ class Issue():
 
 
 class Release:
+    #old
     __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
-
     def __init__(self, tag):
         super().__init__()
         self.__tag = tag
@@ -220,8 +221,11 @@ class Project(object):
         self.issues = {}
 
     def __setitem__(self, key, value):
-        self.__releases[key] = value
+        if isinstance(value, Commit):
+            self.__releases[key] = value
+            #todo add release to commit
 
+    #old
     @property
     def releases(self):
         return self.__releases.values()
