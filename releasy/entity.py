@@ -131,7 +131,7 @@ class Release:
     @property
     def bugfix_effort(self):
         bugfix = 0
-        for issue in self.issues:
+#        for issue in self.issues:
 
 
     # End of release metrics
@@ -218,6 +218,9 @@ class Project(object):
     def __init__(self):
         self.__releases = {}
         self.issues = {}
+
+    def __setitem__(self, key, value):
+        self.__releases[key] = value
 
     @property
     def releases(self):
