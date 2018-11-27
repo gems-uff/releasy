@@ -3,10 +3,13 @@ from builtins import property
 import re
 
 class Project(object):
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.releases = []
         self.__release_map = {}
-        self.issues = {}
+        self.issues = []
+        self.__issue_map = {}
+
 
     def __setitem__(self, key, value):
         if isinstance(value, Release):
@@ -14,6 +17,13 @@ class Project(object):
                 return self.releases.remove(value)
             self.__release_map[key] = value
             self.releases.append(value)
+
+    def add_issue(self, issue):
+        if isinstance(issue, Issue):
+            if issue.id in self.__issue_map:
+                return self.issues.remove(issue)
+            self.__issue_map[issue.id] = issue
+            self.issues.append(issue)
 
 
 class Release:
@@ -176,9 +186,12 @@ class Commit(object):
 
 
 class Issue():
-    def __init__(self, id, subject=None):
+    def __init__(self, id, subject=None, labels=[]):
         self.id = id
-        self.__subject = subject
+        self.subject = subject
+        self.labels = labels
+
+        #old
         self.commits = []
 
         #todo parse
@@ -201,13 +214,6 @@ class Issue():
     @property
     def duration(self):
         return self.last_commit.commit_time - self.first_commit.commit_time
-
-    @property
-    def subject(self):
-        if self.__subject:
-            return self.__subject
-        else:
-            return ""
 
     def __str__(self):
         return "%i" % self.id

@@ -1,19 +1,35 @@
+import os
+import yaml
+import re
+
 from pygit2 import Repository
 
-from releasy.entity import Project, Release, Tag, Commit, Developer, Tag
+from releasy.entity import Project, Issue, Release, Tag, Commit, Developer, Tag
 from releasy.config import Config
 
 class ProjectFactory():
     """ Factory that creates projects """
-    def __init__(self):
-        self.release_factory = None
-        self.issue_factory = IssueFactory()
-
     def create(self, path):
         """ Creates a project """
-        project = Project()
-        repo = Repository(path)
+        config = Config(base_dir=path)
+        project = Project(config)
 
+        developer_factory = DeveloperFactory()
+        commit_factory = CommitFactory(developer_factory)
+        issue_factory = IssueFactory()
+
+        if os.path.exists(config.issues_file):
+            with open(config.issues_file, 'r') as stream:
+                try:
+                    raw_issues = yaml.load(stream)
+                    for raw_issue in raw_issues:
+                        issue = issue_factory.create(raw_issue)
+                        project.add_issue(issue)
+                except yaml.YAMLError as exc:
+                    print(exc)
+                    raise
+
+        repo = Repository(path)
         tag_refs = [ref for ref in repo.references if ref.startswith('refs/tags/')]
         commits_with_tags = {}
         for tag_ref in tag_refs:
@@ -21,14 +37,12 @@ class ProjectFactory():
             commit = raw_tag.peel()
             commits_with_tags[commit.hex] = raw_tag
 
-        developer_factory = DeveloperFactory()
-        commit_factory = CommitFactory(developer_factory)
-        self.release_factory = ReleaseFactory(commit_factory, commits_with_tags)
+        release_factory = ReleaseFactory(commit_factory, commits_with_tags)
 
         for tag_ref in tag_refs:
             tag_ref = repo.lookup_reference(tag_ref)
             if tag_ref.shorthand: # if is release
-                release = self.release_factory.create(tag_ref)
+                release = release_factory.create(tag_ref)
                 project[release] = release
 
         return project
@@ -40,6 +54,7 @@ class ReleaseFactory():
         self.commit_factory = commit_factory
         self.commits_with_tags = commits_with_tags
         self.release_map = {}
+        self.linked_commits = {}
 
     def create(self, raw_tag, iterate=True):
         raw_release_tag_commit = raw_tag.peel()
@@ -58,6 +73,22 @@ class ReleaseFactory():
                 loop_detection[cur_commit.hex] = 1
 
                 commit = self.commit_factory.create(cur_commit)
+
+                # find related issues #todo
+                if cur_commit.hex not in self.linked_commits:
+                    issue_match = re.search(r'#([0-9]+)', commit.subject)
+                    issue = None
+                    if issue_match:
+                        issue_id = int(issue_match.group(1))
+                        issue = self.get_issue(issue_id)
+                        if issue not in commit.issues:
+                            commit.add_issue()
+
+                            commit.issues.append(issue)
+                            issue.commits.append(commit)
+                    self.linked_commits[cur_commit.hex] = 1
+
+                # link commits
                 release[commit.hash] = commit
                 commit.releases.append(release)
 
@@ -79,7 +110,13 @@ class ReleaseFactory():
 
 class IssueFactory():
     """ Factory that creates issues """
-    pass
+    def create(self, raw_issue):
+        # todo
+        return Issue(
+            id=raw_issue['id'],
+            subject=raw_issue['subject'],
+            labels=raw_issue['labels']
+        )
 
 
 class CommitFactory():
