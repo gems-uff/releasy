@@ -37,7 +37,7 @@ class ProjectFactory():
             commit = raw_tag.peel()
             commits_with_tags[commit.hex] = raw_tag
 
-        release_factory = ReleaseFactory(commit_factory, commits_with_tags)
+        release_factory = ReleaseFactory(commit_factory, project, commits_with_tags)
 
         for tag_ref in tag_refs:
             tag_ref = repo.lookup_reference(tag_ref)
@@ -45,13 +45,18 @@ class ProjectFactory():
                 release = release_factory.create(tag_ref)
                 project[release] = release
 
+        for issue in project.issues:
+            issue.commits = sorted(issue.commits, key=lambda commit: commit.commit_time)
+            issue.simple_commits = sorted(issue.simple_commits, key=lambda commit: commit.commit_time)
+
         return project
 
 class ReleaseFactory():
     """ Factory that creates releases """
 
-    def __init__(self, commit_factory, commits_with_tags):
+    def __init__(self, commit_factory, project, commits_with_tags):
         self.commit_factory = commit_factory
+        self.project = project
         self.commits_with_tags = commits_with_tags
         self.release_map = {}
         self.linked_commits = {}
@@ -76,17 +81,16 @@ class ReleaseFactory():
 
                 # find related issues #todo
                 if cur_commit.hex not in self.linked_commits:
+                    self.linked_commits[cur_commit.hex] = 1
                     issue_match = re.search(r'#([0-9]+)', commit.subject)
-                    issue = None
                     if issue_match:
                         issue_id = int(issue_match.group(1))
-                        issue = self.get_issue(issue_id)
-                        if issue not in commit.issues:
-                            commit.add_issue()
-
-                            commit.issues.append(issue)
-                            issue.commits.append(commit)
-                    self.linked_commits[cur_commit.hex] = 1
+                        issue = self.project.get_issue(issue_id)
+                        if issue: #todo o que fazer qnd não tiver issue associada
+                            commit.add_issue(issue)
+                            release.add_issue(issue)
+                            issue.add_commit(commit)
+                            issue.add_release(release)
 
                 # link commits
                 release[commit.hash] = commit

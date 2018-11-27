@@ -25,6 +25,12 @@ class Project(object):
             self.__issue_map[issue.id] = issue
             self.issues.append(issue)
 
+    def get_issue(self, issue_id):
+        if issue_id in self.__issue_map:
+            return self.__issue_map[issue_id]
+        else:
+            return None
+
 
 class Release:
     def __init__(self, tag):
@@ -32,6 +38,8 @@ class Release:
         self.base_releases = []
         self.commits = []
         self.__commit_map = {}
+        self.issues = []
+        self.__issue_map = {}
 
     #old
         self.__first_commit = None
@@ -48,8 +56,20 @@ class Release:
             self.__commit_map[key] = value
             self.commits.append(value)
 
-    #old
+    def add_issue(self, issue):
+        if isinstance(issue, Issue):
+            if issue.id in self.__issue_map:
+                self.issues.remove(issue)
+            self.__issue_map[issue.id] = issue
+            self.issues.append(issue)
 
+    def get_issue(self, issue_id):
+        if issue_id in self.__issue_map:
+            return self.__issue_map[issue_id]
+        else:
+            return None
+
+    #old
     __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
     # Release metrics
     @property
@@ -130,15 +150,6 @@ class Release:
             developers[commit.developer.email] = commit.developer
         return developers.values()
 
-    @property
-    def issues(self):
-        ''' return all issues of the release '''
-        issues = {}
-        for commit in self.__commits.values():
-            for issue in commit.issues:
-                issues[issue.id] = issue
-        return issues.values()
-
     def __str__(self):
         return "%s" % self.tag.name
 
@@ -178,8 +189,21 @@ class Commit(object):
         self.author = author
         self.author_time = author_time
         self.releases = []
-    # old
         self.issues = []
+        self.__issue_map = {}
+
+    def add_issue(self, issue):
+        if isinstance(issue, Issue):
+            if issue.id in self.__issue_map:
+                self.issues.remove(issue)
+            self.issues.append(issue)
+            self.__issue_map[issue.id] = issue
+
+    def get_issue(self, issue_id):
+        if issue_id in self.__issue_map:
+            return self.issues.remove(issue_id)
+        else:
+            return None
 
     def __str__(self):
         return self.hash
@@ -190,10 +214,13 @@ class Issue():
         self.id = id
         self.subject = subject
         self.labels = labels
+        self.commits = []
+        self.__commit_map = {}
+        self.releases = []
+        self.__release_map = {}
+        self.simple_commits = []
 
         #old
-        self.commits = []
-
         #todo parse
         self.labels = list()
         self.main_label = None
@@ -203,6 +230,37 @@ class Issue():
         self.released = None
         self.started = None
 
+    def add_commit(self, commit):
+        if isinstance(commit, Commit):
+            if commit.hash in self.__commit_map:
+                self.commits.remove(commit)
+                if len(commit.parents) == 1:
+                    self.simple_commits.remove(commit)
+            self.commits.append(commit)
+            self.__commit_map[commit.hash] = commit
+            if len(commit.parents) == 1:
+                self.simple_commits.append(commit)
+
+    def get_commit(self, commit_hash):
+        if commit_hash in self.__commit_map:
+            return self.__commit_map[commit_hash]
+        else:
+            return None
+
+    def add_release(self, release):
+        if isinstance(release, Release):
+            if release.name in self.__release_map:
+                self.releases.remove(release)
+            self.releases.append(release)
+            self.__release_map[release.name] = release
+
+    def get_release(self, release_name):
+        if release_name in self.__release_map:
+            return self.__release_map[release_name]
+        else:
+            return None
+
+    #old
     @property
     def first_commit(self):
         return self.commits[0]
