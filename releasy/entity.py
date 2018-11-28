@@ -2,14 +2,13 @@ from builtins import property
 
 import re
 
-class Project(object):
+class Project():
     def __init__(self, config):
         self.config = config
         self.releases = []
         self.__release_map = {}
         self.issues = []
         self.__issue_map = {}
-
 
     def __setitem__(self, key, value):
         if isinstance(value, Release):
@@ -40,10 +39,6 @@ class Release:
         self.__commit_map = {}
         self.issues = []
         self.__issue_map = {}
-
-    #old
-        self.__first_commit = None
-        self.__last_commit = None
 
     @property
     def name(self):
@@ -78,7 +73,7 @@ class Release:
 
     @property
     def duration(self):
-        return self.__last_commit.commit_time - self.__first_commit.commit_time
+        return self.commits[-1].commit_time - self.commits[0].commit_time
 
     @property
     def number_of_contributors(self):
@@ -100,11 +95,7 @@ class Release:
         bugfix = 0
 #        for issue in self.issues:
 
-
     # End of release metrics
-
-
-
     @property
     def time(self):
         return self.tag.time
@@ -112,14 +103,6 @@ class Release:
     @property
     def time(self):
         return self.tag.commit.commit_time
-
-    @property
-    def first_commit(self):
-        return self.__first_commit
-
-    @property
-    def last_commit(self):
-        return self.__last_commit
 
     @property
     def type(self):
@@ -179,11 +162,12 @@ class Tag(object):
         return "%s" % self.name
 
 class Commit(object):
-    def __init__(self, hash, subject=None, parents=[], committer=None,
+    def __init__(self, hash, subject=None, parents=None, committer=None,
                  author=None, commit_time=None, author_time=None):
         self.hash = hash
         self.subject = subject
-        self.parents = parents
+        if not parents:
+            self.parents = []
         self.committer = committer
         self.commit_time = commit_time
         self.author = author
@@ -210,10 +194,11 @@ class Commit(object):
 
 
 class Issue():
-    def __init__(self, id, subject=None, labels=[]):
+    def __init__(self, id, subject=None, labels=None):
         self.id = id
         self.subject = subject
-        self.labels = labels
+        if not labels:
+            self.labels = []
         self.commits = []
         self.__commit_map = {}
         self.releases = []

@@ -7,7 +7,7 @@ class Config:
         base_dir = base_dir if base_dir else os.getcwd()
         self.base_dir = os.path.join(base_dir, ".releasy")
         self.config_file = os.path.join(self.base_dir, "config.yml")
-        self.issues_file = os.path.join(self.base_dir, "issues.yml")
+        self.issues_file = os.path.join(self.base_dir, "issues.json")
         self.__read_config()
 
     def __read_config(self):

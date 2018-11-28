@@ -1,7 +1,8 @@
 import os
-import yaml
+import json
 import re
 
+from datetime import datetime, timezone, timedelta
 from pygit2 import Repository
 
 from releasy.entity import Project, Issue, Release, Tag, Commit, Developer, Tag
@@ -19,15 +20,11 @@ class ProjectFactory():
         issue_factory = IssueFactory()
 
         if os.path.exists(config.issues_file):
-            with open(config.issues_file, 'r') as stream:
-                try:
-                    raw_issues = yaml.load(stream)
-                    for raw_issue in raw_issues:
-                        issue = issue_factory.create(raw_issue)
-                        project.add_issue(issue)
-                except yaml.YAMLError as exc:
-                    print(exc)
-                    raise
+            with open(config.issues_file, 'rb') as stream:
+                raw_issues = json.load(stream)
+                for raw_issue in raw_issues:
+                    issue = issue_factory.create(raw_issue)
+                    project.add_issue(issue)
 
         repo = Repository(path)
         tag_refs = [ref for ref in repo.references if ref.startswith('refs/tags/')]
@@ -50,6 +47,7 @@ class ProjectFactory():
             issue.simple_commits = sorted(issue.simple_commits, key=lambda commit: commit.commit_time)
 
         return project
+
 
 class ReleaseFactory():
     """ Factory that creates releases """
@@ -140,12 +138,19 @@ class CommitFactory():
         if not hash_only and raw_commit.hex in self.incomplete_commit_map:
             commit = self.commit_map[raw_commit.hex]
             author = self.developer_factory.create(raw_commit.author)
+            author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
+            author_time = datetime.fromtimestamp(float(raw_commit.author.time), author_tzinfo)
+
             committer = self.developer_factory.create(raw_commit.committer)
+            committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
+            committer_time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
+
             commit.subject = raw_commit.message
-            commit.committer = committer
-            commit.commit_time = raw_commit.commit_time
             commit.author = author
-            commit.author_time = raw_commit.author.time
+            commit.author_time = author_time
+            commit.committer = committer
+            commit.commit_time = committer_time
+
             del self.incomplete_commit_map[raw_commit.hex]
 
             for raw_parent in raw_commit.parents:
