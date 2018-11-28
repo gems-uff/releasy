@@ -11,12 +11,18 @@ class Project():
         self.issues = []
         self.__issue_map = {}
 
-    def __setitem__(self, key, value):
-        if isinstance(value, Release):
-            if key in self.__release_map:
-                return self.releases.remove(value)
-            self.__release_map[key] = value
-            self.releases.append(value)
+    def add_release(self, release):
+        if isinstance(release, Release):
+            if release.name in self.__release_map:
+                return self.releases.remove(release)
+            self.__release_map[release.name] = release
+            self.releases.append(release)
+
+    def get_release(self, release_name):
+        if release_name in self.__release_map:
+            return self.__issue_map[release_name]
+        else:
+            return None
 
     def add_issue(self, issue):
         if isinstance(issue, Issue):

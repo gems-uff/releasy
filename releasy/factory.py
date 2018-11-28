@@ -8,8 +8,10 @@ from pygit2 import Repository
 from releasy.entity import Project, Issue, Release, Tag, Commit, Developer, Tag
 from releasy.config import Config
 
+
 class ProjectFactory():
     """ Factory that creates projects """
+
     def create(self, path):
         """ Creates a project """
         config = Config(base_dir=path)
@@ -19,6 +21,7 @@ class ProjectFactory():
         commit_factory = CommitFactory(developer_factory)
         issue_factory = IssueFactory()
 
+        # read issues
         if os.path.exists(config.issues_file):
             with open(config.issues_file, 'rb') as stream:
                 raw_issues = json.load(stream)
@@ -26,6 +29,7 @@ class ProjectFactory():
                     issue = issue_factory.create(raw_issue)
                     project.add_issue(issue)
 
+        # read releases
         repo = Repository(path)
         tag_refs = [ref for ref in repo.references if ref.startswith('refs/tags/')]
         commits_with_tags = {}
@@ -40,18 +44,14 @@ class ProjectFactory():
             tag_ref = repo.lookup_reference(tag_ref)
             if tag_ref.shorthand: # if is release
                 release = release_factory.create(tag_ref)
-                project[release] = release
+                project.add_release(release)
 
-        for issue in project.issues:
-            issue.commits = sorted(issue.commits, key=lambda commit: commit.commit_time)
-            issue.simple_commits = sorted(issue.simple_commits, key=lambda commit: commit.commit_time)
-
+        sort_commits(project)
         return project
 
 
 class ReleaseFactory():
     """ Factory that creates releases """
-
     def __init__(self, commit_factory, project, commits_with_tags):
         self.commit_factory = commit_factory
         self.project = project
@@ -104,8 +104,6 @@ class ReleaseFactory():
                     elif parent_commit.hex not in loop_detection.keys():
                         commit_stack.append(parent_commit)
                     #todo else: loop detected
-
-            release.commits = sorted(release.commits, key=lambda commit: commit.commit_time)
 
         return release
 
@@ -172,3 +170,11 @@ class DeveloperFactory():
             )
 
         return self.developer_map[raw_developer.email]
+
+
+def sort_commits(project):
+    for release in project.releases:
+        release.commits = sorted(release.commits, key=lambda commit: commit.commit_time)
+    for issue in project.issues:
+        issue.commits = sorted(issue.commits, key=lambda commit: commit.commit_time)
+        issue.simple_commits = sorted(issue.simple_commits, key=lambda commit: commit.commit_time)
