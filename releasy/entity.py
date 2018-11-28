@@ -1,8 +1,9 @@
 from builtins import property
-
+import statistics
 import re
 
 class Project():
+    """ A software project """
     def __init__(self, config):
         self.config = config
         self.releases = []
@@ -64,45 +65,19 @@ class Release:
         else:
             return None
 
-    #old
-    __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
-    # Release metrics
-    @property
-    def size(self):
-        return len(self.commits)
-
-    @property
-    def duration(self):
-        return self.commits[-1].commit_time - self.commits[0].commit_time
-
-    @property
-    def number_of_contributors(self):
-        contributors = {}
-        for commit in self.commits:
-            contributors[commit.commiter] = 1
-        return len(contributors.keys())
-
-    @property
-    def number_of_merges(self):
-        merges = 0
-        for commit in self.commits:
-            if len(commit.parent) > 1:
-                merges += 1
-        return merges
-
-    @property
-    def bugfix_effort(self):
-        bugfix = 0
-#        for issue in self.issues:
-
-    # End of release metrics
     @property
     def time(self):
         return self.tag.time
 
     @property
-    def time(self):
-        return self.tag.commit.commit_time
+    def developers(self):
+        contributors = {}
+        for commit in self.commits:
+            contributors[commit.commiter.email] = 1
+            contributors[commit.author.email] = 1
+        return contributors.keys()
+
+    __re = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
 
     @property
     def type(self):
@@ -117,6 +92,57 @@ class Release:
         else:
             return 'UNKNOWN'
 
+    def __str__(self):
+        return "%s" % self.tag.name
+
+    # Release metrics
+    @property
+    def size(self):
+        return len(self.commits)
+
+    @property
+    def duration(self):
+        return self.commits[-1].commit_time - self.commits[0].commit_time
+
+    @property
+    def number_of_developers(self):
+        return len(self.developers())
+
+    @property
+    def number_of_merges(self):
+        merges = 0
+        for commit in self.commits:
+            if len(commit.parent) > 1:
+                merges += 1
+        return merges
+
+    @property
+    def work_done(self):
+        return len(self.issues)
+
+    @property
+    def bugfix_effort(self):
+        bugfix_count = 0
+        for issue in self.issues:
+            if issue.is_bugfix():
+                bugfix_count += 1
+        return bugfix_count / self.work_done()
+
+    @property
+    def time_to_release(self):
+        time_to_release = []
+        for issue in self.issues:
+            time_to_release.append(self.time - issue.simple_commits[-1].commit_time)
+        return statistics.median(time_to_release)
+
+    def merge_count(self):
+        merge_count = 0
+        for commit in self.commits:
+            if len(commit.parents) > 1:
+                merge_count += 1
+        return merge_count
+    # End of release metrics
+
     def add_commit(self, commit):
         if commit.hash not in self.__commits.keys():
             self.__commits[commit.hash] = commit
@@ -125,16 +151,6 @@ class Release:
             if not self.__last_commit or commit.commit_time > self.__last_commit.commit_time:
                 self.__last_commit = commit
 
-    @property
-    def developers(self):
-        ''' return all developers of the release '''
-        developers = {}
-        for commit in self.__commits.values():
-            developers[commit.developer.email] = commit.developer
-        return developers.values()
-
-    def __str__(self):
-        return "%s" % self.tag.name
 
 class Developer(object):
     def __init__(self, name, email):
@@ -143,6 +159,7 @@ class Developer(object):
 
     def __str__(self):
         return "%s <%s>" % (self.name, self.email)
+
 
 class Tag(object):
     def __init__(self, name, commit=None):
@@ -160,6 +177,7 @@ class Tag(object):
 
     def __str__(self):
         return "%s" % self.name
+
 
 class Commit(object):
     def __init__(self, hash, subject=None, parents=None, committer=None,
