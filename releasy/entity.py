@@ -115,14 +115,6 @@ class Release:
         return len(self.developers())
 
     @property
-    def number_of_merges(self):
-        merges = 0
-        for commit in self.commits:
-            if len(commit.parent) > 1:
-                merges += 1
-        return merges
-
-    @property
     def work_done(self):
         return len(self.issues)
 
