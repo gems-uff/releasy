@@ -91,7 +91,7 @@ class ReleaseFactory():
                             issue.add_release(release)
 
                 # link commits
-                release[commit.hash] = commit
+                release.add_commit(commit)
                 commit.releases.append(release)
 
                 for parent_commit in cur_commit.parents:
@@ -111,7 +111,7 @@ class ReleaseFactory():
 class IssueFactory():
     """ Factory that creates issues """
     def create(self, raw_issue):
-        # todo
+        # todo add other atributes
         return Issue(
             id=raw_issue['id'],
             subject=raw_issue['subject'],

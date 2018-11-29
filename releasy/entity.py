@@ -43,6 +43,7 @@ class Release:
         self.tag = tag
         self.base_releases = []
         self.commits = []
+        self.simple_commits = []
         self.__commit_map = {}
         self.issues = []
         self.__issue_map = {}
@@ -50,13 +51,6 @@ class Release:
     @property
     def name(self):
         return self.tag.name
-
-    def __setitem__(self, key, value):
-        if isinstance(value, Commit):
-            if key in self.__commit_map:
-                self.commits.remove(value)
-            self.__commit_map[key] = value
-            self.commits.append(value)
 
     def add_issue(self, issue):
         if isinstance(issue, Issue):
@@ -79,7 +73,7 @@ class Release:
     def developers(self):
         contributors = {}
         for commit in self.commits:
-            contributors[commit.commiter.email] = 1
+            contributors[commit.committer.email] = 1
             contributors[commit.author.email] = 1
         return contributors.keys()
 
@@ -111,8 +105,8 @@ class Release:
         return self.commits[-1].commit_time - self.commits[0].commit_time
 
     @property
-    def number_of_developers(self):
-        return len(self.developers())
+    def team_size(self):
+        return len(self.developers)
 
     @property
     def work_done(self):
@@ -120,19 +114,27 @@ class Release:
 
     @property
     def bugfix_effort(self):
-        bugfix_count = 0
-        for issue in self.issues:
-            if issue.is_bugfix():
-                bugfix_count += 1
-        return bugfix_count / self.work_done()
+        if self.work_done:
+            bugfix_count = 0
+            for issue in self.issues:
+                if issue.is_bugfix:
+                    bugfix_count += 1
+            return bugfix_count / self.work_done
+        else:
+            return None
 
     @property
     def time_to_release(self):
         time_to_release = []
         for issue in self.issues:
-            time_to_release.append(self.time - issue.simple_commits[-1].commit_time)
-        return statistics.median(time_to_release)
+            if issue.simple_commits:
+                time_to_release.append(self.time - issue.simple_commits[-1].commit_time)
+        if time_to_release:
+            return statistics.median(time_to_release)
+        else:
+            return None
 
+    @property
     def merge_count(self):
         merge_count = 0
         for commit in self.commits:
@@ -141,13 +143,23 @@ class Release:
         return merge_count
     # End of release metrics
 
+    def __setitem__(self, key, value):
+        if isinstance(value, Commit):
+            if key in self.__commit_map:
+                self.commits.remove(value)
+            self.__commit_map[key] = value
+            self.commits.append(value)
+
     def add_commit(self, commit):
-        if commit.hash not in self.__commits.keys():
-            self.__commits[commit.hash] = commit
-            if not self.__first_commit or commit.commit_time < self.__first_commit.commit_time:
-                self.__first_commit = commit
-            if not self.__last_commit or commit.commit_time > self.__last_commit.commit_time:
-                self.__last_commit = commit
+        if isinstance(commit, Commit):
+            if commit.hash in self.__commit_map:
+                self.commits.remove(commit)
+                if len(commit.parents) == 1:
+                    self.simple_commits.remove(commit)
+            self.commits.append(commit)
+            self.__commit_map[commit.hash] = commit
+            if len(commit.parents) == 1:
+                self.simple_commits.append(commit)
 
 
 class Developer(object):
@@ -182,7 +194,8 @@ class Commit(object):
                  author=None, commit_time=None, author_time=None):
         self.hash = hash
         self.subject = subject
-        if not parents:
+        self.parents = parents
+        if not self.parents:
             self.parents = []
         self.committer = committer
         self.commit_time = commit_time
@@ -213,23 +226,14 @@ class Issue():
     def __init__(self, id, subject=None, labels=None):
         self.id = id
         self.subject = subject
-        if not labels:
+        self.labels = labels
+        if not self.labels:
             self.labels = []
         self.commits = []
         self.__commit_map = {}
         self.releases = []
         self.__release_map = {}
         self.simple_commits = []
-
-        #old
-        #todo parse
-        self.labels = list()
-        self.main_label = None
-        self.author = None
-        self.created = None
-        self.closed = None
-        self.released = None
-        self.started = None
 
     def add_commit(self, commit):
         if isinstance(commit, Commit):
@@ -261,18 +265,17 @@ class Issue():
         else:
             return None
 
-    #old
     @property
-    def first_commit(self):
-        return self.commits[0]
-
-    @property
-    def last_commit(self):
-        return self.commits[-1]
+    def is_bugfix(self):
+        is_bugfix = False
+        for label in self.labels:
+            if re.search('bug', label):
+                is_bugfix = True
+        return is_bugfix
 
     @property
     def duration(self):
-        return self.last_commit.commit_time - self.first_commit.commit_time
+        return self.commits[-1].commit_time - self.commits[0].commit_time
 
     def __str__(self):
         return "%i" % self.id
