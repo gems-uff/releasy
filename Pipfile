@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pygit2 = "*"
 python-dateutil = "*"
 
 [dev-packages]
