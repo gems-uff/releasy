@@ -27,14 +27,28 @@ class GitVcs(Vcs):
 
     def load_tag(self, tagname):
         if tagname not in self._tag_cache:
-            self._tag_cache[tagname] = GitTag(self, self.repository.lookup_reference("refs/tags/%s" % tagname))
+            raw_tag = self.repository.lookup_reference("refs/tags/%s" % tagname)
+            self._tag_cache[tagname] = GitTag(self, raw_tag)
         return self._tag_cache[tagname]
 
     def load_commit(self, id, raw_commit=None):
         if id not in self._commit_cache:
             if not raw_commit:
                 raw_commit = None #TODO fetch
-            self._commit_cache[id] = GitCommit(self, raw_commit)
+
+            committer_email = raw_commit.committer.email
+            committer_name = raw_commit.committer.name
+            committer = self.developer_db.load_developer(name=committer_name, email=committer_email)
+
+            author_email = raw_commit.author.email
+            author_name = raw_commit.author.name
+            author = self.developer_db.load_developer(name=author_name, email=author_email)
+
+            commit = GitCommit(self, raw_commit)
+            commit.committer = committer
+            commit.author = author
+            self._commit_cache[id] = commit
+
         return self._commit_cache[id]
 
 

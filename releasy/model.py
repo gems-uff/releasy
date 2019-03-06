@@ -16,12 +16,15 @@ class Project:
         tagnames (readonly): list of tag names
     """
 
-    def __init__(self, path):
+    def __init__(self, name, path):
+        self.name = name
         self.path = path
         self.releases = []  #: list of project releases
                             #: regexp to match release name
         self.release_pattern = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
         self.__vcs = None
+        self.__developer_db = None
+        self.authors = []
 
     @property
     def vcs(self):
@@ -31,6 +34,18 @@ class Project:
     def vcs(self, vcs):
         self.__vcs = vcs
         self.__vcs.path = self.path
+        if self.__developer_db:
+            self.__vcs.developer_db = self.developer_db
+
+    @property
+    def developer_db(self):
+        return self.__developer_db
+
+    @developer_db.setter
+    def developer_db(self, developer_db):
+        self.__developer_db = developer_db
+        if self.__vcs:
+            self.__vcs.developer_db = developer_db
 
     @property
     def tagnames(self):
@@ -51,12 +66,13 @@ class Project:
 
     def __load_commits(self):
         for release in self.releases:
-            track_release(release)
+            track_release(self, release)
 
     @staticmethod
-    def create(path, vcs):
-        project = Project(path)
+    def create(name, path, vcs):
+        project = Project(name, path)
         project.vcs = vcs
+        project.developer_db = DeveloperDB()
         project.load()
         return project
 
@@ -72,11 +88,7 @@ class Vcs:
     def __init__(self):
         self._commit_cache = {}
         self._tag_cache = {}
-
-    def fetch_commit(self, id, commit = None):
-        if id not in self.__commit_dict and commit:
-            self.__commit_dict[id] = commit
-        return self.__commit_dict[id]
+        self.developer_db = None
 
     def load_tag(self):
         """ load tag from version control """
@@ -99,6 +111,9 @@ class Release:
         tag: tag that represents the release
         head: commit referred  by release.tag
         tails: list of commits where the release begin
+        developers: list of authors and committers
+        committers: list of committers
+        authors: list of authors
     """
 
     def __init__(self, project, tag):
@@ -106,6 +121,10 @@ class Release:
         self.tag = tag
         self.commits = []
         self.tails = []
+        self.developers = []
+        self.committers = []
+        self.authors = []
+        self.newcommers = []
 
     @property
     def name(self):
@@ -126,6 +145,10 @@ class Release:
     @property
     def commit_count(self):
         return len(self.commits)
+
+    @property
+    def developer_count(self):
+        return len(self.developers)
 
     @property
     def typename(self):
@@ -208,18 +231,40 @@ class Commit:
         return []
 
 
-class Contributor:
+
+class DeveloperDB:
     """
-    Developers and committers
+    Store developer information and handle developers with multiple ids
+    """
+
+    def __init__(self):
+        self._developer_db = {}
+
+    def load_developer(self, login=None, name=None, email=None):
+        if not login:
+            login = email
+        if login not in self._developer_db:
+            developer = Developer()
+            developer.login = login
+            developer.name = name
+            developer.email = email
+            self._developer_db[login] = developer
+        return self._developer_db[login]
+
+class Developer:
+    """
+    Contributors: Developers and committers
 
     Attributes:
+        login: contributor id
         name: contributor name
         email: contributor e-mail
     """
 
     def __init__(self):
-        self.name = None    #: contributor name
-        self.email = None   #: contributor e-mail
+        self.login = None
+        self.name = None
+        self.email = None
 
 
 def is_release_tag(project, tagname):
@@ -235,7 +280,7 @@ def is_tracked_commit(commit):
     return False
 
 
-def track_release(release):
+def track_release(project, release):
     """
     Associate release to it commits
 
@@ -249,8 +294,7 @@ def track_release(release):
 
         # handle multiple tags pointing to a single commit
         if not is_tracked_commit(cur_commit):
-            cur_commit.release = release
-            release.commits.append(cur_commit)
+            track_commit(project, release, cur_commit)
 
             is_tail = False
             for parent_commit in cur_commit.parents:
@@ -264,3 +308,20 @@ def track_release(release):
     release.tails = sorted(release.tails, key=lambda commit: commit.time)
 
 
+def track_commit(project, release, commit):
+    " associate commit to release "
+    commit.release = release
+    release.commits.append(commit)
+
+    if commit.committer not in release.developers:
+        release.developers.append(commit.committer)
+    if commit.committer not in release.committers:
+        release.committers.append(commit.committer)
+
+    if commit.author not in release.developers:
+         release.developers.append(commit.author)
+    if commit.author not in release.authors:
+        release.authors.append(commit.author)
+    if commit.author not in project.authors:
+        project.authors.append(commit.author)
+        release.newcommers.append(commit.author)
