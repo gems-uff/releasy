@@ -21,7 +21,7 @@ class Project:
         self.path = path
         self.releases = []  #: list of project releases
                             #: regexp to match release name
-        self.release_pattern = re.compile(r'(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?.*')
+        self.release_pattern = re.compile(r'(v|r|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
         self.__vcs = None
         self.__developer_db = None
         self.authors = []
@@ -108,6 +108,7 @@ class Release:
         description (str): release description
         time: release creation time
         commits: list of commits that belong exclusively to this release
+        merges: list of merge commits that belong exclusively to this release
         tag: tag that represents the release
         head: commit referred  by release.tag
         tails: list of commits where the release begin
@@ -120,6 +121,7 @@ class Release:
         self.project = project
         self.tag = tag
         self.commits = []
+        self.merges = []
         self.tails = []
         self.developers = []
         self.committers = []
@@ -147,8 +149,16 @@ class Release:
         return len(self.commits)
 
     @property
+    def merge_count(self):
+        return len(self.merges)
+
+    @property
     def developer_count(self):
         return len(self.developers)
+
+    @property
+    def newcommer_count(self):
+        return len(self.newcommers)
 
     @property
     def typename(self):
@@ -273,6 +283,7 @@ def is_release_tag(project, tagname):
         return True
     return False
 
+
 def is_tracked_commit(commit):
     """ Check if commit is tracked on a release """
     if commit.release:
@@ -297,11 +308,14 @@ def track_release(project, release):
             track_commit(project, release, cur_commit)
 
             is_tail = False
-            for parent_commit in cur_commit.parents:
-                if is_tracked_commit(parent_commit):
-                    is_tail = True
-                else:
-                    commit_stack.append(parent_commit)
+            if cur_commit.parents:
+                for parent_commit in cur_commit.parents:
+                    if is_tracked_commit(parent_commit):
+                        is_tail = True
+                    else:
+                        commit_stack.append(parent_commit)
+            else:
+                is_tail = True
             if is_tail:
                 release.tails.append(cur_commit)
 
@@ -312,6 +326,8 @@ def track_commit(project, release, commit):
     " associate commit to release "
     commit.release = release
     release.commits.append(commit)
+    if len(commit.parents) > 1:
+        release.merges.append(commit)
 
     if commit.committer not in release.developers:
         release.developers.append(commit.committer)
