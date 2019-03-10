@@ -22,9 +22,9 @@ def print_release_stat(project):
 
 
 project = Project.create("local", ".", GitVcs())
-# project = Project.create("local", "../repos/angular", GitVcs())
+project = Project.create("local", "../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
-project = Project.create("local", "../repos/vscode", GitVcs())
+#project = Project.create("local", "../repos/old/puppet", GitVcs())
 # print_commits(project)
 print_release_stat(project)

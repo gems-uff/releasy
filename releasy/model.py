@@ -21,7 +21,7 @@ class Project:
         self.path = path
         self.releases = []  #: list of project releases
                             #: regexp to match release name
-        self.release_pattern = re.compile(r'(v|r|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
+        self.release_pattern = re.compile(r'(v|r|maven-|go|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
         self.__vcs = None
         self.__developer_db = None
         self.authors = []
@@ -191,7 +191,8 @@ class Release:
 
     @property
     def duration(self):
-        return self.time - self.__start_commit.time
+        # return self.time - self.__start_commit.time
+        return self.time - self.__start_commit.author_time
 
 
 class Tag:
@@ -319,7 +320,8 @@ def track_release(project, release):
             if is_tail:
                 release.tails.append(cur_commit)
 
-    release.tails = sorted(release.tails, key=lambda commit: commit.time)
+    # release.tails = sorted(release.tails, key=lambda commit: commit.time)
+    release.tails = sorted(release.tails, key=lambda commit: commit.author_time)
 
 
 def track_commit(project, release, commit):
