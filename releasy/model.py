@@ -190,7 +190,7 @@ class Release:
             return self.head
 
     @property
-    def duration(self):
+    def length(self):
         # return self.time - self.__start_commit.time
         return self.time - self.__start_commit.author_time
 

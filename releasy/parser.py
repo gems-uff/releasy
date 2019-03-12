@@ -18,7 +18,7 @@ def print_release_stat(project):
                                   release.commit_count,
                                   release.developer_count,
                                   release.newcommer_count,
-                                  release.duration))
+                                  release.length))
 
 
 project = Project.create("local", ".", GitVcs())
