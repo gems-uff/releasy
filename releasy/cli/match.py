@@ -49,6 +49,8 @@ class Match(BaseCli):
         if self.args.regexp:
             kwargs['regexp'] = args.regexp
         project = ProjectFactory.create(args.path, auto=False, **kwargs)
+        if args.save:
+            project.save_config()
 
         matched_count = 0
         unmatched_count = 0

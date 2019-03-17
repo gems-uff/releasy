@@ -3,7 +3,8 @@ Releasy Meta Model
 """
 
 import re
-
+import yaml
+import os
 
 class Project:
     """
@@ -14,21 +15,27 @@ class Project:
         release_pattern: compiled regexp to match if a tag is a release
         vcs: version control system
         tagnames (readonly): list of tag names
+        _config_ctrl: control changes that can be saved in .releasy file
     """
 
     def __init__(self, name, path, regexp=None):
         self.name = name
         self.path = path
-        self.releases = []  #: list of project releases
-                            #: regexp to match release name
+        self.config_path = os.path.join(self.path, '.releasy')
+        self.releases = []
         self.__vcs = None
         self.__developer_db = None
         self.authors = []
+        self._config_ctrl = []
+        self.release_pattern = None
+
+        self.load_config()
 
         if regexp:
             self.release_pattern = re.compile(regexp)
-        else:
-            self.release_pattern = re.compile(r'(v|r|maven-|go|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
+            self._config_ctrl.append('release_pattern')
+        if not self.release_pattern: # default
+            self.release_pattern = re.compile(r'(v|r|rel|release)?(/|-|_)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
 
     @property
     def vcs(self):
@@ -74,6 +81,23 @@ class Project:
 
     def is_release_tag(self, tagname):
         return is_release_tag(self, tagname)
+
+    def load_config(self):
+        """ load configuration file """
+        if os.path.exists(self.config_path):
+            with open(self.config_path, 'r') as config_file:
+                config = yaml.load(config_file)
+                if 'release_pattern' in config:
+                    self.release_pattern = re.compile(config['release_pattern'])
+
+    def save_config(self):
+        """ save configuration file """
+        config = {}
+        if 'release_pattern' in self._config_ctrl:
+            config['release_pattern'] = self.release_pattern.pattern
+        if config:
+            with open(self.config_path, 'w') as config_file:
+                yaml.dump(config, config_file, default_flow_style=False)
 
 
 class Vcs:
