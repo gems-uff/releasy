@@ -36,17 +36,32 @@ class Match(BaseCli):
             nargs='?',
             default='.'
         )
+        parser.add_argument(
+            '-p',
+            help='show match percent',
+            action='store_true',
+            dest='show_percent'
+        )
 
     def run(self):
+        args = self.args
         kwargs = {}
         if self.args.regexp:
-            kwargs['regexp'] = self.args.regexp
-        project = ProjectFactory.create(self.args.path, auto=False, **kwargs)
+            kwargs['regexp'] = args.regexp
+        project = ProjectFactory.create(args.path, auto=False, **kwargs)
 
+        matched_count = 0
+        unmatched_count = 0
         for tagname in project.tagnames:
             if project.is_release_tag(tagname):
-                if not self.args.inverse:
+                matched_count += 1
+                if not self.args.inverse and not args.show_percent:
                     print(tagname)
             else:
+                unmatched_count += 1
                 if self.args.inverse:
                     print(tagname)
+
+        if args.show_percent:
+            matched_percent = 100*matched_count / (matched_count+unmatched_count)
+            print("M:\t%d\tU:\t%d\tP:\t%d" % (matched_count, unmatched_count, matched_percent))
