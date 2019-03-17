@@ -63,5 +63,6 @@ class Match(BaseCli):
                     print(tagname)
 
         if args.show_percent:
-            matched_percent = 100*matched_count / (matched_count+unmatched_count)
-            print("M:\t%d\tU:\t%d\tP:\t%d" % (matched_count, unmatched_count, matched_percent))
+            tag_count = matched_count + unmatched_count
+            matched_percent = 100*matched_count/tag_count
+            print("M:\t%d\tU:\t%d\tT:\t%d\tP:\t%d" % (matched_count, unmatched_count, tag_count, matched_percent))
