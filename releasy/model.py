@@ -16,15 +16,19 @@ class Project:
         tagnames (readonly): list of tag names
     """
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, regexp=None):
         self.name = name
         self.path = path
         self.releases = []  #: list of project releases
                             #: regexp to match release name
-        self.release_pattern = re.compile(r'(v|r|maven-|go|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
         self.__vcs = None
         self.__developer_db = None
         self.authors = []
+
+        if regexp:
+            self.release_pattern = re.compile(regexp)
+        else:
+            self.release_pattern = re.compile(r'(v|r|maven-|go|rel-|release(/|-)|mongodb-)?(?P<major>[0-9]+)(\.(?P<minor>[0-9]+))?(\.(?P<patch>[0-9]+))?.*')
 
     @property
     def vcs(self):
@@ -59,7 +63,7 @@ class Project:
     def __load_releases(self):
         """ Load release data """
         for tagname in self.tagnames:
-            if is_release_tag(self, tagname):
+            if self.is_release_tag(tagname):
                 tag = self.vcs.load_tag(tagname)
                 self.releases.append(Release(self, tag))
         self.releases = sorted(self.releases, key=lambda release: release.time)
@@ -68,13 +72,8 @@ class Project:
         for release in self.releases:
             track_release(self, release)
 
-    @staticmethod
-    def create(name, path, vcs):
-        project = Project(name, path)
-        project.vcs = vcs
-        project.developer_db = DeveloperDB()
-        project.load()
-        return project
+    def is_release_tag(self, tagname):
+        return is_release_tag(self, tagname)
 
 
 class Vcs:
