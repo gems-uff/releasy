@@ -59,7 +59,7 @@ class Match(BaseCli):
                     print(tagname)
             else:
                 unmatched_count += 1
-                if self.args.inverse:
+                if self.args.inverse and not args.show_percent:
                     print(tagname)
 
         if args.show_percent:
