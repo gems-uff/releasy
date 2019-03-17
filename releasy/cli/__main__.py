@@ -16,12 +16,22 @@ class ReleasyCli:
             dest='cmd'
         )
 
+        parser.add_argument(
+            '-r', '--release',
+            metavar='release',
+            help='show release details',
+            dest='release_name'
+        )
+
         commands = {
             'match': Match()
         }
 
         for command, clazz in commands.items():
-            command_parser = commands_parser.add_parser(command, help=clazz.help)
+            command_parser = commands_parser.add_parser(
+                command,
+                help=clazz.help,
+            )
             clazz.build_parser(command_parser)
 
         args = parser.parse_args()

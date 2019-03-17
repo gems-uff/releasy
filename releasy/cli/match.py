@@ -43,10 +43,10 @@ class Match(BaseCli):
             dest='show_stats'
         )
         parser.add_argument(
-            '-r', '--release',
-            metavar='release',
-            help='show release details',
-            dest='release_name'
+            '-d', '--detail',
+            help='show match status',
+            action='store_true',
+            dest='show_details'
         )
 
     def run(self):
@@ -57,15 +57,20 @@ class Match(BaseCli):
         project = ProjectFactory.create(args.path, auto=False, **kwargs)
         if args.save:
             project.save_config()
-        print_tag = (not args.show_stats) and (not args.release_name)
+        print_tag = (not args.show_stats) or (args.release_name)
 
         matched_count = 0
         unmatched_count = 0
         for tagname in project.tagnames:
             if project.is_release_tag(tagname):
                 matched_count += 1
-                if not self.args.inverse and print_tag:
-                    print(tagname)
+                if (not args.release_name or args.release_name == tagname):
+                    if not self.args.inverse and print_tag:
+                        if args.show_details:
+                            (type, major, minor, patch) = project.release_pattern_search(tagname)
+                            print("%s (%s:%s.%s.%s)" % (tagname, type, major, minor, patch))
+                        else:
+                            print(tagname)
             else:
                 unmatched_count += 1
                 if self.args.inverse and print_tag:
@@ -78,36 +83,3 @@ class Match(BaseCli):
             else:
                 matched_percent = 0
             print("M:\t%d\tU:\t%d\tT:\t%d\tP:\t%d" % (matched_count, unmatched_count, tag_count, matched_percent))
-
-        if args.release_name:
-            re_match = project.release_pattern.match(args.release_name)
-            type = 'UNKNOWN'
-            major = 'UNKNOWN'
-            minor = 'UNKNOWN'
-            patch = 'UNKNOWN'
-            if re_match:
-                major = re_match.group('major')
-                minor = re_match.group('minor')
-                patch = re_match.group('patch')
-
-                if re_match.group('patch'):
-                    patch = re_match.group('patch')
-                if re_match.group('patch') != '0':
-                    type='PATCH'
-                elif re_match.group('minor') != '0':
-                    type='MINOR'
-                else:
-                    type='MAJOR'
-            print("(%s:%s.%s.%s)" % (
-                 type, major, minor, patch
-            ))
-            #     current = self.project.release_pattern.match(self.name)
-            #     if current:
-            #         if current.group('patch') != '0':
-            #             return 'PATCH'
-            #         elif current.group('minor') != '0':
-            #             return 'MINOR'
-            #         else:
-            #             return 'MAJOR'
-            #     else:
-            #         return 'UNKNOWN'

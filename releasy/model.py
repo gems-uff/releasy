@@ -35,7 +35,7 @@ class Project:
             self.release_pattern = re.compile(regexp)
             self._config_ctrl.append('release_pattern')
         if not self.release_pattern: # default
-            self.release_pattern = re.compile(r'.*(?P<major>[0-9]+)([\._](?P<minor>[0-9]+))([\._](?P<patch>[0-9]+))?.*')
+            self.release_pattern = re.compile(r'(?P<major>[0-9]{1,3})([\._](?P<minor>[0-9]+))([\._](?P<patch>[0-9]+))?')
 
     @property
     def vcs(self):
@@ -81,6 +81,9 @@ class Project:
 
     def is_release_tag(self, tagname):
         return is_release_tag(self, tagname)
+
+    def release_pattern_search(self, release_name):
+        return release_pattern_search(self.release_pattern, release_name)
 
     def load_config(self):
         """ load configuration file """
@@ -303,7 +306,7 @@ class Developer:
 
 def is_release_tag(project, tagname):
     """ Check if a tag represents a release """
-    if project.release_pattern.match(tagname):
+    if project.release_pattern.search(tagname):
         return True
     return False
 
@@ -366,3 +369,21 @@ def track_commit(project, release, commit):
     if commit.author not in project.authors:
         project.authors.append(commit.author)
         release.newcommers.append(commit.author)
+
+
+def release_pattern_search(pattern, release_name):
+    re_match = pattern.search(release_name)
+    if re_match:
+        major = re_match.group('major')
+        minor = re_match.group('minor')
+        patch = re_match.group('patch')
+
+        if patch and patch != '0':
+            type = 'PATCH'
+        elif minor and minor != '0':
+            type = 'MINOR'
+        elif major:
+            type = 'MAJOR'
+        else:
+            type = 'UNKNOWN'
+        return type, major, minor, patch
