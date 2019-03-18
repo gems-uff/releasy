@@ -67,7 +67,10 @@ class GitTag(Tag):
         if target.type == GIT_OBJ_TAG:
             tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
             self.time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
-            self.message = target.message
+            try:
+                self.message = target.message
+            except:
+                self.message = ''
         else:
             self.time = self.commit.time
 
