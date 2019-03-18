@@ -80,8 +80,12 @@ class GitCommit(Commit):
         self.__vcs = vcs
         self.__raw = raw_commit
         self.id = self.__raw.hex
-        self.message = self.__raw.message
-        self.subject = self.message.split('\n', 1)[0]
+        try: #TODO fix problem with encodes
+            self.message = self.__raw.message
+            self.subject = self.message.split('\n', 1)[0]
+        except:
+            self.message = ''
+            self.subject = ''
         self.release = None
 
         # author = self.developer_factory.create(raw_commit.author)
