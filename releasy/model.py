@@ -154,7 +154,7 @@ class Release:
         self.tails = []
         self.developers = []
         self.committers = []
-        self.authors = []
+        self.authors = Tracker()
         self.newcommers = []
 
     @property
@@ -301,30 +301,49 @@ class Tracker:
     """
     def __init__(self, items=None):
         self.tracker = {}
-        for item, count in items:
-            self.add(item)
+        self.total = 0
+        if items:
+            for (item, count) in items:
+                self.add(item, count)
 
-    def add(self, item):
+    def add(self, item, count=1):
         if item in self.tracker:
-            self.tracker[item]['count'] += 1
+            self.tracker[item]['count'] += count
         else:
             self.tracker[item] = {
-                'count': 1
+                'count': count
             }
+        self.total += count
    
-    def list(self) -> typing.List[Developer]:
+    def list(self):
         """ Return the list of tracked objects """
         return self.tracker.keys()
+
+    def items(self):
+        """ Return the list of tracked objetcs and the tracked values """
+        return self.tracker.items()
 
     def count(self) -> int:
         """ Return the count of tracked objects """
         return len(self.list())
 
-    def top10(self):
-        t10_items = sorted(self.list())[:10] # sort by count
-        return Tracker(t10_items)
-    
+    def top(self, percent=0.8):
+        """ Return the top tracked items
 
+        Params:
+            percent: percentage that the top matches, i.g., 0.8 return the
+                     tracked items responsible for 80% of the total
+        """
+        items = sorted(self.items(), key=lambda x:x[1]['count'], reverse=True)
+        threshold = min(percent * self.total, self.total)
+        amount = 0
+        items_iterator = iter(items)
+        top = Tracker()
+        while amount < threshold:
+            item = next(items_iterator)
+            amount += item[1]['count']
+            top.add(item[0], item[1]['count'])
+        return top
 
 
 class Developer:
@@ -401,10 +420,11 @@ def track_commit(project, release, commit):
     if commit.committer not in release.committers:
         release.committers.append(commit.committer)
 
+    release.authors.add(commit.author)
     if commit.author not in release.developers:
          release.developers.append(commit.author)
-    if commit.author not in release.authors:
-        release.authors.append(commit.author)
+#    if commit.author not in release.authors:
+#        release.authors.append(commit.author)
     if commit.author not in project.authors:
         project.authors.append(commit.author)
         release.newcommers.append(commit.author)
