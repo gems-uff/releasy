@@ -8,6 +8,7 @@ pygit2 = "*"
 python-dateutil = "*"
 
 [dev-packages]
+pylint = "*"
 
 [requires]
 python_version = "3.7"

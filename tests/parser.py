@@ -1,7 +1,7 @@
 
 from releasy.model import Project, Release, Tag, Commit
 from releasy.model_git import GitVcs
-
+from releasy.factory import ProjectFactory
 
 def print_commits(project):
     for release in project.releases:
@@ -21,8 +21,8 @@ def print_release_stat(project):
                                   release.length))
 
 
-project = Project.create("local", ".", GitVcs())
-project = Project.create("local", "../../repos/angular", GitVcs())
+project = ProjectFactory.create(".", GitVcs())
+project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())

@@ -1,10 +1,13 @@
 """
 Releasy Meta Model
 """
+from __future__ import annotations
+import typing
 
 import re
 import yaml
 import os
+
 
 class Project:
     """
@@ -38,11 +41,11 @@ class Project:
             self.release_pattern = re.compile(r'(?P<major>[0-9]{1,3})([\._](?P<minor>[0-9]+))([\._](?P<patch>[0-9]+))?')
 
     @property
-    def vcs(self):
+    def vcs(self) -> Vcs:
         return self.__vcs
 
     @vcs.setter
-    def vcs(self, vcs):
+    def vcs(self, vcs: Vcs):
         self.__vcs = vcs
         self.__vcs.path = self.path
         if self.__developer_db:
@@ -268,7 +271,6 @@ class Commit:
         return []
 
 
-
 class DeveloperDB:
     """
     Store developer information and handle developers with multiple ids
@@ -287,6 +289,43 @@ class DeveloperDB:
             developer.email = email
             self._developer_db[login] = developer
         return self._developer_db[login]
+
+
+class Tracker:
+    """ Track developer's contributions 
+    
+    release.developers.count()
+    release.developers.list()
+    release.developers.top10() : DeveloperTracker
+    
+    """
+    def __init__(self, items=None):
+        self.tracker = {}
+        for item, count in items:
+            self.add(item)
+
+    def add(self, item):
+        if item in self.tracker:
+            self.tracker[item]['count'] += 1
+        else:
+            self.tracker[item] = {
+                'count': 1
+            }
+   
+    def list(self) -> typing.List[Developer]:
+        """ Return the list of tracked objects """
+        return self.tracker.keys()
+
+    def count(self) -> int:
+        """ Return the count of tracked objects """
+        return len(self.list())
+
+    def top10(self):
+        t10_items = sorted(self.list())[:10] # sort by count
+        return Tracker(t10_items)
+    
+
+
 
 class Developer:
     """
@@ -387,3 +426,4 @@ def release_pattern_search(pattern, release_name):
         else:
             type = 'UNKNOWN'
         return type, major, minor, patch
+
