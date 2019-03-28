@@ -13,17 +13,18 @@ def print_commits(project):
 def print_release_stat(project):
     print("# releases: %d" % len(project.releases))
     for release in project.releases:
-        print("%d/%d" % (release.authors.top(0.8).count(), release.authors.count()))
-        print("%s\t%s\t%d\t%d\t%d\t%s" % (release.name,
+        print("%d/%d" % (len(release.developers.authors.top(0.8)), release.developers.authors.count()))
+        print("%-15s %s %d %d %d %s %s" % (release.name,
                                   release.typename,
                                   release.commit_count,
-                                  release.developer_count,
-                                  release.newcommer_count,
+                                  release.developers.authors.count(),
+                                  release.developers.committers.count(),
+                                  0, #release.developers.count(),
                                   release.length))
 
 
 project = ProjectFactory.create(".", GitVcs())
-project = ProjectFactory.create("../../repos/angular", GitVcs())
+#project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())

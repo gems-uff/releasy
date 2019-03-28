@@ -152,10 +152,7 @@ class Release:
         self.commits = []
         self.merges = []
         self.tails = []
-        self.developers = []
-        self.committers = []
-        self.authors = Tracker()
-        self.newcommers = []
+        self.developers = DeveloperRoleTracker()
 
     @property
     def name(self):
@@ -291,37 +288,46 @@ class DeveloperDB:
         return self._developer_db[login]
 
 
-class Tracker:
-    """ Track developer's contributions 
-    
-    release.developers.count()
-    release.developers.list()
-    release.developers.top10() : DeveloperTracker
-    
+class Developer:
     """
+    Contributors: Developers and committers
+
+    Attributes:
+        login: contributor id
+        name: contributor name
+        email: contributor e-mail
+    """
+
+    def __init__(self):
+        self.login = None
+        self.name = None
+        self.email = None
+
+
+class ZTracker:
+    """ Tracker is a dynamic object to track and agregate contributions """
+    
     def __init__(self, items=None):
-        self.tracker = {}
-        self.total = 0
+        self._tracker = {}
         if items:
             for (item, count) in items:
                 self.add(item, count)
 
     def add(self, item, count=1):
-        if item in self.tracker:
-            self.tracker[item]['count'] += count
+        if item in self._tracker:
+            self._tracker[item]['count'] += count
         else:
-            self.tracker[item] = {
+            self._tracker[item] = {
                 'count': count
             }
-        self.total += count
    
     def list(self):
         """ Return the list of tracked objects """
-        return self.tracker.keys()
+        return self._tracker.keys()
 
     def items(self):
         """ Return the list of tracked objetcs and the tracked values """
-        return self.tracker.items()
+        return self._tracker.items()
 
     def count(self) -> int:
         """ Return the count of tracked objects """
@@ -345,21 +351,72 @@ class Tracker:
             top.add(item[0], item[1]['count'])
         return top
 
+# class Tracker:
+#     """ Generic tracker """
+#     def __init__(self, trackers=None):
+#         if trackers:
+#             for tracker in trackers:
+#                 self.merge(tracker)
+    
+#     def merge(self, tracker):
+#         """ Merge current tracker with other """
+#         pass
 
-class Developer:
-    """
-    Contributors: Developers and committers
+#     def list(self):
+#        """ Return the list of tracked objects """
+#        return self._tracker.keys()
 
-    Attributes:
-        login: contributor id
-        name: contributor name
-        email: contributor e-mail
-    """
-
+  
+class DeveloperTracker:
+    """ Track developers """
     def __init__(self):
-        self.login = None
-        self.name = None
-        self.email = None
+        self._developers = {}
+        self._totals = {
+            'commits': 0
+        }
+
+    def add(self, developer: Developer, commit:Commit):
+        if developer and commit:
+            if developer in self._developers: 
+                self._developers[developer]['commits'].append(commit)
+            else:
+                self._developers[developer] = { 'commits': [commit] }
+            self._totals['commits'] += 1
+
+    def list(self):
+        return self._developers.keys()
+
+    def count(self):
+        return len(self.list())
+
+    def top(self, percent, attribute='commits'):
+        """ Return the top tracked items
+
+        Params:
+            percent: percentage that the top matches, i.g., 0.8 return the
+                     tracked items responsible for 80% of the total
+        """
+        developers = sorted(self._developers.items(),
+                       key=lambda d:len(d[1]['commits']), 
+                       reverse=True)
+        threshold = min(percent * self._totals['commits'],
+                        self._totals['commits'])
+        amount = 0
+        developers_it = iter(developers)
+        top = []
+        while amount < threshold:
+            item = next(developers_it)
+            amount += len(item[1]['commits'])
+            top.append(item[0])
+        return top
+
+
+class DeveloperRoleTracker(DeveloperTracker):
+    """ Track developer roles """
+    def __init__(self, trackers: DeveloperTracker=None):
+        self.authors = DeveloperTracker()
+        self.committers = DeveloperTracker()
+        self.newcomers = DeveloperTracker()
 
 
 def is_release_tag(project, tagname):
@@ -415,19 +472,22 @@ def track_commit(project, release, commit):
     if len(commit.parents) > 1:
         release.merges.append(commit)
 
-    if commit.committer not in release.developers:
-        release.developers.append(commit.committer)
-    if commit.committer not in release.committers:
-        release.committers.append(commit.committer)
+    release.developers.committers.add(commit.committer, commit)
+    release.developers.authors.add(commit.author, commit)
 
-    release.authors.add(commit.author)
-    if commit.author not in release.developers:
-         release.developers.append(commit.author)
-#    if commit.author not in release.authors:
-#        release.authors.append(commit.author)
-    if commit.author not in project.authors:
-        project.authors.append(commit.author)
-        release.newcommers.append(commit.author)
+    # if commit.committer not in release.developers:
+    #     release.developers.append(commit.committer)
+    # if commit.committer not in release.committers:
+    #     release.committers.append(commit.committer)
+
+    # release.authors.add(commit.author)
+    # if commit.author not in release.developers:
+    #      release.developers.append(commit.author)
+    # if commit.author not in release.authors:
+    #     release.authors.append(commit.author)
+    # if commit.author not in project.authors:
+    #     project.authors.append(commit.author)
+    #     release.newcommers.append(commit.author)
 
 
 def release_pattern_search(pattern, release_name):
