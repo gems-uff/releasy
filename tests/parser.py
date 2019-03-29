@@ -13,13 +13,13 @@ def print_commits(project):
 def print_release_stat(project):
     print("# releases: %d" % len(project.releases))
     for release in project.releases:
-        print("%d/%d" % (len(release.developers.authors.top(0.8)), release.developers.authors.count()))
-        print("%-15s %s %d %d %d %s %s" % (release.name,
+        print("%-15s %s %d %d %d %s %d %s" % (release.name,
                                   release.typename,
                                   release.commit_count,
                                   release.developers.authors.count(),
                                   release.developers.committers.count(),
-                                  0, #release.developers.count(),
+                                  release.developers.count(),
+                                  release.developers.newcomers.count(),
                                   release.length))
 
 
