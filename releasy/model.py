@@ -31,6 +31,7 @@ class Project:
         self.__developer_db = None
         self.developers = DeveloperRoleTracker()
         self._config_ctrl = []
+        self.commits = CommitTracker()
         self.release_pattern = None
 
         self.load_config()
@@ -150,7 +151,7 @@ class Release:
     def __init__(self, project, tag):
         self.project = project
         self.tag = tag
-        self.commits = []
+        self.commits = CommitTracker([project.commits])
         self.merges = []
         self.tails = []
         self.developers = DeveloperRoleTracker(project)
@@ -263,17 +264,44 @@ class Commit:
         self.release = None
         self.time = None
         self.author_time = None
+        self._stats = None
+
+    def __repr__(self):
+        return self.id
 
     @property
     def parents(self):
         return []
+
+    @property
+    def churn(self):
+        return self.stats.insertions + self.stats.deletions
+
+    @property
+    def stats(self) -> CommitStats:
+        return self._stats
+
+
+class CommitStats():
+    """ Store diff stats of commits 
+    
+    Attributes:
+        insertions: number of inserted lines 
+        deletions: number of deleted lines
+        files_changed: number of changed files
+    """
+    def __init__(self):
+        self.insertions = 0
+        self.deletions = 0
+        self.files_changed = 0
 
 
 class CommitTracker():
     def __init__(self, triggers=None):
         self._commits = {}
         self._totals = {
-            'churn': 0
+            'churn': 0,
+            'merges': 0
         }
         self.triggers = []
         if triggers:
@@ -284,6 +312,8 @@ class CommitTracker():
             if commit not in self._commits: 
                 self._commits[commit] = 1 
             self._totals['churn'] += commit.churn
+            if len(commit.parents) > 1:
+                self._totals['merges'] += 1
             for trigger in self.triggers:
                 trigger.add(commit)
 
@@ -296,6 +326,11 @@ class CommitTracker():
     def count(self):
         return len(self.list())
 
+    def total(self, attribute):
+        if attribute in self._totals:
+            return self._totals[attribute]
+        else:
+            return -1
 
 class DeveloperDB:
     """
@@ -332,7 +367,10 @@ class Developer:
         self.name = None
         self.email = None
 
+    def __repr__(self):
+        return self.login
  
+
 class DeveloperTracker:
     """ Track developers """
     def __init__(self, triggers=None):
@@ -455,10 +493,7 @@ def track_release(project, release):
 def track_commit(project, release, commit):
     " associate commit to release "
     commit.release = release
-    release.commits.append(commit)
-    if len(commit.parents) > 1:
-        release.merges.append(commit)
-
+    release.commits.add(commit)
     release.developers.committers.add(commit.committer, commit)
     release.developers.authors.add(commit.author, commit)
 

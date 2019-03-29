@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from pygit2 import Repository
 from pygit2 import GIT_OBJ_TAG
 
-from releasy.model import Project, Vcs, Tag, Commit
+from releasy.model import Project, Vcs, Tag, Commit, CommitStats
 
 
 class GitVcs(Vcs):
@@ -103,4 +103,19 @@ class GitCommit(Commit):
     def parents(self):
         # late bind method to avoid memory leak
         return [self.__vcs.load_commit(commit.hex, commit) for commit in self.__raw.parents]
+
+    @property
+    def stats(self) -> CommitStats:
+        if not self._stats:
+            self._stats = CommitStats()
+            if self.parents:
+                for parent in self.parents:
+                    diff = self.__vcs.repository.diff(parent._GitCommit__raw, self.__raw)
+                    self._stats.insertions += diff.stats.insertions
+                    self._stats.deletions += diff.stats.deletions
+                    self._stats.files_changed += diff.stats.files_changed
+        return self._stats
+
+
+
 
