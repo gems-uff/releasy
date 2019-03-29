@@ -139,20 +139,17 @@ class Release:
         description (str): release description
         time: release creation time
         commits: list of commits that belong exclusively to this release
-        merges: list of merge commits that belong exclusively to this release
         tag: tag that represents the release
         head: commit referred  by release.tag
         tails: list of commits where the release begin
-        developers: list of authors and committers
-        committers: list of committers
-        authors: list of authors
+        developers: list of developers
+        length: release duration
     """
 
     def __init__(self, project, tag):
         self.project = project
         self.tag = tag
         self.commits = CommitTracker([project.commits])
-        self.merges = []
         self.tails = []
         self.developers = DeveloperRoleTracker(project)
 
@@ -171,22 +168,6 @@ class Release:
     @property
     def head(self):
         return self.tag.commit
-
-    @property
-    def commit_count(self):
-        return len(self.commits)
-
-    @property
-    def merge_count(self):
-        return len(self.merges)
-
-    @property
-    def developer_count(self):
-        return len(self.developers)
-
-    @property
-    def newcommer_count(self):
-        return len(self.newcommers)
 
     @property
     def typename(self):
