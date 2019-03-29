@@ -108,12 +108,11 @@ class GitCommit(Commit):
     def stats(self) -> CommitStats:
         if not self._stats:
             self._stats = CommitStats()
-            if self.parents:
-                for parent in self.parents:
-                    diff = self.__vcs.repository.diff(parent._GitCommit__raw, self.__raw)
-                    self._stats.insertions += diff.stats.insertions
-                    self._stats.deletions += diff.stats.deletions
-                    self._stats.files_changed += diff.stats.files_changed
+            for raw_parent in self.__raw.parents:
+                diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
+                self._stats.insertions += diff.stats.insertions
+                self._stats.deletions += diff.stats.deletions
+                self._stats.files_changed += diff.stats.files_changed
         return self._stats
 
 

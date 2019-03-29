@@ -312,6 +312,7 @@ class CommitTracker():
         else:
             return -1
 
+
 class DeveloperDB:
     """
     Store developer information and handle developers with multiple ids
