@@ -1,7 +1,6 @@
 """
 Releasy Meta Model
 """
-from __future__ import annotations
 import typing
 
 import re
@@ -43,11 +42,11 @@ class Project:
             self.release_pattern = re.compile(r'(?P<major>[0-9]{1,3})([\._](?P<minor>[0-9]+))([\._](?P<patch>[0-9]+))?')
 
     @property
-    def vcs(self) -> Vcs:
+    def vcs(self):
         return self.__vcs
 
     @vcs.setter
-    def vcs(self, vcs: Vcs):
+    def vcs(self, vcs):
         self.__vcs = vcs
         self.__vcs.path = self.path
         if self.__developer_db:
@@ -259,7 +258,7 @@ class Commit:
         return self.stats.insertions + self.stats.deletions
 
     @property
-    def stats(self) -> CommitStats:
+    def stats(self):
         return self._stats
 
 
