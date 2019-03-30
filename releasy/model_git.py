@@ -108,11 +108,14 @@ class GitCommit(Commit):
     def stats(self) -> CommitStats:
         if not self._stats:
             self._stats = CommitStats()
-            for raw_parent in self.__raw.parents:
-                diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
-                self._stats.insertions += diff.stats.insertions
-                self._stats.deletions += diff.stats.deletions
-                self._stats.files_changed += diff.stats.files_changed
+            if self.__raw.parents:
+                diff = self.__raw.tree.diff_to_tree(self.__raw.parents[0].tree)
+            else:
+                diff = self.__raw.tree.diff_to_tree()
+            self._stats.insertions += diff.stats.insertions
+            self._stats.deletions += diff.stats.deletions
+            self._stats.files_changed += diff.stats.files_changed
+
         return self._stats
 
 
