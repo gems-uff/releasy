@@ -149,8 +149,15 @@ class Release:
         self.project = project
         self.tag = tag
         self.commits = CommitTracker([project.commits])
-        self.tails = []
+        self._tails = []
         self.developers = DeveloperRoleTracker(project)
+        self._base_releases = []
+        self.__commit_stats = CommitStats()
+
+    def __repr__(self):
+        return ('%s (%s - %s)' % (self.name, 
+                                  self.typename, 
+                                  self.length_groupname))
 
     @property
     def name(self):
@@ -167,6 +174,24 @@ class Release:
     @property
     def head(self):
         return self.tag.commit
+
+    @property
+    def base_releases(self):
+        return self._base_releases
+
+    def add_base_release(self, base_release):
+        if base_release not in self._base_releases:
+            self._base_releases.append(base_release)
+            stats = base_release.head.diff_stats(self.head)
+            self.__commit_stats += stats
+        
+    @property
+    def tails(self):
+        return self._tails
+
+    def add_tail(self, commit):
+        if commit not in self._tails:
+            self._tails.append(commit)
 
     @property
     def typename(self):
@@ -228,6 +253,10 @@ class Release:
         # return self.time - self.__start_commit.time
         return self.time - self.__start_commit.author_time
 
+    @property
+    def churn(self):
+        return self.__commit_stats.churn
+
 
 class Tag:
     """Tag
@@ -267,7 +296,7 @@ class Commit:
         self.message = None
         self.committer = None
         self.author = None
-        self.release = None
+        self.release: Release = None
         self.time = None
         self.author_time = None
         self._stats = None
@@ -281,11 +310,14 @@ class Commit:
 
     @property
     def churn(self):
-        return self.stats.insertions + self.stats.deletions
+        return self.stats.churn
 
     @property
     def stats(self):
         return self._stats
+
+    def diff_stats(self, commit):
+        pass
 
 
 class CommitStats():
@@ -300,6 +332,21 @@ class CommitStats():
         self.insertions = 0
         self.deletions = 0
         self.files_changed = 0
+
+    def __add__(self, other):
+        if other:
+            sum = CommitStats()
+            sum.insertions = self.insertions + other.insertions
+            sum.deletions = self.deletions + other.deletions
+            sum.files_changed = self.files_changed + other.files_changed
+            return sum
+        else:
+            return self
+
+    @property
+    def churn(self):
+        """ return code churn, i.e, insertions + deletions """
+        return self.insertions + self.deletions
 
 
 class CommitTracker():
@@ -332,8 +379,10 @@ class CommitTracker():
     def count(self):
         return len(self.list())
 
-    def total(self, attribute):
-        if attribute in self._totals:
+    def total(self, attribute=None):
+        if not attribute:
+            return self.count()
+        elif attribute in self._totals:
             return self._totals[attribute]
         else:
             return -1
@@ -408,6 +457,14 @@ class DeveloperTracker:
     def count(self):
         return len(self.list())
 
+    def total(self, attribute=None):
+        if not attribute:
+            return self.count()
+        elif attribute in self._totals:
+            return self._totals[attribute]
+        else:
+            return -1
+
     def top(self, percent, attribute='commits'):
         """ Return the top tracked items
 
@@ -465,14 +522,25 @@ def is_tracked_commit(commit):
     return False
 
 
-def track_release(project, release):
+def track_base_release(release: Release, commit: Commit, parent_commit: Commit=None):
+    if parent_commit:
+        if is_tracked_commit(parent_commit):
+            base_release = parent_commit.release
+            if base_release.head == parent_commit:
+                release.add_base_release(base_release)
+                release.add_tail(commit)
+    else: # root commit
+        release.add_tail(commit)
+
+
+def track_release(project: Project, release: Release):
     """
     Associate release to it commits
 
     Params:
-        release: release list sorted by date
+        project: the project
+        release: the release to be associated
     """
-
     commit_stack = [ release.head ]
     while len(commit_stack):
         cur_commit = commit_stack.pop()
@@ -481,24 +549,21 @@ def track_release(project, release):
         if not is_tracked_commit(cur_commit):
             track_commit(project, release, cur_commit)
 
-            is_tail = False
             if cur_commit.parents:
                 for parent_commit in cur_commit.parents:
                     if is_tracked_commit(parent_commit):
-                        is_tail = True
+                        track_base_release(release, cur_commit, parent_commit)
                     else:
                         commit_stack.append(parent_commit)
             else:
-                is_tail = True
-            if is_tail:
-                release.tails.append(cur_commit)
+                track_base_release(release, cur_commit)
 
     # release.tails = sorted(release.tails, key=lambda commit: commit.time)
-    release.tails = sorted(release.tails, key=lambda commit: commit.author_time)
+    # release.tails = sorted(release.tails, key=lambda commit: commit.author_time)
 
 
 def track_commit(project, release, commit):
-    " associate commit to release "
+    """ associate commit to release """
     commit.release = release
     release.commits.add(commit)
     release.developers.committers.add(commit.committer, commit)

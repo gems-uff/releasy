@@ -13,22 +13,25 @@ def print_commits(project):
 def print_release_stat(project):
     print("# releases: %d" % len(project.releases))
     for release in project.releases:
-        print("%-15s %s %d %d %d %s %d %d %s %d %s" % (release.name,
-                                  release.typename,
-                                  release.commits.count(),
-                                  release.developers.authors.count(),
-                                  release.developers.committers.count(),
-                                  release.developers.count(),
-                                  release.developers.newcomers.count(),
-                                  release.commits.total('churn'),
-                                  release.length,
-                                  release.length_group,
-                                  release.length_groupname))
+        print("%-25s %s %d %d %d %s %d %d %s %d %s %s" % (
+            release,
+            release.typename,
+            release.commits.count(),
+            release.developers.authors.count(),
+            release.developers.committers.count(),
+            release.developers.count(),
+            release.developers.newcomers.count(),
+            release.commits.total('churn'),
+            release.length,
+            release.length_group,
+            release.length_groupname, 
+            release.churn,
+            release.base_releases))
     print(project.commits.total('churn'), project.commits.count())
+    print({ 'a':1})
 
-
-project = ProjectFactory.create(".", GitVcs())
-#project = ProjectFactory.create("../../repos/angular", GitVcs())
+# project = ProjectFactory.create(".", GitVcs())
+project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())

@@ -118,6 +118,17 @@ class GitCommit(Commit):
 
         return self._stats
 
+    def diff_stats(self, commit):
+        stats = CommitStats()
+        if commit:
+            diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
+            stats.insertions += diff.stats.insertions
+            stats.deletions += diff.stats.deletions
+            stats.files_changed += diff.stats.files_changed
+        return stats
+
+
+
 
 
 
