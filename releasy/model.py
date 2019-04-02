@@ -2,7 +2,7 @@
 Releasy Meta Model
 """
 import typing
-
+from datetime import timedelta
 import re
 import yaml
 import os
@@ -180,6 +180,32 @@ class Release:
                 return 'MAJOR'
         else:
             return 'UNKNOWN'
+
+    @property
+    def length_group(self):
+        if self.length < timedelta(hours=1):
+            return 0 #'minutes'
+        elif self.length < timedelta(days=1):
+            return 1 #'hours'
+        elif self.length < timedelta(days=7):
+            return 2 #'days'
+        elif self.length < timedelta(days=30):
+            return 3 #'weeks'
+        elif self.length < timedelta(days=365):
+            return 4 #'months'
+        else:
+            return 5 #'years'
+
+    @property
+    def length_groupname(self):
+        return {
+            0: 'minutes',
+            1: 'hours',
+            2: 'days',
+            3: 'weeks',
+            4: 'months',
+            5: 'years'
+        }[self.length_group]
 
     @property
     def first_commit(self):
