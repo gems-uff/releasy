@@ -184,7 +184,7 @@ class Release:
             self._base_releases.append(base_release)
             stats = base_release.head.diff_stats(self.head)
             self.__commit_stats += stats
-        
+
     @property
     def tails(self):
         return self._tails
@@ -192,7 +192,10 @@ class Release:
     def add_tail(self, commit):
         if commit not in self._tails:
             self._tails.append(commit)
-
+            if not commit.parents: # root commit
+                stats = self.head.diff_stats()
+                self.__commit_stats += stats
+    
     @property
     def typename(self):
         current = self.project.release_pattern.match(self.name)
@@ -529,6 +532,7 @@ def track_base_release(release: Release, commit: Commit, parent_commit: Commit=N
             if base_release.head == parent_commit:
                 release.add_base_release(base_release)
                 release.add_tail(commit)
+
     else: # root commit
         release.add_tail(commit)
 

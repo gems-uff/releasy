@@ -108,23 +108,26 @@ class GitCommit(Commit):
     def stats(self) -> CommitStats:
         if not self._stats:
             self._stats = CommitStats()
-            # if self.__raw.parents:
-            #     diff = self.__raw.tree.diff_to_tree(self.__raw.parents[0].tree)
-            # else:
-            #     diff = self.__raw.tree.diff_to_tree()
-            # self._stats.insertions += diff.stats.insertions
-            # self._stats.deletions += diff.stats.deletions
-            # self._stats.files_changed += diff.stats.files_changed
-
+            if self.__raw.parents:
+                for raw_parent in self.__raw.parents:
+                    diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
+                    self._stats += diff.stats
+            else:
+                diff = self.__raw.tree.diff_to_tree()
+                self._stats += diff.stats
         return self._stats
 
-    def diff_stats(self, commit):
+    #todo this method is not in the best place
+    #     consider change it to some util class
+    def diff_stats(self, commit=None):
         stats = CommitStats()
         if commit:
             diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
-            stats.insertions += diff.stats.insertions
-            stats.deletions += diff.stats.deletions
-            stats.files_changed += diff.stats.files_changed
+        else:
+            diff = self.__raw.tree.diff_to_tree()
+        stats.insertions += diff.stats.insertions
+        stats.deletions += diff.stats.deletions
+        stats.files_changed += diff.stats.files_changed
         return stats
 
 
