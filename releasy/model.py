@@ -41,6 +41,9 @@ class Project:
         if not self.release_pattern: # default
             self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
+    def __repr__(self):
+        return project.name
+
     @property
     def vcs(self):
         return self.__vcs
@@ -148,9 +151,9 @@ class Release:
     def __init__(self, project, tag):
         self.project = project
         self.tag = tag
-        self.commits = CommitTracker([project.commits])
+        self.commits = CommitTracker()
         self._tails = []
-        self.developers = DeveloperRoleTracker(project)
+        self.developers = DeveloperRoleTracker(self.project)
         self._base_releases = []
         self.__commit_stats = CommitStats()
 
@@ -353,15 +356,12 @@ class CommitStats():
 
 
 class CommitTracker():
-    def __init__(self, triggers=None):
+    def __init__(self):
         self._commits = {}
         self._totals = {
             'churn': 0,
             'merges': 0
         }
-        self.triggers = []
-        if triggers:
-            self.triggers.extend(triggers)
 
     def add(self, commit):
         if commit:
@@ -370,8 +370,6 @@ class CommitTracker():
             self._totals['churn'] += commit.churn
             if len(commit.parents) > 1:
                 self._totals['merges'] += 1
-            for trigger in self.triggers:
-                trigger.add(commit)
 
     def list(self):
         return self._commits.keys()
@@ -432,24 +430,21 @@ class Developer:
 
 class DeveloperTracker:
     """ Track developers """
-    def __init__(self, triggers=None):
+    def __init__(self):
         self._developers = {}
         self._totals = {
             'commits': 0
         }
-        self.triggers = []
-        if triggers:
-            self.triggers.extend(triggers)
 
-    def add(self, developer: Developer, commit:Commit):
-        if developer and commit:
+    def add(self, developer: Developer, commits):
+        if developer and commits:
+            if not type(commits) is list:
+                commits = [commits]
             if developer in self._developers: 
-                self._developers[developer]['commits'].append(commit)
+                self._developers[developer]['commits'].extend(commits)
             else:
-                self._developers[developer] = { 'commits': [commit] }
-            self._totals['commits'] += 1
-            for trigger in self.triggers:
-                trigger.add(developer, commit)
+                self._developers[developer] = { 'commits': commits }
+            self._totals['commits'] += len(commits)
 
     def list(self):
         return self._developers.keys()
@@ -482,11 +477,11 @@ class DeveloperTracker:
                         self._totals['commits'])
         amount = 0
         developers_it = iter(developers)
-        top = []
+        top = DeveloperTracker()
         while amount < threshold:
-            item = next(developers_it)
-            amount += len(item[1]['commits'])
-            top.append(item[0])
+            developer, data = next(developers_it)
+            amount += len(data['commits'])
+            top.add(developer, data['commits'])
         return top
 
 
@@ -495,21 +490,10 @@ class DeveloperRoleTracker(DeveloperTracker):
     def __init__(self, project=None):
         super().__init__()
         self.project = project
-        authors_triggers = [self]
-        committers_triggers = [self]
-        if project:
-            authors_triggers.append(project.developers.authors)
-            committers_triggers.append(project.developers.committers)
-
-        self.authors = DeveloperTracker(authors_triggers)
-        self.committers = DeveloperTracker(committers_triggers)
+        self.authors = DeveloperTracker()
+        self.committers = DeveloperTracker()
         self.newcomers = DeveloperTracker()
 
-    def add(self, developer: Developer, commit:Commit):
-        if self.project:
-            if not self.project.developers.contains(developer):
-                self.newcomers.add(developer, commit)
-        super().add(developer, commit)
 
 def is_release_tag(project, tagname):
     """ Check if a tag represents a release """
@@ -568,11 +552,25 @@ def track_release(project: Project, release: Release):
 
 def track_commit(project, release, commit):
     """ associate commit to release """
+    committer = commit.committer
+    author = commit.author
     commit.release = release
     release.commits.add(commit)
-    release.developers.committers.add(commit.committer, commit)
-    release.developers.authors.add(commit.author, commit)
+    project.commits.add(commit)
 
+    release.developers.committers.add(committer, commit)
+    release.developers.authors.add(author, commit)
+    release.developers.add(committer, commit)
+    if not project.developers.contains(committer):
+        release.developers.newcomers.add(committer, commit)
+    project.developers.committers.add(committer, commit)
+    project.developers.add(committer, commit)
+    if not project.developers.contains(author):
+        release.developers.newcomers.add(author, commit)
+    project.developers.authors.add(author, commit)
+    if committer != author:
+        release.developers.add(author, commit)
+        project.developers.add(author, commit)
 
 def release_pattern_search(pattern, release_name):
     re_match = pattern.search(release_name)

@@ -16,14 +16,17 @@ def print_release_stat(project):
     for release in project.releases:
         print(json.dumps({
                             'release': str(release),
+                            'time': str(release.time),
                             'typename': release.typename,
                             'commits': release.commits.count(),
                             'commits.churn': release.commits.total('churn'),
                             'churn': release.churn,
                             'rework': release.commits.total('churn') - release.churn,
+                            'merges': release.commits.total('merges'),
+                            'developers': release.developers.count(),
                             'authors': release.developers.authors.count(),
                             'committers': release.developers.committers.count(),
-                            'developers': release.developers.count(),
+                            'main_developers': release.developers.authors.top(0.8).count(),
                             'newcomers': release.developers.newcomers.count(),
                             'length': str(release.length),
                             'length_group': release.length_group,
