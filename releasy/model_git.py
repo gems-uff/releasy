@@ -6,6 +6,7 @@ from pygit2 import GIT_OBJ_TAG
 from releasy.model import Project, Vcs, Tag, Commit, CommitStats
 
 RELEASY_FT_COMMIT_CHURN = 0
+RELEASY_FT_CHURN = 0
 
 class GitVcs(Vcs):
     """ Encapsulate Git Version Control System using pygit2 lib
@@ -123,13 +124,14 @@ class GitCommit(Commit):
     #     consider change it to some util class
     def diff_stats(self, commit=None):
         stats = CommitStats()
-        if commit:
-            diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
-        else:
-            diff = self.__raw.tree.diff_to_tree()
-        stats.insertions += diff.stats.insertions
-        stats.deletions += diff.stats.deletions
-        stats.files_changed += diff.stats.files_changed
+        if RELEASY_FT_CHURN:
+            if commit:
+                diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
+            else:
+                diff = self.__raw.tree.diff_to_tree()
+            stats.insertions += diff.stats.insertions
+            stats.deletions += diff.stats.deletions
+            stats.files_changed += diff.stats.files_changed
         return stats
 
 
