@@ -513,10 +513,8 @@ def track_base_release(release: Release, commit: Commit, parent_commit: Commit=N
     if parent_commit:
         if is_tracked_commit(parent_commit):
             base_release = parent_commit.release
-            if base_release.head == parent_commit:
-                release.add_base_release(base_release)
-                release.add_tail(commit)
-
+            release.add_base_release(base_release)
+            release.add_tail(commit)
     else: # root commit
         release.add_tail(commit)
 

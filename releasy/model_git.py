@@ -121,13 +121,13 @@ class GitCommit(Commit):
     #     consider change it to some util class
     def diff_stats(self, commit=None):
         stats = CommitStats()
-        if commit:
-            diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
-        else:
-            diff = self.__raw.tree.diff_to_tree()
-        stats.insertions += diff.stats.insertions
-        stats.deletions += diff.stats.deletions
-        stats.files_changed += diff.stats.files_changed
+        # if commit:
+        #     diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
+        # else:
+        #     diff = self.__raw.tree.diff_to_tree()
+        # stats.insertions += diff.stats.insertions
+        # stats.deletions += diff.stats.deletions
+        # stats.files_changed += diff.stats.files_changed
         return stats
 
 

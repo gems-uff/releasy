@@ -36,8 +36,8 @@ def print_release_stat(project):
     #print(project.commits.total('churn'), project.commits.count())
     #print({ 'a':1})
 
-project = ProjectFactory.create(".", GitVcs())
-# project = ProjectFactory.create("../../repos/angular", GitVcs())
+# project = ProjectFactory.create(".", GitVcs())
+project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())
