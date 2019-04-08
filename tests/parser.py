@@ -2,6 +2,7 @@ import json
 
 from releasy.model import Project, Release, Tag, Commit
 from releasy.model_git import GitVcs
+import releasy.model_git
 from releasy.factory import ProjectFactory
 
 def print_commits(project):
@@ -35,6 +36,9 @@ def print_release_stat(project):
                         }, indent=2))
     #print(project.commits.total('churn'), project.commits.count())
     #print({ 'a':1})
+
+
+# releasy.model_git.RELEASY_FT_COMMIT_CHURN = 1
 
 # project = ProjectFactory.create(".", GitVcs())
 project = ProjectFactory.create("../../repos/angular", GitVcs())
