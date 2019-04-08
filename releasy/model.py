@@ -39,7 +39,8 @@ class Project:
             self.release_pattern = re.compile(regexp)
             self._config_ctrl.append('release_pattern')
         if not self.release_pattern: # default
-            self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
+            self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
+            # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
     def __repr__(self):
         return project.name
