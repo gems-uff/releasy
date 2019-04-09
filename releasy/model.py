@@ -157,6 +157,7 @@ class Release:
         self.developers = DeveloperRoleTracker(self.project)
         self._base_releases = []
         self.__commit_stats = CommitStats()
+        self.__first_commit = None
 
     def __repr__(self):
         return ('%s (%s - %s)' % (self.name, 
@@ -184,7 +185,7 @@ class Release:
         return self._base_releases
 
     def add_base_release(self, base_release):
-        if base_release not in self._base_releases:
+        if base_release != self and base_release not in self._base_releases:
             self._base_releases.append(base_release)
             stats = base_release.head.diff_stats(self.head)
             self.__commit_stats += stats
@@ -196,8 +197,11 @@ class Release:
     def add_tail(self, commit):
         if commit not in self._tails:
             self._tails.append(commit)
+            if not self.__first_commit or self.__first_commit.author_time > commit.author_time:
+                self.__first_commit = commit
+
             if not commit.parents: # root commit
-                stats = self.head.diff_stats()
+                stats = self.head.diff_stats()   #todo avaliar
                 self.__commit_stats += stats
     
     @property
@@ -241,7 +245,7 @@ class Release:
 
     @property
     def first_commit(self):
-        return self.tails[0]
+        return self.__first_commit
 
     @property
     def __start_commit(self):
@@ -367,7 +371,7 @@ class CommitTracker():
     def add(self, commit):
         if commit:
             if commit not in self._commits: 
-                self._commits[commit] = 1 
+                self._commits[commit] = commit 
             self._totals['churn'] += commit.churn
             if len(commit.parents) > 1:
                 self._totals['merges'] += 1

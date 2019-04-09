@@ -41,7 +41,8 @@ def print_release_stat(project):
 # releasy.model_git.RELEASY_FT_COMMIT_CHURN = 1
 
 # project = ProjectFactory.create(".", GitVcs())
-project = ProjectFactory.create("../../repos/angular", GitVcs())
+project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
+#project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())
