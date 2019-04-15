@@ -19,9 +19,9 @@ def print_release_stat(project):
                             'release': str(release),
                             'time': str(release.time),
                             'typename': release.typename,
+                            'churn': release.churn,
                             'commits': release.commits.count(),
                             'commits.churn': release.commits.total('churn'),
-                            'churn': release.churn,
                             'rework': release.commits.total('churn') - release.churn,
                             'merges': release.commits.total('merges'),
                             'developers': release.developers.count(),
@@ -40,9 +40,9 @@ def print_release_stat(project):
 
 # releasy.model_git.RELEASY_FT_COMMIT_CHURN = 1
 
-# project = ProjectFactory.create(".", GitVcs())
-project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
-#project = ProjectFactory.create("../../repos/angular", GitVcs())
+project = ProjectFactory.create(".", GitVcs())
+# project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
+# project = ProjectFactory.create("../../repos/angular", GitVcs())
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())

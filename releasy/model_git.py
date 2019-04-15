@@ -5,8 +5,6 @@ from pygit2 import GIT_OBJ_TAG
 
 from releasy.model import Project, Vcs, Tag, Commit, CommitStats
 
-RELEASY_FT_COMMIT_CHURN = 0
-RELEASY_FT_CHURN = 0
 
 class GitVcs(Vcs):
     """ Encapsulate Git Version Control System using pygit2 lib
@@ -110,28 +108,30 @@ class GitCommit(Commit):
     def stats(self) -> CommitStats:
         if not self._stats:
             self._stats = CommitStats()
-            if RELEASY_FT_COMMIT_CHURN:
-                if self.__raw.parents:
-                    for raw_parent in self.__raw.parents:
-                        diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
-                        self._stats += diff.stats
-                else:
-                    diff = self.__raw.tree.diff_to_tree()
+            if self.__raw.parents:
+                for raw_parent in self.__raw.parents:
+                    diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
                     self._stats += diff.stats
+            else:
+                diff = self.__raw.tree.diff_to_tree()
+                self._stats += diff.stats
         return self._stats
 
     #todo this method is not in the best place
     #     consider change it to some util class
     def diff_stats(self, commit=None):
+        """ Calculate diff stats from another commit. This method is useful to
+        calculate release churn """
+
         stats = CommitStats()
-        if RELEASY_FT_CHURN:
-            if commit:
-                diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
-            else:
-                diff = self.__raw.tree.diff_to_tree()
-            stats.insertions += diff.stats.insertions
-            stats.deletions += diff.stats.deletions
-            stats.files_changed += diff.stats.files_changed
+        if commit:
+            diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
+        else:
+            diff = self.__raw.tree.diff_to_tree()
+        # intentionaly inverted
+        stats.insertions = diff.stats.deletions
+        stats.deletions = diff.stats.insertions
+        stats.files_changed = diff.stats.files_changed
         return stats
 
 

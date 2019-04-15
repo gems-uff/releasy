@@ -39,7 +39,7 @@ class Project:
             self.release_pattern = re.compile(regexp)
             self._config_ctrl.append('release_pattern')
         if not self.release_pattern: # default
-            self.release_pattern = re.compile(r'^.*?(?:[^0-9\.])(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
+            self.release_pattern = re.compile(r'^(?:.*?[^0-9\.])?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
             # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
     def __repr__(self):
@@ -156,7 +156,7 @@ class Release:
         self._tails = []
         self.developers = DeveloperRoleTracker(self.project)
         self._base_releases = []
-        self.__commit_stats = CommitStats()
+        self.__commit_stats = None
         self.__first_commit = None
 
     def __repr__(self):
@@ -187,8 +187,6 @@ class Release:
     def add_base_release(self, base_release):
         if base_release != self and base_release not in self._base_releases:
             self._base_releases.append(base_release)
-            stats = base_release.head.diff_stats(self.head)
-            self.__commit_stats += stats
 
     @property
     def tails(self):
@@ -199,10 +197,6 @@ class Release:
             self._tails.append(commit)
             if not self.__first_commit or self.__first_commit.author_time > commit.author_time:
                 self.__first_commit = commit
-
-            if not commit.parents: # root commit
-                stats = self.head.diff_stats()   #todo avaliar
-                self.__commit_stats += stats
     
     @property
     def typename(self):
@@ -266,6 +260,16 @@ class Release:
 
     @property
     def churn(self):
+        if self.__commit_stats:
+            return self.__commit_stats.churn
+
+        self.__commit_stats = CommitStats()
+        if self.base_releases:
+            for base_release in self.base_releases:
+                self.__commit_stats += self.head.diff_stats(base_release.head)
+        else:
+            self.__commit_stats = self.head.diff_stats()
+
         return self.__commit_stats.churn
 
 
@@ -364,7 +368,7 @@ class CommitTracker():
     def __init__(self):
         self._commits = {}
         self._totals = {
-            'churn': 0,
+            'churn': -1,
             'merges': 0
         }
 
@@ -372,9 +376,8 @@ class CommitTracker():
         if commit:
             if commit not in self._commits: 
                 self._commits[commit] = commit 
-            self._totals['churn'] += commit.churn
-            if len(commit.parents) > 1:
-                self._totals['merges'] += 1
+                if len(commit.parents) > 1:
+                    self._totals['merges'] += 1
 
     def list(self):
         return self._commits.keys()
@@ -385,11 +388,16 @@ class CommitTracker():
     def count(self):
         return len(self.list())
 
-    def total(self, attribute=None):
-        if not attribute:
+    def total(self, metric=None):
+        if not metric:
             return self.count()
-        elif attribute in self._totals:
-            return self._totals[attribute]
+        elif metric in self._totals:
+            # since churn is cpu intensive, we lazy calc them
+            if metric == 'churn' and self._totals[metric] == -1: 
+                self._totals['churn'] = 0
+                for commit in self.list():
+                    self._totals['churn'] += commit.churn
+            return self._totals[metric]
         else:
             return -1
 
@@ -535,8 +543,6 @@ def track_release(project: Project, release: Release):
     commit_stack = [ release.head ]
     while len(commit_stack):
         cur_commit = commit_stack.pop()
-
-        # handle multiple tags pointing to a single commit
         if not is_tracked_commit(cur_commit):
             track_commit(project, release, cur_commit)
 
@@ -549,8 +555,10 @@ def track_release(project: Project, release: Release):
             else:
                 track_base_release(release, cur_commit)
 
-    # release.tails = sorted(release.tails, key=lambda commit: commit.time)
-    # release.tails = sorted(release.tails, key=lambda commit: commit.author_time)
+    if release.commits.count() == 0: # releases that point to tracke commits
+        cur_commit = release.head
+        for parent_commit in cur_commit.parents:
+            track_base_release(release, cur_commit, parent_commit)
 
 
 def track_commit(project, release, commit):
