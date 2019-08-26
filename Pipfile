@@ -10,6 +10,7 @@ pyyaml = "*"
 
 [dev-packages]
 pylint = "*"
+pytest = "==5.0.1"
 
 [requires]
 python_version = "3.7"

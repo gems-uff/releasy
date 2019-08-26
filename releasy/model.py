@@ -7,6 +7,8 @@ import re
 import yaml
 import os
 
+from .phase import Development, Stage, Maintenance
+
 
 class Project:
     """
@@ -20,8 +22,15 @@ class Project:
         tagnames (readonly): list of tag names
         _config_ctrl: control changes that can be saved in .releasy file
     """
+    def __init__(self, name):
+        self.name = name
+        self._releases = None
 
-    def __init__(self, name, path, regexp=None):
+    @property
+    def releases(self):
+        return self._releases
+
+    def __init2__(self, name, path, regexp=None):
         self.name = name
         self.path = path
         self.config_path = os.path.join(self.path, '.releasy')
@@ -110,7 +119,6 @@ class Project:
             with open(self.config_path, 'w') as config_file:
                 yaml.dump(config, config_file, default_flow_style=False)
 
-
 class Vcs:
     """
     Version Control Repository
@@ -132,6 +140,39 @@ class Vcs:
         """ load commit from version control """
         pass
 
+class ReleaseDevelopment():
+    def __init__(self):
+        self.commits = []
+        self.commit = {}
+        self.start = None
+        self.end = None
+
+
+class ReleasePre():
+
+    def __init__(self):
+        self.releases = []
+        self.release = {}
+
+    def add(self, release):
+        if release.name not in self.release:
+            self.releases.append(release)
+            self.release[release.name] = release
+
+
+class ReleaseMaintenance():
+
+    def __init__(self):
+        self.patches = []
+        self.patch = {}
+        self.start = None
+        self.end = None
+
+    def add(self, release):
+        if release.name not in self.patch:
+            self.patches.append(release)
+            self.patch[release.name] = release
+
 
 class Release:
     """
@@ -149,7 +190,18 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project, tag):
+    def __init__(self, name, prefix=None, major=None, minor=None, patch=None):
+        self.name = name
+        self.prefix = prefix
+        self.major = major
+        self.minor = minor
+        self.patch = patch
+
+    def __init2__(self, project, tag):
+        self.development = ReleaseDevelopment()
+        self.pre = ReleasePre()
+        self.maintenance = ReleaseMaintenance()
+        
         self.project = project
         self.tag = tag
         self.commits = CommitTracker()
@@ -283,11 +335,11 @@ class Tag:
         message (str): tag message - annotated tags only
     """
 
-    def __init__(self):
-        self.name = None
-        self.commit = None
-        self.time = None
-        self.message = None
+    def __init__(self, name, commit, time=None, message=None):
+        self.name = name
+        self.commit = commit
+        self.time = time
+        self.message = message
 
 
 class Commit:
