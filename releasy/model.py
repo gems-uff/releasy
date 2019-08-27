@@ -25,6 +25,8 @@ class Project:
     def __init__(self, name):
         self.name = name
         self._releases = None
+        self.commits = CommitTracker()
+        self.developers = DeveloperRoleTracker()
 
     @property
     def releases(self):
@@ -190,12 +192,25 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, name, prefix=None, major=None, minor=None, patch=None):
-        self.name = name
+    def __init__(self, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
+        self._tag = tag
+        self.type = release_type
         self.prefix = prefix
         self.major = major
         self.minor = minor
         self.patch = patch
+        self.version = "%d.%d.%d" % (self.major, self.minor, self.patch)
+        self.commits = CommitTracker()
+        self.developers = DeveloperRoleTracker() #TODO remove project
+        
+        #TODO Refact
+        self._tails = []
+        self.__first_commit = None
+        self._base_releases = []
+
+    @property
+    def head(self):
+        return self._tag.commit
 
     def __init2__(self, project, tag):
         self.development = ReleaseDevelopment()
@@ -218,7 +233,7 @@ class Release:
 
     @property
     def name(self):
-        return self.tag.name
+        return self._tag.name
 
     @property
     def description(self):
@@ -227,10 +242,6 @@ class Release:
     @property
     def time(self):
         return self.tag.time
-
-    @property
-    def head(self):
-        return self.tag.commit
 
     @property
     def base_releases(self):
@@ -356,8 +367,18 @@ class Commit:
         author_time: author time
         release: associated release
     """
+    def __init__(self, id, parents, message, author, committer):
+        self.id = id
+        self.parents = parents
+        self.message = message
+        self.author = author
+        self.committer = committer
+        self.release = None
 
-    def __init__(self):
+        #TODO Refact 
+        self.author_time = None
+
+    def __init2__(self):
         self.id = None
         self.subject = None
         self.message = None
@@ -370,10 +391,6 @@ class Commit:
 
     def __repr__(self):
         return self.id
-
-    @property
-    def parents(self):
-        return []
 
     @property
     def churn(self):
@@ -423,6 +440,9 @@ class CommitTracker():
             'churn': -1,
             'merges': 0
         }
+
+    def __len__(self):
+        return self.count()
 
     def add(self, commit):
         if commit:
