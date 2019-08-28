@@ -11,9 +11,8 @@ from .model import Project, Release, Commit
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, path, vcs=None):
-        self.path = path
-        name = os.path.basename(path)
+    def __init__(self, vcs):
+        name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
 
@@ -46,25 +45,29 @@ class Miner():
         return self._project
 
     def _track_release(self, release):
-        commit_stack = [ release.head ]
+        commit_stack = [ release.head_commit ]
         while len(commit_stack):
-            cur_commit = commit_stack.pop()
-            if not self._is_tracked_commit(cur_commit):
-                self._track_commit(release, cur_commit)
+            commit = commit_stack.pop()
+            if not self._is_tracked_commit(commit):
+                self._track_commit(release, commit)
 
-                if cur_commit.parents:
-                    for parent_commit in cur_commit.parents:
-                        if self._is_tracked_commit(parent_commit):
-                            self._track_base_release(release, cur_commit, parent_commit)
+                if commit.parents:
+                    for parent in commit.parents:
+                        if self._is_tracked_commit(parent):
+                            release.base_releases.append(parent.release)
+                            release.tail_commits.append(commit)
                         else:
-                            commit_stack.append(parent_commit)
-                else:
-                    self._track_base_release(release, cur_commit)
+                            commit_stack.append(parent)
+                else: # root commit
+                    release.tail_commits.append(commit)
 
         if release.commits.count() == 0: # releases that point to tracke commits
-            cur_commit = release.head
-            for parent_commit in cur_commit.parents:
-                self._track_base_release(release, cur_commit, parent_commit)
+            commit = release.head_commit
+            release.base_releases.append(commit.release)
+
+        release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
+        release.tail_commits = sorted(release.tail_commits, key=lambda commit: commit.author_time)
+
         return self._project
 
     def _is_tracked_commit(self, commit):
@@ -95,24 +98,6 @@ class Miner():
         if committer != author:
             release.developers.add(author, commit)
             self._project.developers.add(author, commit)
-
-    def _track_base_release(self, release: Release, commit: Commit, parent_commit: Commit=None):
-        if parent_commit:
-            if self._is_tracked_commit(parent_commit):
-                base_release = parent_commit.release
-                release.add_base_release(base_release)
-                release.add_tail(commit)
-        else: # root commit
-            release.add_tail(commit)
-
-    def _track_base_release(self, release: Release, commit: Commit, parent_commit: Commit=None):
-        if parent_commit:
-            if self._is_tracked_commit(parent_commit):
-                base_release = parent_commit.release
-                release.add_base_release(base_release)
-                #TODO release.add_tail(commit)
-        else: # root commit
-            release.add_tail(commit)
 
     def _match_release(self, tagname):
         pattern = re.compile(r'^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)(-(?P<pre>.+))?$')
@@ -160,10 +145,8 @@ class Vcs:
     Attributes:
         __commit_dict: internal dictionary of commits
     """
-    def __init__(self):
-        self._commit_cache = {}
-        self._tag_cache = {}
-        self.developer_db = None
+    def __init__(self, path):
+        self.path = path
 
     def tags(self):
         """ Return repository tags """

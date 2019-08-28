@@ -54,7 +54,7 @@ class Project:
             # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
     def __repr__(self):
-        return project.name
+        return self.name
 
     @property
     def vcs(self):
@@ -94,16 +94,6 @@ class Project:
                 self.releases.append(Release(self, tag))
         self.releases = sorted(self.releases, key=lambda release: release.time)
 
-    def __load_commits(self):
-        for release in self.releases:
-            track_release(self, release)
-
-    def is_release_tag(self, tagname):
-        return is_release_tag(self, tagname)
-
-    def release_pattern_search(self, release_name):
-        return release_pattern_search(self.release_pattern, release_name)
-
     def load_config(self):
         """ load configuration file """
         if os.path.exists(self.config_path):
@@ -121,26 +111,6 @@ class Project:
             with open(self.config_path, 'w') as config_file:
                 yaml.dump(config, config_file, default_flow_style=False)
 
-class Vcs:
-    """
-    Version Control Repository
-
-    Attributes:
-        __commit_dict: internal dictionary of commits
-    """
-
-    def __init__(self):
-        self._commit_cache = {}
-        self._tag_cache = {}
-        self.developer_db = None
-
-    def load_tag(self):
-        """ load tag from version control """
-        pass
-
-    def load_commit(self):
-        """ load commit from version control """
-        pass
 
 class ReleaseDevelopment():
     def __init__(self):
@@ -200,67 +170,34 @@ class Release:
         self.minor = minor
         self.patch = patch
         self.version = "%d.%d.%d" % (self.major, self.minor, self.patch)
+        self.base_releases = []
+        self.tail_commits = []
         self.commits = CommitTracker()
         self.developers = DeveloperRoleTracker() #TODO remove project
         
-        #TODO Refact
-        self._tails = []
-        self.__first_commit = None
-        self._base_releases = []
-
-    @property
-    def head(self):
-        return self._tag.commit
-
-    def __init2__(self, project, tag):
-        self.development = ReleaseDevelopment()
-        self.pre = ReleasePre()
-        self.maintenance = ReleaseMaintenance()
-        
-        self.project = project
-        self.tag = tag
-        self.commits = CommitTracker()
-        self._tails = []
-        self.developers = DeveloperRoleTracker(self.project)
-        self._base_releases = []
-        self.__commit_stats = None
-        self.__first_commit = None
-
-    def __repr__(self):
-        return ('%s (%s - %s)' % (self.name, 
-                                  self.typename, 
-                                  self.length_groupname))
-
     @property
     def name(self):
         return self._tag.name
-
+        
     @property
-    def description(self):
-        return self.tag.message
+    def head_commit(self):
+        return self._tag.commit
 
     @property
     def time(self):
-        return self.tag.time
+        return self._tag.time
 
     @property
-    def base_releases(self):
-        return self._base_releases
-
-    def add_base_release(self, base_release):
-        if base_release != self and base_release not in self._base_releases:
-            self._base_releases.append(base_release)
+    def length(self):
+        return self.time - self.tail_commits[0].author_time
 
     @property
-    def tails(self):
-        return self._tails
+    def description(self):
+        return self._tag.message
 
-    def add_tail(self, commit):
-        if commit not in self._tails:
-            self._tails.append(commit)
-            if not self.__first_commit or self.__first_commit.author_time > commit.author_time:
-                self.__first_commit = commit
-    
+    def __repr__(self):
+        return self.name
+
     @property
     def typename(self):
         current = self.project.release_pattern.match(self.name)
@@ -299,28 +236,7 @@ class Release:
             4: 'months',
             5: 'years'
         }[self.length_group]
-
-    @property
-    def first_commit(self):
-        return self.__first_commit
-
-    @property
-    def __start_commit(self):
-        """
-        The start commit of a release is the first commit
-        if the release has at least one commit, or the head
-        if the release has no commit.
-        """
-        if self.tails:
-            return self.first_commit
-        else:
-            return self.head
-
-    @property
-    def length(self):
-        # return self.time - self.__start_commit.time
-        return self.time - self.__start_commit.author_time
-
+    
     @property
     def churn(self):
         if self.__commit_stats:
@@ -349,8 +265,12 @@ class Tag:
     def __init__(self, name, commit, time=None, message=None):
         self.name = name
         self.commit = commit
-        self.time = time
-        self.message = message
+        if time: # annotated tag
+            self.time = time
+            self.message = message
+        else:
+            self.time = commit.committer_time
+            self.message = commit.committer_time
 
 
 class Commit:
@@ -367,30 +287,19 @@ class Commit:
         author_time: author time
         release: associated release
     """
-    def __init__(self, id, parents, message, author, committer):
-        self.id = id
+    def __init__(self, hashcode, parents, message, author, author_time, committer,
+                 committer_time):
+        self.hashcode = hashcode
         self.parents = parents
         self.message = message
         self.author = author
+        self.author_time = author_time
         self.committer = committer
+        self.committer_time = committer_time
         self.release = None
 
-        #TODO Refact 
-        self.author_time = None
-
-    def __init2__(self):
-        self.id = None
-        self.subject = None
-        self.message = None
-        self.committer = None
-        self.author = None
-        self.release: Release = None
-        self.time = None
-        self.author_time = None
-        self._stats = None
-
     def __repr__(self):
-        return self.id
+        return str(self.hashcode)
 
     @property
     def churn(self):
@@ -578,97 +487,4 @@ class DeveloperRoleTracker(DeveloperTracker):
         self.authors = DeveloperTracker()
         self.committers = DeveloperTracker()
         self.newcomers = DeveloperTracker()
-
-
-def is_release_tag(project, tagname):
-    """ Check if a tag represents a release """
-    if project.release_pattern.search(tagname):
-        return True
-    return False
-
-
-def is_tracked_commit(commit):
-    """ Check if commit is tracked on a release """
-    if commit.release:
-        return True
-    return False
-
-
-def track_base_release(release: Release, commit: Commit, parent_commit: Commit=None):
-    if parent_commit:
-        if is_tracked_commit(parent_commit):
-            base_release = parent_commit.release
-            release.add_base_release(base_release)
-            release.add_tail(commit)
-    else: # root commit
-        release.add_tail(commit)
-
-
-def track_release(project: Project, release: Release):
-    """
-    Associate release to it commits
-
-    Params:
-        project: the project
-        release: the release to be associated
-    """
-    commit_stack = [ release.head ]
-    while len(commit_stack):
-        cur_commit = commit_stack.pop()
-        if not is_tracked_commit(cur_commit):
-            track_commit(project, release, cur_commit)
-
-            if cur_commit.parents:
-                for parent_commit in cur_commit.parents:
-                    if is_tracked_commit(parent_commit):
-                        track_base_release(release, cur_commit, parent_commit)
-                    else:
-                        commit_stack.append(parent_commit)
-            else:
-                track_base_release(release, cur_commit)
-
-    if release.commits.count() == 0: # releases that point to tracke commits
-        cur_commit = release.head
-        for parent_commit in cur_commit.parents:
-            track_base_release(release, cur_commit, parent_commit)
-
-
-def track_commit(project, release, commit):
-    """ associate commit to release """
-    committer = commit.committer
-    author = commit.author
-    commit.release = release
-    release.commits.add(commit)
-    project.commits.add(commit)
-
-    release.developers.committers.add(committer, commit)
-    release.developers.authors.add(author, commit)
-    release.developers.add(committer, commit)
-    if not project.developers.contains(committer):
-        release.developers.newcomers.add(committer, commit)
-    project.developers.committers.add(committer, commit)
-    project.developers.add(committer, commit)
-    if not project.developers.contains(author):
-        release.developers.newcomers.add(author, commit)
-    project.developers.authors.add(author, commit)
-    if committer != author:
-        release.developers.add(author, commit)
-        project.developers.add(author, commit)
-
-def release_pattern_search(pattern, release_name):
-    re_match = pattern.search(release_name)
-    if re_match:
-        major = re_match.group('major')
-        minor = re_match.group('minor')
-        patch = re_match.group('patch')
-
-        if patch and patch != '0':
-            type = 'PATCH'
-        elif minor and minor != '0':
-            type = 'MINOR'
-        elif major:
-            type = 'MAJOR'
-        else:
-            type = 'UNKNOWN'
-        return type, major, minor, patch
 
