@@ -1,4 +1,0 @@
-{
-  "tests/test_miner.py::test_mine": true,
-  "tests/test_miner.py::test_mine_simple_project": true
-}

@@ -5,3 +5,6 @@ __pycache__/
 issues.json
 dist/
 releasy_uff.egg-info/
+.coverage
+cov.xml
+.pytest_cache/
