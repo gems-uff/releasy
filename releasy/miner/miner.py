@@ -3,8 +3,8 @@
 #
 import os.path
 
-from .model import Project, Commit
-from .release import ReleaseFactory, Release
+from ..model import Project, Commit
+from ..release import ReleaseFactory, Release
 
 class Miner():
     """ Mine a single repository """

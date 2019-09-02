@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 
-from releasy.miner import Miner
+from releasy.miner.miner import Miner
 
 from .mock import VcsMock
 
