@@ -1,12 +1,10 @@
 # Module responsible to parse code repositories and mine releases and related
 # information
 #
-
 import os.path
-import re
 
-from .model import Project, Release, Commit
-
+from .model import Project, Commit
+from .release import ReleaseFactory, Release
 
 class Miner():
     """ Mine a single repository """
@@ -15,22 +13,19 @@ class Miner():
         name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
+        self._release_factory = ReleaseFactory()
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
         releases = []
-        for tag in self._vcs.tags():
-            (is_release, release_type, prefix, major, minor, patch) = self._match_release(tag.name)
-            if is_release:
-                release = Release(tag,
-                                  release_type=release_type,
-                                  prefix=prefix,
-                                  major=major,
-                                  minor=minor,
-                                  patch=patch)
-
+        tags = sorted(self._vcs.tags(), key=lambda tag: tag.time)
+        for tag in tags:
+            release = self._release_factory.get_release(tag)
+            if release:
                 releases.append(release)
-        releases = sorted(releases, key=lambda release: release.version)
+                tag.release = release
+
+        self._project._tags = tags
         self._project._releases = releases
         return self._project
 
@@ -55,18 +50,18 @@ class Miner():
                     for parent in commit.parents:
                         if self._is_tracked_commit(parent):
                             release.base_releases.append(parent.release)
-                            release.tail_commits.append(commit)
+                            release._tail_commits.append(commit)
                         else:
                             commit_stack.append(parent)
                 else: # root commit
-                    release.tail_commits.append(commit)
+                    release._tail_commits.append(commit)
 
-        if release.commits.count() == 0: # releases that point to tracke commits
+        if len(release._commits) == 0: # releases that point to tracked commit
             commit = release.head_commit
             release.base_releases.append(commit.release)
 
         release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
-        release.tail_commits = sorted(release.tail_commits, key=lambda commit: commit.author_time)
+        release._tail_commits = sorted(release._tail_commits, key=lambda commit: commit.author_time)
 
         return self._project
 
@@ -82,7 +77,7 @@ class Miner():
         committer = commit.committer
         author = commit.author
         commit.release = release
-        release.commits.add(commit)
+        release._commits.append(commit)
         self._project.commits.add(commit)
 
         release.developers.committers.add(committer, commit)
@@ -98,44 +93,6 @@ class Miner():
         if committer != author:
             release.developers.add(author, commit)
             self._project.developers.add(author, commit)
-
-    def _match_release(self, tagname):
-        pattern = re.compile(r'^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)(-(?P<pre>.+))?$')
-        re_match = pattern.search(tagname)
-        if re_match:
-            prefix = re_match.group('prefix')
-            major_version = 0
-            minor_version = 0
-            patch_version = 0
-            pre_release = re_match.group('pre')
-
-            major = re_match.group('major')
-            if major:
-                major_version = int(major)
-
-            minor = re_match.group('minor')
-            if minor:
-                minor_version = int(minor)
-
-            patch = re_match.group('patch')
-            if patch:
-                patch_version = int(patch)
-
-            if patch_version > 0:
-                release_type = 'PATCH'
-            elif minor_version > 0:
-                release_type = 'MINOR'
-            elif major_version > 0:
-                release_type = 'MAJOR'
-
-            return (True,
-                    release_type,
-                    prefix,
-                    major_version,
-                    minor_version,
-                    patch_version)
-        else:        
-            return False
 
 
 class Vcs:

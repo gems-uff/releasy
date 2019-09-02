@@ -45,6 +45,5 @@ def test_release_length():
     assert project.releases[2].length == timedelta(days=1)
     assert project.releases[3].length == timedelta(days=4)
     assert project.releases[4].length == timedelta(days=1)
-    assert project.releases[5].length == timedelta(days=2)
+    assert project.releases[5].length == timedelta(days=9)
     assert project.releases[6].length == timedelta(days=0)
-   
