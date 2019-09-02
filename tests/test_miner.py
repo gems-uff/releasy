@@ -26,9 +26,10 @@ def test_mine_commits():
     miner = Miner(vcs=VcsMock("releasy"))
     project = miner.mine_commits()
     assert len(project.releases[0].commits) == 2
-    assert len(project.releases[1].commits) == 1
+    assert len(project.releases[1].commits) == 2
     assert len(project.releases[2].commits) == 2
     assert len(project.releases[3].commits) == 3
     assert len(project.releases[4].commits) == 2
-    assert len(project.releases[5].commits) == 2
+    assert len(project.releases[5].commits) == 3
     assert len(project.releases[6].commits) == 0
+    assert len(project.commits) == 14

@@ -14,23 +14,26 @@ class VcsMock(Vcs):
         # Developers
         alice = Developer()
         bob = Developer()
+        charlie = Developer()
 
         # Commits
         # id, parents, author, committer, time increment, tag, tag time increment
-        commit_data = [
-            (0 ,[]   ,alice,alice,one_day,[]),
-            (1 ,[0]  ,bob  ,alice,one_day,["v1.0.0"]),
-            (2 ,[1]  ,alice,alice,one_day,["v1.0.1"]),
-            (3 ,[2]  ,alice,alice,one_day,[]),
-            (4 ,[1]  ,alice,alice,one_day,[]),
-            (5 ,[4]  ,alice,alice,one_day,["v1.1.0"]),
-            (6 ,[3,5],alice,alice,one_day,[]),
-            (7 ,[6]  ,alice,alice,one_day,["v2.0.0-alpha1"]),
-            (8 ,[7]  ,alice,alice,one_day,[]),
-            (9 ,[8]  ,alice,alice,one_day,["v2.0.0-beta1"]),
-            (10,[3,9],alice,alice,one_day,[]),
-            (11,[10] ,alice,alice,one_day,["v2.0.0", "v2.0.1"]),
-            (12,[11] ,alice,alice,one_day,[]),
+        commit_data = [  
+            (0 ,[]     ,alice  ,alice  ,one_day,[]),
+            (1 ,[0]    ,alice  ,alice  ,one_day,["v1.0.0"]),          #r0
+            (2 ,[1]    ,bob    ,bob    ,one_day,[]),
+            (3 ,[2]    ,bob    ,bob    ,one_day,["v1.0.1"]),          #r1
+            (4 ,[3]    ,alice  ,alice  ,one_day,[]),
+            (5 ,[2]    ,alice  ,alice  ,one_day,[]),
+            (6 ,[5]    ,alice  ,alice  ,one_day,["v1.1.0"]),          #r2
+            (7 ,[4,6]  ,bob    ,bob    ,one_day,[]),
+            (8 ,[7]    ,charlie,charlie,one_day,["v2.0.0-alpha1"]),   #r3
+            (9 ,[8]    ,alice  ,bob    ,one_day,[]),
+            (10,[9]    ,alice  ,alice  ,one_day,["v2.0.0-beta1"]),    #r4
+            (11,[2]    ,alice  ,alice  ,one_day,[]),
+            (12,[10,11],charlie,charlie,one_day,[]),
+            (13,[12]   ,alice  ,alice  ,one_day,["v2.0.0", "v2.0.1"]),#r5,6
+            (14,[13]   ,alice  ,alice  ,one_day,[]),
         ]
 
         commits = {}
@@ -48,7 +51,6 @@ class VcsMock(Vcs):
                 tags.append(Tag(tagname, commits[index]))
             
             ref_dt += increment_dt
-
 
         self._commits = commits
         self._tags = tags

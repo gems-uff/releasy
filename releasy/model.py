@@ -57,42 +57,8 @@ class Project:
         return self.name
 
     @property
-    def vcs(self):
-        return self.__vcs
-
-    @vcs.setter
-    def vcs(self, vcs):
-        self.__vcs = vcs
-        self.__vcs.path = self.path
-        if self.__developer_db:
-            self.__vcs.developer_db = self.developer_db
-
-    @property
-    def developer_db(self):
-        return self.__developer_db
-
-    @developer_db.setter
-    def developer_db(self, developer_db):
-        self.__developer_db = developer_db
-        if self.__vcs:
-            self.__vcs.developer_db = developer_db
-
-    @property
     def tagnames(self):
         return self.vcs.tagnames
-
-    def load(self):
-        """ load project data """
-        self.__load_releases()
-        self.__load_commits()
-
-    def __load_releases(self):
-        """ Load release data """
-        for tagname in self.tagnames:
-            if self.is_release_tag(tagname):
-                tag = self.vcs.load_tag(tagname)
-                self.releases.append(Release(self, tag))
-        self.releases = sorted(self.releases, key=lambda release: release.time)
 
     def load_config(self):
         """ load configuration file """
@@ -189,7 +155,11 @@ class Release:
 
     @property
     def length(self):
-        return self.time - self.tail_commits[0].author_time
+        #TODO consider tag length
+        if self.tail_commits:
+            return self.time - self.tail_commits[0].author_time
+        else:
+            return timedelta(0)
 
     @property
     def description(self):
@@ -301,13 +271,13 @@ class Commit:
     def __repr__(self):
         return str(self.hashcode)
 
-    @property
-    def churn(self):
-        return self.stats.churn
+    # @property
+    # def churn(self):
+    #     return self.stats.churn
 
-    @property
-    def stats(self):
-        return self._stats
+    # @property
+    # def stats(self):
+    #     return self._stats
 
     def diff_stats(self, commit):
         pass
