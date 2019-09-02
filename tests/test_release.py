@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 import pytest
 
-from releasy.miner.miner import Miner
+from releasy.miner.vcs.miner import Miner
 
-from .mock import VcsMock
+from .miner.vcs.mock import VcsMock
 
 def test_release_time():
     miner = Miner(vcs=VcsMock("releasy"))

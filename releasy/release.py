@@ -8,10 +8,11 @@ class ReleaseFactory():
         self._pre_release_cache = {}
 
     def get_release(self, tag: Tag):
-        (is_release, release_type, prefix, major, minor, patch) = self._match_release(tag.name)
-        if not is_release:
+        release_info = self._match_release(tag.name)
+        if not release_info:
             return None
         else:
+            (release_type, prefix, major, minor, patch) = release_info
             release_version = "%d.%d.%d" % (major, minor, patch)
             if release_version not in self._pre_release_cache:
                 self._pre_release_cache[release_version] = []
@@ -61,8 +62,7 @@ class ReleaseFactory():
             elif major_version > 0:
                 release_type = "MAJOR"
 
-            return (True,
-                    release_type,
+            return (release_type,
                     prefix,
                     major_version,
                     minor_version,

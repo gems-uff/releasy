@@ -1,10 +1,9 @@
-
 from datetime import datetime, timezone, timedelta
-from pygit2 import Repository
-from pygit2 import GIT_OBJ_TAG
 
-from releasy.model import Project, Vcs, Tag, Commit, CommitStats
+from pygit2 import Repository, GIT_OBJ_TAG
 
+from releasy.model import Project, Tag, Commit, CommitStats
+from .miner import Vcs
 
 class GitVcs(Vcs):
     """ Encapsulate Git Version Control System using pygit2 lib
@@ -13,13 +12,9 @@ class GitVcs(Vcs):
         repository: git repository
     """
 
-    def __init__(self):
-        super().__init__()
-        self.repository = None
-
-    def path(self, path):
+    def __init__(self, path):
+        super().__init__(path)
         self.repository = Repository(path)
-    path = property(fset=path)
 
     @property
     def tagnames(self):

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from releasy.model import Commit, Developer, Tag
-from releasy.miner.miner import Vcs
+from releasy.miner.vcs.miner import Vcs
 
 
 class VcsMock(Vcs):
@@ -23,7 +23,7 @@ class VcsMock(Vcs):
             (1 ,[0]    ,alice  ,alice  ,one_day,["v1.0.0"]),          #r0
             (2 ,[1]    ,bob    ,bob    ,one_day,[]),
             (3 ,[2]    ,bob    ,bob    ,one_day,["v1.0.1"]),          #r1
-            (4 ,[3]    ,alice  ,alice  ,one_day,[]),
+            (4 ,[3]    ,alice  ,alice  ,one_day,["non-release"]),
             (5 ,[2]    ,alice  ,alice  ,one_day,[]),
             (6 ,[5]    ,alice  ,alice  ,one_day,["v1.1.0"]),          #r2
             (7 ,[4,6]  ,bob    ,bob    ,one_day,[]),
