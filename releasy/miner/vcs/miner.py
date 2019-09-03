@@ -49,7 +49,8 @@ class Miner():
                 if commit.parents:
                     for parent in commit.parents:
                         if self._is_tracked_commit(parent):
-                            release.base_releases.append(parent.release)
+                            if parent.release != release and parent.release not in release.base_releases:
+                                release.base_releases.append(parent.release)
                             release._tail_commits.append(commit)
                         else:
                             commit_stack.append(parent)
@@ -107,8 +108,4 @@ class Vcs:
 
     def tags(self):
         """ Return repository tags """
-        pass
-
-    def commits(self):
-        """ Return repository commits """
         pass

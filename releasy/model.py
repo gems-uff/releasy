@@ -93,9 +93,11 @@ class Tag:
         self.commit = commit
         self.release = None
         if time: # annotated tag
+            self.is_annotated = True
             self.time = time
             self.message = message
         else:
+            self.is_annotated = False
             self.time = commit.committer_time
             self.message = commit.committer_time
 
@@ -114,8 +116,9 @@ class Commit:
         author_time: author time
         release: associated release
     """
-    def __init__(self, hashcode, parents, message, author, author_time, committer,
-                 committer_time):
+    def __init__(self, hashcode, parents=None, message=None, 
+                 author=None, author_time=None, 
+                 committer=None, committer_time=None):
         self.hashcode = hashcode
         self.parents = parents
         self.message = message

@@ -34,6 +34,12 @@ class VcsMock(Vcs):
             (12,[10,11],charlie,charlie,one_day,[]),
             (13,[12]   ,alice  ,alice  ,one_day,["v2.0.0", "v2.0.1"]),#r5,6
             (14,[13]   ,alice  ,alice  ,one_day,[]),
+            (15,[14]   ,alice  ,alice  ,one_day,[]),
+            (16,[13]   ,alice  ,alice  ,one_day,[]),
+            (17,[15]   ,alice  ,alice  ,one_day,[]),
+            (18,[15,16],alice  ,alice  ,one_day,[]),
+            (19,[17,18],alice  ,alice  ,one_day,["v2.1.0"]),
+            (20,[19]   ,alice  ,alice  ,one_day,[]),
         ]
 
         commits = {}

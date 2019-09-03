@@ -13,7 +13,7 @@ def test_mine_project_name():
 def test_mine_releases():
     miner = Miner(vcs=VcsMock("releasy"))
     project = miner.mine_releases()
-    assert len(project.releases) == 7
+    assert len(project.releases) == 8
     assert project.releases[0].version == "1.0.0"
     assert project.releases[1].version == "1.0.1"
     assert project.releases[2].version == "1.1.0"
@@ -21,6 +21,7 @@ def test_mine_releases():
     assert project.releases[4].version == "2.0.0"
     assert project.releases[5].version == "2.0.0"
     assert project.releases[6].version == "2.0.1"
+    assert project.releases[7].version == "2.1.0"
 
 def test_mine_commits():
     miner = Miner(vcs=VcsMock("releasy"))
@@ -32,4 +33,5 @@ def test_mine_commits():
     assert len(project.releases[4].commits) == 2
     assert len(project.releases[5].commits) == 8
     assert len(project.releases[6].commits) == 0
-    assert len(project.commits) == 14
+    assert len(project.releases[7].commits) == 6
+    assert len(project.commits) == 20

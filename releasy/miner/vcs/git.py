@@ -1,103 +1,103 @@
+from typing import List, Dict
 from datetime import datetime, timezone, timedelta
 
-from pygit2 import Repository, GIT_OBJ_TAG
+import pygit2
+# from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
 from releasy.model import Project, Tag, Commit, CommitStats
 from .miner import Vcs
 
 class GitVcs(Vcs):
-    """ Encapsulate Git Version Control System using pygit2 lib
+    """ Encapsulate Git Version Control System using pygit2 lib """
 
-    Attributes:
-        repository: git repository
-    """
-
-    def __init__(self, path):
+    def __init__(self, path: str):
         super().__init__(path)
-        self.repository = Repository(path)
+        self._repo: pygit2.Repository = pygit2.Repository(path)
+        self._tag_cache: Dict[Tag] = {}
+        self._commit_cache: Dict[Commit] = {}
 
-    @property
-    def tagnames(self):
-        return [ref[10:] for ref in self.repository.references if ref.startswith('refs/tags/')]
+    def tags(self) -> List[Tag]:
+        repo = self._repo
+        refs = (ref for ref in repo.references.objects if ref.name.startswith('refs/tags/'))
+        tags = [self.get_tag(ref) for ref in refs]
+        return tags
 
-    def load_tag(self, tagname):
+    def get_tag(self, rtag: pygit2.Reference) -> Tag:
+        """ Tag factory """
+        tagname = rtag.shorthand
         if tagname not in self._tag_cache:
-            raw_tag = self.repository.lookup_reference("refs/tags/%s" % tagname)
-            self._tag_cache[tagname] = GitTag(self, raw_tag)
+            tag = GitTag(self, rtag)
+            self._tag_cache[tagname] = tag
         return self._tag_cache[tagname]
 
-    def load_commit(self, id, raw_commit=None):
-        if id not in self._commit_cache:
-            if not raw_commit:
-                raw_commit = None #TODO fetch
-
-            committer_email = raw_commit.committer.email
-            committer_name = raw_commit.committer.name
-            committer = self.developer_db.load_developer(name=committer_name, email=committer_email)
-
-            author_email = raw_commit.author.email
-            author_name = raw_commit.author.name
-            author = self.developer_db.load_developer(name=author_name, email=author_email)
-
-            commit = GitCommit(self, raw_commit)
-            commit.committer = committer
-            commit.author = author
-            self._commit_cache[id] = commit
-
-        return self._commit_cache[id]
+    def get_commit(self, rcommit: pygit2.Commit) -> Commit:
+        """ Commit factory """
+        hashcode = rcommit.hex
+        if hashcode not in self._commit_cache:
+            commit = GitCommit(self, rcommit)
+            self._commit_cache[hashcode] = commit
+        return self._commit_cache[hashcode]
 
 
 class GitTag(Tag):
     """ Encapsulate Git Tag """
 
-    def __init__(self, vcs, raw_tag):
-        super().__init__()
-        self.__vcs = vcs
-        self.__raw = raw_tag
-        self.name = self.__raw.shorthand
-        self.message = None
-        raw_commit = self.__raw.peel()
-        self.commit = self.__vcs.load_commit(raw_commit.hex, raw_commit)
-        target = self.__vcs.repository.get(self.__raw.target)
-        if target.type == GIT_OBJ_TAG:
+    def __init__(self, vcs: GitVcs, rtag: pygit2.Reference):
+        name = rtag.shorthand
+        rcommit = rtag.peel()
+        commit = vcs.get_commit(rcommit)
+        target = vcs._repo.get(rtag.target)
+        if target.type == pygit2.GIT_OBJ_TAG:
             tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
-            self.time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
+            time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
             try:
-                self.message = target.message
+                message = target.message
             except:
-                self.message = ''
+                message = ""
         else:
-            self.time = self.commit.time
+            time = commit.committer_time
+            message = commit.committer_time
+        super().__init__(name=name, commit=commit, time=time, message=message)
 
 
 class GitCommit(Commit):
     """ Encapsulate Git Commit """
 
-    def __init__(self, vcs, raw_commit):
-        super().__init__()
-        self.__vcs = vcs
-        self.__raw = raw_commit
-        self.id = self.__raw.hex
+    def __init__(self, vcs: GitVcs, rcommit: pygit2.Commit):
+        self._vcs = vcs
+        self._rcommit = rcommit
+
+        author = None #self.developer_factory.create(rcommit.author)
+        author_tzinfo = timezone(timedelta(minutes=rcommit.author.offset))
+        author_time = datetime.fromtimestamp(float(rcommit.author.time), author_tzinfo)
+
+        committer = None #self.developer_factory.create(rcommit.committer)
+        committer_tzinfo = timezone(timedelta(minutes=rcommit.committer.offset))
+        committer_time = datetime.fromtimestamp(float(rcommit.committer.time), committer_tzinfo)
+
         try: #TODO fix problem with encodes
-            self.message = self.__raw.message
-            self.subject = self.message.split('\n', 1)[0]
+            message = rcommit.message
         except:
-            self.message = ''
-            self.subject = ''
-        self.release = None
+            message = ""
 
-        # author = self.developer_factory.create(raw_commit.author)
-        author_tzinfo = timezone(timedelta(minutes=self.__raw.author.offset))
-        self.author_time = datetime.fromtimestamp(float(raw_commit.author.time), author_tzinfo)
-
-        # committer = self.developer_factory.create(raw_commit.committer)
-        committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
-        self.time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
-
+        super().__init__(
+            hashcode=rcommit.hex,
+            #parents=[],
+            message=message,
+            #author=None,
+            author_time=author_time,
+            #committer=None,
+            committer_time=committer_time
+        )
+        
     @property
     def parents(self):
-        # late bind method to avoid memory leak
-        return [self.__vcs.load_commit(commit.hex, commit) for commit in self.__raw.parents]
+        # late bind method to avoid high memory usage
+        return [self._vcs.get_commit(rparent) for rparent in self._rcommit.parents]
+
+    @parents.setter
+    def parents(self, parents):
+        pass
 
     @property
     def stats(self) -> CommitStats:
