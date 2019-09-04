@@ -32,26 +32,26 @@ class Project:
     def releases(self):
         return self._releases
 
-    def __init2__(self, name, path, regexp=None):
-        self.name = name
-        self.path = path
-        self.config_path = os.path.join(self.path, '.releasy')
-        self.releases = []
-        self.__vcs = None
-        self.__developer_db = None
-        self.developers = DeveloperRoleTracker()
-        self._config_ctrl = []
-        self.commits = CommitTracker()
-        self.release_pattern = None
+    # def __init2__(self, name, path, regexp=None):
+    #     self.name = name
+    #     self.path = path
+    #     self.config_path = os.path.join(self.path, '.releasy')
+    #     self.releases = []
+    #     self.__vcs = None
+    #     self.__developer_db = None
+    #     self.developers = DeveloperRoleTracker()
+    #     self._config_ctrl = []
+    #     self.commits = CommitTracker()
+    #     self.release_pattern = None
 
-        self.load_config()
+    #     self.load_config()
 
-        if regexp:
-            self.release_pattern = re.compile(regexp)
-            self._config_ctrl.append('release_pattern')
-        if not self.release_pattern: # default
-            self.release_pattern = re.compile(r'^(?:.*?[^0-9\.])?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
-            # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
+    #     if regexp:
+    #         self.release_pattern = re.compile(regexp)
+    #         self._config_ctrl.append('release_pattern')
+    #     if not self.release_pattern: # default
+    #         self.release_pattern = re.compile(r'^(?:.*?[^0-9\.])?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
+    #         # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
     def __repr__(self):
         return self.name

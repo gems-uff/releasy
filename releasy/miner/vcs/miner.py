@@ -29,7 +29,7 @@ class Miner():
         self._project._releases = releases
         return self._project
 
-    def mine_commits(self):
+    def mine_commits(self) -> Project:
         """ Mine commit and associate related information to releases """
         if not self._project.releases:
             self.mine_releases()
@@ -64,9 +64,12 @@ class Miner():
         # Remove base releases reachable by other base releases
         for base_release in release.base_releases:
             release.reachable_releases.extend(base_release.reachable_releases)
+        base_release_to_remove = []
         for base_release in release.base_releases:
             if base_release in release.reachable_releases:
-                release.base_releases.remove(base_release)
+                base_release_to_remove.append(base_release)
+        for base_release in base_release_to_remove:
+            release.base_releases.remove(base_release)
         release.reachable_releases += release.base_releases
         release.reachable_releases = list(set(release.reachable_releases))
 
