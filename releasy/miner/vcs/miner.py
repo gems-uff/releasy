@@ -39,7 +39,7 @@ class Miner():
         
         return self._project
 
-    def _track_release(self, release):
+    def _track_release(self, release: Release):
         commit_stack = [ release.head_commit ]
         while len(commit_stack):
             commit = commit_stack.pop()
@@ -61,10 +61,18 @@ class Miner():
             commit = release.head_commit
             release.base_releases.append(commit.release)
 
-        release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
-        release._tail_commits = sorted(release._tail_commits, key=lambda commit: commit.author_time)
+        # Remove base releases reachable by other base releases
+        for base_release in release.base_releases:
+            release.reachable_releases.extend(base_release.reachable_releases)
+        for base_release in release.base_releases:
+            if base_release in release.reachable_releases:
+                release.base_releases.remove(base_release)
+        release.reachable_releases += release.base_releases
+        release.reachable_releases = list(set(release.reachable_releases))
 
-        return self._project
+        release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
+        release.reachable_releases = sorted(release.reachable_releases, key=lambda release: release.version)
+        release._tail_commits = sorted(release._tail_commits, key=lambda commit: commit.author_time)
 
     def _is_tracked_commit(self, commit):
         """ Check if commit is tracked on a release """

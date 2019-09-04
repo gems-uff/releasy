@@ -36,7 +36,7 @@ class VcsMock(Vcs):
             (14,[13]   ,alice  ,alice  ,one_day,[]),
             (15,[14]   ,alice  ,alice  ,one_day,[]),
             (16,[13]   ,alice  ,alice  ,one_day,[]),
-            (17,[15]   ,alice  ,alice  ,one_day,[]),
+            (17,[15,10]   ,alice  ,alice  ,one_day,[]),
             (18,[15,16],alice  ,alice  ,one_day,[]),
             (19,[17,18],alice  ,alice  ,one_day,["v2.1.0"]),
             (20,[19]   ,alice  ,alice  ,one_day,[]),

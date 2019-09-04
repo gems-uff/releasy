@@ -96,6 +96,7 @@ class Release:
         self.patch = patch
         self.version = "%d.%d.%d" % (self.major, self.minor, self.patch)
         self.base_releases = []
+        self.reachable_releases = []
         self._tail_commits = []
         self._commits = []
 #        self.commits = CommitTracker()

@@ -24,18 +24,16 @@ def test_release_base():
     assert len(project.releases[0].base_releases) == 0
     assert len(project.releases[1].base_releases) == 1
     assert len(project.releases[2].base_releases) == 1
-    assert len(project.releases[3].base_releases) == 2
+    assert len(project.releases[3].base_releases) == 1
     assert len(project.releases[4].base_releases) == 1
-    assert len(project.releases[5].base_releases) == 2
+    assert len(project.releases[5].base_releases) == 1
     assert len(project.releases[6].base_releases) == 1
     assert len(project.releases[7].base_releases) == 1
     assert project.releases[1].base_releases[0] == project.releases[0]
     assert project.releases[2].base_releases[0] == project.releases[1]
-    assert project.releases[3].base_releases[0] == project.releases[1]
-    assert project.releases[3].base_releases[1] == project.releases[2]
+    assert project.releases[3].base_releases[0] == project.releases[2]
     assert project.releases[4].base_releases[0] == project.releases[3]
-    assert project.releases[5].base_releases[0] == project.releases[1]
-    assert project.releases[5].base_releases[1] == project.releases[4]
+    assert project.releases[5].base_releases[0] == project.releases[4]
     assert project.releases[6].base_releases[0] == project.releases[5]
     assert project.releases[7].base_releases[0] == project.releases[5]
 
