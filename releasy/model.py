@@ -1,7 +1,12 @@
 """
 Releasy Meta Model
 """
-import typing
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import List
+    from .release import Release
+
 from datetime import timedelta
 import re
 import yaml
@@ -24,12 +29,12 @@ class Project:
     """
     def __init__(self, name):
         self.name = name
-        self._releases = None
+        self._releases: List[Release] = []
         self.commits = CommitTracker()
         self.developers = DeveloperRoleTracker()
 
     @property
-    def releases(self):
+    def releases(self) -> List[Release]:
         return self._releases
 
     # def __init2__(self, name, path, regexp=None):

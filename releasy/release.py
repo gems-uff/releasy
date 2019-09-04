@@ -210,3 +210,22 @@ class PreRelease(Release):
     @property
     def tail_commits(self):
         return self._tail_commits
+
+
+class Developer:
+    """
+    Contributors: Developers and committers
+
+    Attributes:
+        login: contributor id
+        name: contributor name
+        email: contributor e-mail
+    """
+
+    def __init__(self):
+        self.login = None
+        self.name = None
+        self.email = None
+
+    def __repr__(self):
+        return self.login
