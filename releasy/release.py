@@ -1,7 +1,8 @@
 import re
 from datetime import timedelta
 
-from .model import Tag, CommitTracker, DeveloperRoleTracker
+from .model import Tag, CommitTracker
+from .developer import DeveloperRoleTracker
 
 class ReleaseFactory():
     def __init__(self):
@@ -100,7 +101,7 @@ class Release:
         self._tail_commits = []
         self._commits = []
 #        self.commits = CommitTracker()
-        self.developers = DeveloperRoleTracker() #TODO remove project
+        self.developers = DeveloperRoleTracker()
         self.pre_releases = pre_releases
         
     @property

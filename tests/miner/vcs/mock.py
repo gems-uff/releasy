@@ -5,16 +5,17 @@ from releasy.miner.vcs.miner import Vcs
 
 
 class VcsMock(Vcs):
-    def __init__(self, path):
+    def __init__(self, path="./releasy"):
         super().__init__(path)
         # Start Date and incremetns
         ref_dt = datetime(2020, 1, 1, 12, 00)        
         one_day = timedelta(days=1)
         
         # Developers
-        alice = Developer()
-        bob = Developer()
-        charlie = Developer()
+        self.dev = DevMock()
+        alice = self.dev.alice
+        bob = self.dev.bob
+        charlie = self.dev.charlie
 
         # Commits
         # id, parents, author, committer, time increment, tag, tag time increment
@@ -66,3 +67,9 @@ class VcsMock(Vcs):
     
     def commits(self):
         return self._commits
+
+class DevMock():
+    def __init__(self):
+        self.alice = Developer()
+        self.bob = Developer()
+        self.charlie = Developer()

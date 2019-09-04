@@ -115,7 +115,7 @@ class Commit:
         id: commit id
         message: commit message
         subject: first line from commit message
-        commiter: contributor responsible for the commit
+        committer: contributor responsible for the commit
         author: contributor responsible for the code
         time: commit time
         author_time: author time
