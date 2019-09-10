@@ -49,8 +49,9 @@ class Miner():
                 if commit.parents:
                     for parent in commit.parents:
                         if self._is_tracked_commit(parent):
-                            if parent.release != release and parent.release not in release.base_releases:
-                                release.base_releases.append(parent.release)
+                            # if parent.release != release and parent.release not in release.base_releases:
+                            #     release.base_releases.append(parent.release)
+                            self._track_base_release(release, parent)
                             release._tail_commits.append(commit)
                         else:
                             commit_stack.append(parent)
@@ -76,6 +77,20 @@ class Miner():
         release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
         release.reachable_releases = sorted(release.reachable_releases, key=lambda release: release.version)
         release._tail_commits = sorted(release._tail_commits, key=lambda commit: commit.author_time)
+
+    def _track_base_release(self, release, commit):
+        commit_stack = [ commit ]
+        visited_commit = set()
+        while len(commit_stack):
+            cur_commit = commit_stack.pop()
+            if cur_commit.release and cur_commit.release.head_commit == cur_commit:
+                visited_commit.add(cur_commit)
+                if cur_commit.release not in release.base_releases:
+                    release.base_releases.append(cur_commit.release)
+            else:
+                for parent_commit in cur_commit.parents:
+                    if parent_commit not in visited_commit:
+                        commit_stack.append(parent_commit)
 
     def _is_tracked_commit(self, commit):
         """ Check if commit is tracked on a release """
