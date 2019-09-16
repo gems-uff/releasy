@@ -20,6 +20,9 @@ class Developer:
         self.name = name
         self.email = email
 
+    def __hash__(self):
+        return hash(self.login)
+
     def __repr__(self):
         return self.login
 
@@ -33,22 +36,28 @@ class DeveloperTracker():
     """ Track developers """
     def __init__(self):
         self._developers = []
-        self._developers_index = {}
-        self._developers_commits = {}
+        # self._developers_index = {}
+        # self._developers_commits = {}
 
     def add(self, developer: Developer, commit: Commit):
-        if developer.login not in self._developers_index:
+        if developer not in self._developers:
             self._developers.append(developer)
-            self._developers_index[developer.login] = len(self._developers)
-            self._developers_commits[developer.login] = []
 
-        self._developers_commits[developer.login].append(commit)
+        # if developer.login not in self._developers_index:
+        #     self._developers.append(developer)
+        #     self._developers_index[developer.login] = len(self._developers)
+        #     self._developers_commits[developer.login] = []
+
+        # self._developers_commits[developer.login].append(commit)
 
     def __len__(self):
         return len(self._developers)
 
     def __getitem__(self, key):
-        pass
+        if isinstance(key, int):
+            return self._developers[key]
+        else:
+            return None
     
 #     def list(self):
 #         return self._developers.keys()
