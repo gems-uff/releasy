@@ -8,3 +8,4 @@ releasy_uff.egg-info/
 .coverage
 cov.xml
 .pytest_cache/
+htmlcov/

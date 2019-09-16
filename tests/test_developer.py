@@ -24,6 +24,7 @@ def test_release_authors():
     assert project.releases[5].developers.authors[0] == dev.alice
     assert project.releases[7].developers.authors[0] == dev.alice
 
+
 def test_release_committers():
     vcs = VcsMock()
     miner = Miner(vcs=vcs)
