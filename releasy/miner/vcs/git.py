@@ -5,6 +5,7 @@ import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
 from releasy.model import Project, Tag, Commit, CommitStats
+from ...developer import Developer
 from .miner import Vcs
 
 class GitVcs(Vcs):
@@ -30,11 +31,11 @@ class GitVcs(Vcs):
             self._tag_cache[tagname] = tag
         return self._tag_cache[tagname]
 
-    def get_commit(self, rcommit: pygit2.Commit) -> Commit:
+    def get_commit(self, raw_commit: pygit2.Commit) -> Commit:
         """ Commit factory """
-        hashcode = rcommit.hex
+        hashcode = raw_commit.hex
         if hashcode not in self._commit_cache:
-            commit = GitCommit(self, rcommit)
+            commit = GitCommit(self, raw_commit)
             self._commit_cache[hashcode] = commit
         return self._commit_cache[hashcode]
 
@@ -44,8 +45,8 @@ class GitTag(Tag):
 
     def __init__(self, vcs: GitVcs, rtag: pygit2.Reference):
         name = rtag.shorthand
-        rcommit = rtag.peel()
-        commit = vcs.get_commit(rcommit)
+        raw_commit = rtag.peel()
+        commit = vcs.get_commit(raw_commit)
         target = vcs._repo.get(rtag.target)
         if target.type == pygit2.GIT_OBJ_TAG:
             tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
@@ -63,37 +64,37 @@ class GitTag(Tag):
 class GitCommit(Commit):
     """ Encapsulate Git Commit """
 
-    def __init__(self, vcs: GitVcs, rcommit: pygit2.Commit):
+    def __init__(self, vcs: GitVcs, raw_commit: pygit2.Commit):
         self._vcs = vcs
-        self._rcommit = rcommit
+        self._raw_commit = raw_commit
 
-        author = None #self.developer_factory.create(rcommit.author)
-        author_tzinfo = timezone(timedelta(minutes=rcommit.author.offset))
-        author_time = datetime.fromtimestamp(float(rcommit.author.time), author_tzinfo)
+        author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
+        author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
+        author_time = datetime.fromtimestamp(float(raw_commit.author.time), author_tzinfo)
 
-        committer = None #self.developer_factory.create(rcommit.committer)
-        committer_tzinfo = timezone(timedelta(minutes=rcommit.committer.offset))
-        committer_time = datetime.fromtimestamp(float(rcommit.committer.time), committer_tzinfo)
+        committer = Developer(login=raw_commit.committer.email, email=raw_commit.committer.email, name=raw_commit.committer.name)
+        committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
+        committer_time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
 
         try: #TODO fix problem with encodes
-            message = rcommit.message
+            message = raw_commit.message
         except:
             message = ""
 
         super().__init__(
-            hashcode=rcommit.hex,
+            hashcode=raw_commit.hex,
             #parents=[],
             message=message,
-            #author=None,
+            author=author,
             author_time=author_time,
-            #committer=None,
+            committer=committer,
             committer_time=committer_time
         )
         
     @property
     def parents(self):
         # late bind method to avoid high memory usage
-        return [self._vcs.get_commit(rparent) for rparent in self._rcommit.parents]
+        return [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
 
     @parents.setter
     def parents(self, parents):

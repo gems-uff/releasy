@@ -1,10 +1,8 @@
 from __future__ import annotations
-from typing import List
-
-# from typing import TYPE_CHECKING
-# if TYPE_CHECKING:
-
-from .model import Commit
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import List
+    from .model import Commit
 
 
 class Developer:
@@ -17,42 +15,40 @@ class Developer:
         email: developer e-mail
     """
 
-    def __init__(self):
-        self.login = None
-        self.name = None
-        self.email = None
+    def __init__(self, login, name, email):
+        self.login = login
+        self.name = name
+        self.email = email
 
     def __repr__(self):
         return self.login
 
 
-class DeveloperRoleTracker():
-    """ Track developer roles """
-    def __init__(self):
-        self.authors = DeveloperTracker()
-        self.committers = DeveloperTracker()
-
-    def add_commit(self, commit: Commit):
-        self.authors.add(commit.author, commit)
-        self.committers.add(commit.committer, commit)
+class DeveloperContributionList:
+   def __init__(self, developer: Developer):
+       pass
 
 
-class DeveloperTracker:
+class DeveloperTracker():
     """ Track developers """
     def __init__(self):
-        self._developers = {}
-#         self._totals = {
-#             'commits': 0
-#         }
+        self._developers = []
+        self._developers_index = {}
+        self._developers_commits = {}
 
     def add(self, developer: Developer, commit: Commit):
-        if developer not in self._developers: 
-            self._developers[developer] = []
-        self._developers[developer].append(commit)
+        if developer.login not in self._developers_index:
+            self._developers.append(developer)
+            self._developers_index[developer.login] = len(self._developers)
+            self._developers_commits[developer.login] = []
+
+        self._developers_commits[developer.login].append(commit)
 
     def __len__(self):
         return len(self._developers)
 
+    def __getitem__(self, key):
+        pass
     
 #     def list(self):
 #         return self._developers.keys()
@@ -91,3 +87,13 @@ class DeveloperTracker:
 #             amount += len(data['commits'])
 #             top.add(developer, data['commits'])
 #         return top
+
+class DeveloperRoleTracker():
+    """ Track developer roles """
+    def __init__(self):
+        self.authors = DeveloperTracker()
+        self.committers = DeveloperTracker()
+
+    def add_commit(self, commit: Commit):
+        self.authors.add(commit.author, commit)
+        self.committers.add(commit.committer, commit)

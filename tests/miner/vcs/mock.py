@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
-from releasy.model import Commit, Developer, Tag
+from releasy.model import Commit, Tag
+from releasy.developer import Developer
 from releasy.miner.vcs.miner import Vcs
 
 
@@ -32,14 +33,14 @@ class VcsMock(Vcs):
             (9 ,[8]    ,alice  ,bob    ,one_day,[]),
             (10,[9]    ,alice  ,alice  ,one_day,["v2.0.0-beta1"]),    #r4
             (11,[2]    ,alice  ,alice  ,one_day,[]),
-            (12,[10,11],charlie,charlie,one_day,[]),
+            (12,[10,11],alice  ,alice  ,one_day,[]),
             (13,[12]   ,alice  ,alice  ,one_day,["v2.0.0", "v2.0.1"]),#r5,6
             (14,[13]   ,alice  ,alice  ,one_day,[]),
             (15,[14]   ,alice  ,alice  ,one_day,[]),
             (16,[13]   ,alice  ,alice  ,one_day,[]),
-            (17,[15,10]   ,alice  ,alice  ,one_day,[]),
+            (17,[15,10],alice  ,alice  ,one_day,[]),
             (18,[15,16],alice  ,alice  ,one_day,[]),
-            (19,[17,18],alice  ,alice  ,one_day,["v2.1.0"]),
+            (19,[17,18],alice  ,alice  ,one_day,["v2.1.0"]),         #r7
             (20,[19]   ,alice  ,alice  ,one_day,[]),
         ]
 
@@ -70,6 +71,6 @@ class VcsMock(Vcs):
 
 class DevMock():
     def __init__(self):
-        self.alice = Developer()
-        self.bob = Developer()
-        self.charlie = Developer()
+        self.alice = Developer(login="alice", name="Mrs. Alice", email="alice@example.com")
+        self.bob = Developer(login="bob", name="Mrs. Bob", email="bob@example.com")
+        self.charlie = Developer(login="charlie", name="Mr. Charlie", email="charlie@example.com")

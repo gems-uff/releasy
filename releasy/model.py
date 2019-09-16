@@ -13,6 +13,7 @@ import yaml
 import os
 
 from .phase import Development, Stage, Maintenance
+from .developer import DeveloperRoleTracker
 
 
 class Project:
@@ -218,108 +219,108 @@ class CommitTracker():
             return -1
 
 
-class DeveloperDB:
-    """
-    Store developer information and handle developers with multiple ids
-    """
+# class DeveloperDB:
+#     """
+#     Store developer information and handle developers with multiple ids
+#     """
 
-    def __init__(self):
-        self._developer_db = {}
+#     def __init__(self):
+#         self._developer_db = {}
 
-    def load_developer(self, login=None, name=None, email=None):
-        if not login:
-            login = email
-        if login not in self._developer_db:
-            developer = Developer()
-            developer.login = login
-            developer.name = name
-            developer.email = email
-            self._developer_db[login] = developer
-        return self._developer_db[login]
+#     def load_developer(self, login=None, name=None, email=None):
+#         if not login:
+#             login = email
+#         if login not in self._developer_db:
+#             developer = Developer()
+#             developer.login = login
+#             developer.name = name
+#             developer.email = email
+#             self._developer_db[login] = developer
+#         return self._developer_db[login]
 
 
-class Developer:
-    """
-    Contributors: Developers and committers
+# class Developer:
+#     """
+#     Contributors: Developers and committers
 
-    Attributes:
-        login: contributor id
-        name: contributor name
-        email: contributor e-mail
-    """
+#     Attributes:
+#         login: contributor id
+#         name: contributor name
+#         email: contributor e-mail
+#     """
 
-    def __init__(self):
-        self.login = None
-        self.name = None
-        self.email = None
+#     def __init__(self):
+#         self.login = None
+#         self.name = None
+#         self.email = None
 
-    def __repr__(self):
-        return self.login
+#     def __repr__(self):
+#         return self.login
  
 
-class DeveloperTracker:
-    """ Track developers """
-    def __init__(self):
-        self._developers = {}
-        self._totals = {
-            'commits': 0
-        }
+# class DeveloperTracker:
+#     """ Track developers """
+#     def __init__(self):
+#         self._developers = {}
+#         self._totals = {
+#             'commits': 0
+#         }
 
-    def add(self, developer: Developer, commits):
-        if developer and commits:
-            if not type(commits) is list:
-                commits = [commits]
-            if developer in self._developers: 
-                self._developers[developer]['commits'].extend(commits)
-            else:
-                self._developers[developer] = { 'commits': commits }
-            self._totals['commits'] += len(commits)
+#     def add(self, developer: Developer, commits):
+#         if developer and commits:
+#             if not type(commits) is list:
+#                 commits = [commits]
+#             if developer in self._developers: 
+#                 self._developers[developer]['commits'].extend(commits)
+#             else:
+#                 self._developers[developer] = { 'commits': commits }
+#             self._totals['commits'] += len(commits)
 
-    def list(self):
-        return self._developers.keys()
+#     def list(self):
+#         return self._developers.keys()
 
-    def contains(self, developer):
-        return developer in self._developers
+#     def contains(self, developer):
+#         return developer in self._developers
 
-    def count(self):
-        return len(self.list())
+#     def count(self):
+#         return len(self.list())
 
-    def total(self, attribute=None):
-        if not attribute:
-            return self.count()
-        elif attribute in self._totals:
-            return self._totals[attribute]
-        else:
-            return -1
+#     def total(self, attribute=None):
+#         if not attribute:
+#             return self.count()
+#         elif attribute in self._totals:
+#             return self._totals[attribute]
+#         else:
+#             return -1
 
-    def top(self, percent, attribute='commits'):
-        """ Return the top tracked items
+#     def top(self, percent, attribute='commits'):
+#         """ Return the top tracked items
 
-        Params:
-            percent: percentage that the top matches, i.g., 0.8 return the
-                     tracked items responsible for 80% of the total
-        """
-        developers = sorted(self._developers.items(),
-                       key=lambda d:len(d[1]['commits']), 
-                       reverse=True)
-        threshold = min(percent * self._totals['commits'],
-                        self._totals['commits'])
-        amount = 0
-        developers_it = iter(developers)
-        top = DeveloperTracker()
-        while amount < threshold:
-            developer, data = next(developers_it)
-            amount += len(data['commits'])
-            top.add(developer, data['commits'])
-        return top
+#         Params:
+#             percent: percentage that the top matches, i.g., 0.8 return the
+#                      tracked items responsible for 80% of the total
+#         """
+#         developers = sorted(self._developers.items(),
+#                        key=lambda d:len(d[1]['commits']), 
+#                        reverse=True)
+#         threshold = min(percent * self._totals['commits'],
+#                         self._totals['commits'])
+#         amount = 0
+#         developers_it = iter(developers)
+#         top = DeveloperTracker()
+#         while amount < threshold:
+#             developer, data = next(developers_it)
+#             amount += len(data['commits'])
+#             top.add(developer, data['commits'])
+#         return top
 
 
-class DeveloperRoleTracker(DeveloperTracker):
-    """ Track developer roles """
-    def __init__(self, project=None):
-        super().__init__()
-        self.project = project
-        self.authors = DeveloperTracker()
-        self.committers = DeveloperTracker()
-        self.newcomers = DeveloperTracker()
+# class DeveloperRoleTracker(DeveloperTracker):
+#     """ Track developer roles """
+#     def __init__(self, project=None):
+#         super().__init__()
+#         self.project = project
+#         self.authors = DeveloperTracker()
+#         self.committers = DeveloperTracker()
+#         self.newcomers = DeveloperTracker()
 
