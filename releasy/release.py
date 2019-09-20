@@ -7,7 +7,7 @@ import re
 from datetime import timedelta
 
 from .model import Tag, CommitTracker
-from .developer import DeveloperRoleTracker
+from .developer import ReleaseDeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned
 
 
@@ -116,7 +116,7 @@ class Release:
         self.reachable_releases = []
         self._tail_commits = []
         self._commits = []
-        self.developers = DeveloperRoleTracker()
+        self.developers = ReleaseDeveloperRoleTracker()
         self.pre_releases = pre_releases
         
     @property
@@ -219,10 +219,11 @@ class Release:
             commit.release = self
             self._commits.append(commit)
             self._project.add_commit(commit)
-            self.developers.add_commit(commit)
+            is_newcomer = self._project.developers.add_from_commit(commit)
+            self.developers.add_from_commit(commit, is_newcomer)
         else:
             raise CommitReleaseAlreadyAssigned(commit, commit.release)
-        
+
 
 class PreRelease(Release):
     def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):

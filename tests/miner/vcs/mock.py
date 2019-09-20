@@ -22,7 +22,7 @@ class VcsMock(Vcs):
         # id, parents, author, committer, time increment, tag, tag time increment
         commit_data = [  
             (0 ,[]     ,alice  ,alice  ,one_day,[]),
-            (1 ,[0]    ,alice  ,alice  ,one_day,["v1.0.0"]),          #r0
+            (1 ,[0]    ,alice  ,bob    ,one_day,["v1.0.0"]),          #r0
             (2 ,[1]    ,bob    ,bob    ,one_day,[]),
             (3 ,[2]    ,bob    ,bob    ,one_day,["v1.0.1"]),          #r1
             (4 ,[3]    ,alice  ,alice  ,one_day,["non-release"]),

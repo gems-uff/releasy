@@ -40,8 +40,11 @@ class DeveloperTracker():
         # self._developers_commits = {}
 
     def add(self, developer: Developer, commit: Commit):
+        new_developer = False
         if developer not in self._developers:
             self._developers.append(developer)
+            new_developer = True
+        return new_developer
 
         # if developer.login not in self._developers_index:
         #     self._developers.append(developer)
@@ -103,6 +106,18 @@ class DeveloperRoleTracker():
         self.authors = DeveloperTracker()
         self.committers = DeveloperTracker()
 
-    def add_commit(self, commit: Commit):
-        self.authors.add(commit.author, commit)
+    def add_from_commit(self, commit: Commit):
         self.committers.add(commit.committer, commit)
+        is_newcomer = self.authors.add(commit.author, commit)
+        return is_newcomer
+
+
+class ReleaseDeveloperRoleTracker(DeveloperRoleTracker):
+    def __init__(self):
+        super().__init__()
+        self.newcomers = DeveloperTracker()
+    
+    def add_from_commit(self, commit: Commit, is_newcomer=False):
+        super().add_from_commit(commit)
+        if is_newcomer:        
+            self.newcomers.add(commit.author, commit)
