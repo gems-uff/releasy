@@ -42,8 +42,9 @@ class ReleaseFactory():
                                   prefix=prefix, 
                                   major=major, 
                                   minor=minor, 
-                                  patch=patch,
-                                  pre_releases = self._pre_release_cache[release_version])
+                                  patch=patch)
+                for pre_release in self._pre_release_cache[release_version]:
+                    release.add_pre_release(pre_release)
 
             return release
 
@@ -103,8 +104,8 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None, pre_releases=None):
-        self._project = project
+    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
+        self.project = project
         self._tag = tag
         self.type = release_type
         self.prefix = prefix
@@ -115,9 +116,9 @@ class Release:
         self.base_releases = []
         self.reachable_releases = []
         self._tail_commits = []
-        self._commits = []
+        self.commits = []
         self.developers = ReleaseDeveloperRoleTracker()
-        self.pre_releases = pre_releases
+        self.pre_releases = []
         
     @property
     def name(self):
@@ -126,13 +127,6 @@ class Release:
     @property
     def head_commit(self):
         return self._tag.commit
-
-    @property
-    def commits(self):
-        commits = [] + self._commits
-        for pre_release in self.pre_releases:
-            commits += pre_release.commits
-        return commits
 
     @property
     def tail_commits(self):
@@ -214,15 +208,33 @@ class Release:
 
         return self.__commit_stats.churn
 
-    def add_commit(self, commit: Commit):
-        if not commit.release:
-            commit.release = self
-            self._commits.append(commit)
-            self._project.add_commit(commit)
-            is_newcomer = self._project.developers.add_from_commit(commit)
-            self.developers.add_from_commit(commit, is_newcomer)
-        else:
-            raise CommitReleaseAlreadyAssigned(commit, commit.release)
+    def add_commit(self, commit: Commit, assign_commit_to_release=True):
+        is_newcomer = False
+        if assign_commit_to_release:
+            if not commit.release:
+                commit.release = self
+                self.project.add_commit(commit)
+                is_newcomer = self.project.developers.add_from_commit(commit)
+            else:
+                raise CommitReleaseAlreadyAssigned(commit, self)
+
+        self.commits.append(commit)
+        self.developers.add_from_commit(commit, is_newcomer)
+
+    def add_commits_from_pre_releases(self):
+        """ This method is necessary for lazy loading commits """
+        for pre_release in self.pre_releases:
+            for commit in pre_release.commits:
+                self.add_commit(commit, False)
+            for newcomer in pre_release.developers.newcomers:
+                self.developers.force_newcomer(newcomer)
+
+        
+#            self.commits.extend(pre_release.commits)
+
+    def add_pre_release(self, pre_release: PreRelease):
+        self.pre_releases.append(pre_release)
+        self.commits.extend(pre_release.commits)
 
 
 class PreRelease(Release):
@@ -236,28 +248,6 @@ class PreRelease(Release):
                          patch=patch)
 
     @property
-    def commits(self):
-        return self._commits
-    
-    @property
     def tail_commits(self):
         return self._tail_commits
 
-
-class Developer:
-    """
-    Contributors: Developers and committers
-
-    Attributes:
-        login: contributor id
-        name: contributor name
-        email: contributor e-mail
-    """
-
-    def __init__(self):
-        self.login = None
-        self.name = None
-        self.email = None
-
-    def __repr__(self):
-        return self.login

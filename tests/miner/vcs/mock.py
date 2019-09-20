@@ -28,7 +28,7 @@ class VcsMock(Vcs):
             (4 ,[3]    ,alice  ,alice  ,one_day,["non-release"]),
             (5 ,[2]    ,alice  ,alice  ,one_day,[]),
             (6 ,[5]    ,alice  ,alice  ,one_day,["v1.1.0"]),          #r2
-            (7 ,[4,6]  ,bob    ,bob    ,one_day,[]),
+            (7 ,[4,6]  ,charlie,bob    ,one_day,[]),
             (8 ,[7]    ,charlie,charlie,one_day,["v2.0.0-alpha1"]),   #r3
             (9 ,[8]    ,alice  ,bob    ,one_day,[]),
             (10,[9]    ,alice  ,alice  ,one_day,["v2.0.0-beta1"]),    #r4

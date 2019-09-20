@@ -121,3 +121,7 @@ class ReleaseDeveloperRoleTracker(DeveloperRoleTracker):
         super().add_from_commit(commit)
         if is_newcomer:        
             self.newcomers.add(commit.author, commit)
+
+    #TODO fix
+    def force_newcomer(self, newcomer: Developer):
+        self.newcomers.add(newcomer, None)

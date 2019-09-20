@@ -36,7 +36,8 @@ class Miner():
 
         for release in self._project.releases:
             self._track_release(release)
-        
+            release.add_commits_from_pre_releases()
+
         return self._project
 
     def _track_release(self, release: Release):
@@ -58,7 +59,7 @@ class Miner():
                 else: # root commit
                     release._tail_commits.append(commit)
 
-        if len(release._commits) == 0: # releases that point to tracked commit
+        if len(release.commits) == 0: # releases that point to tracked commit
             commit = release.head_commit
             release.base_releases.append(commit.release)
 
@@ -92,6 +93,7 @@ class Miner():
                     if parent_commit not in visited_commit:
                         commit_stack.append(parent_commit)
 
+    #TODO move to commit
     def _is_tracked_commit(self, commit):
         """ Check if commit is tracked on a release """
         if commit.release:
