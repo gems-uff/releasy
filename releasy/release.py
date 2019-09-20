@@ -1,11 +1,19 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .model import Commit, Project
+
 import re
 from datetime import timedelta
 
 from .model import Tag, CommitTracker
 from .developer import DeveloperRoleTracker
+from .exception import CommitReleaseAlreadyAssigned
+
 
 class ReleaseFactory():
-    def __init__(self):
+    def __init__(self, project: Project):
+        self._project = project
         self._pre_release_cache = {}
 
     def get_release(self, tag: Tag):
@@ -19,10 +27,17 @@ class ReleaseFactory():
                 self._pre_release_cache[release_version] = []
 
             if release_type == "PRE":
-                release = PreRelease(tag=tag, release_type="PRE", prefix=prefix, major=major, minor=minor, patch=patch)
+                release = PreRelease(project=self._project, 
+                                     tag=tag,
+                                     release_type="PRE",
+                                     prefix=prefix,
+                                     major=major,
+                                     minor=minor,
+                                     patch=patch)
                 self._pre_release_cache[release_version].append(release)
             else:
-                release = Release(tag=tag, 
+                release = Release(project=self._project,
+                                  tag=tag, 
                                   release_type="release_type",
                                   prefix=prefix, 
                                   major=major, 
@@ -88,7 +103,8 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, tag, release_type=None, prefix=None, major=None, minor=None, patch=None, pre_releases=None):
+    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None, pre_releases=None):
+        self._project = project
         self._tag = tag
         self.type = release_type
         self.prefix = prefix
@@ -100,7 +116,6 @@ class Release:
         self.reachable_releases = []
         self._tail_commits = []
         self._commits = []
-#        self.commits = CommitTracker()
         self.developers = DeveloperRoleTracker()
         self.pre_releases = pre_releases
         
@@ -199,10 +214,25 @@ class Release:
 
         return self.__commit_stats.churn
 
+    def add_commit(self, commit: Commit):
+        if not commit.release:
+            commit.release = self
+            self._commits.append(commit)
+            self._project.add_commit(commit)
+            self.developers.add_commit(commit)
+        else:
+            raise CommitReleaseAlreadyAssigned(commit, commit.release)
+        
 
 class PreRelease(Release):
-    def __init__(self, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
-        super().__init__(tag=tag, release_type=release_type, prefix=prefix, major=major, minor=minor, patch=patch)
+    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
+        super().__init__(project=project,
+                         tag=tag,
+                         release_type=release_type,
+                         prefix=prefix,
+                         major=major,
+                         minor=minor,
+                         patch=patch)
 
     @property
     def commits(self):

@@ -13,7 +13,7 @@ class Miner():
         name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
-        self._release_factory = ReleaseFactory()
+        self._release_factory = ReleaseFactory(self._project)
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
@@ -44,7 +44,7 @@ class Miner():
         while len(commit_stack):
             commit = commit_stack.pop()
             if not self._is_tracked_commit(commit):
-                self._track_commit(release, commit)
+                release.add_commit(commit)
 
                 if commit.parents:
                     for parent in commit.parents:
@@ -98,29 +98,6 @@ class Miner():
             return True
         else:
             return False
-
-    def _track_commit(self, release, commit):
-        """ associate commit to release """
-        commit.release = release
-        release._commits.append(commit)
-        self._project.commits.add(commit)
-        release.developers.add_commit(commit)
-        # committer = commit.committer
-        # author = commit.author
-
-        # release.developers.committers.add(committer, commit)
-        # release.developers.authors.add(author, commit)
-        # release.developers.add(committer, commit)
-        # if not self._project.developers.contains(committer):
-        #     release.developers.newcomers.add(committer, commit)
-        # self._project.developers.committers.add(committer, commit)
-        # self._project.developers.add(committer, commit)
-        # if not self._project.developers.contains(author):
-        #     release.developers.newcomers.add(author, commit)
-        # self._project.developers.authors.add(author, commit)
-        # if committer != author:
-        #     release.developers.add(author, commit)
-        #     self._project.developers.add(author, commit)
 
 
 class Vcs:

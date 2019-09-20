@@ -14,6 +14,7 @@ import os
 
 from .phase import Development, Stage, Maintenance
 from .developer import DeveloperRoleTracker
+from .exception import CommitReleaseAlreadyAssigned
 
 
 class Project:
@@ -31,7 +32,7 @@ class Project:
     def __init__(self, name):
         self.name = name
         self._releases: List[Release] = []
-        self.commits = CommitTracker()
+        self.commits = [] #CommitTracker()
         self.developers = DeveloperRoleTracker()
 
     @property
@@ -82,6 +83,9 @@ class Project:
         if config:
             with open(self.config_path, 'w') as config_file:
                 yaml.dump(config, config_file, default_flow_style=False)
+
+    def add_commit(self, commit: Commit):
+        self.commits.append(commit)
 
 
 class Tag:
