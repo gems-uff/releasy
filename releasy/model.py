@@ -138,6 +138,9 @@ class Commit:
         self.committer_time = committer_time
         self.release = None
 
+    def has_release(self) -> bool:
+        return self.release != None
+
     def __repr__(self):
         return str(self.hashcode)
 

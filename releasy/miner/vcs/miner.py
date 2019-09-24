@@ -53,12 +53,12 @@ class Miner():
         commit_stack = [ release.head_commit ]
         while len(commit_stack):
             commit = commit_stack.pop()
-            if not self._is_tracked_commit(commit):
+            if not commit.has_release():
                 release.add_commit(commit)
 
                 if commit.parents:
                     for parent in commit.parents:
-                        if self._is_tracked_commit(parent):
+                        if parent.has_release():
                             # if parent.release != release and parent.release not in release.base_releases:
                             #     release.base_releases.append(parent.release)
                             self._track_base_release(release, parent)
@@ -101,14 +101,6 @@ class Miner():
                 for parent_commit in cur_commit.parents:
                     if parent_commit not in visited_commit:
                         commit_stack.append(parent_commit)
-
-    #TODO move to commit
-    def _is_tracked_commit(self, commit):
-        """ Check if commit is tracked on a release """
-        if commit.release:
-            return True
-        else:
-            return False
 
 
 class Vcs:
