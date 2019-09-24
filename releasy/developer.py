@@ -122,6 +122,6 @@ class ReleaseDeveloperRoleTracker(DeveloperRoleTracker):
         if is_newcomer:        
             self.newcomers.add(commit.author, commit)
 
-    #TODO fix
+    #TODO fix - must pass developers - might be good to have a developercommit class
     def force_newcomer(self, newcomer: Developer):
         self.newcomers.add(newcomer, None)

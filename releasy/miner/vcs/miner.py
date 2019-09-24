@@ -18,12 +18,21 @@ class Miner():
     def mine_releases(self):
         """ Mine release related information, skipping commits """
         releases = []
+        feature_release = {}
         tags = sorted(self._vcs.tags(), key=lambda tag: tag.time)
         for tag in tags:
             release = self._release_factory.get_release(tag)
             if release:
                 releases.append(release)
-                tag.release = release
+                if not release.is_patch():
+                    feature_release[release.feature_version] = release
+
+        for release in releases:
+            if release.is_patch() and release.feature_version in feature_release:
+                feature_release[release.feature_version].patches.append(release)
+
+        for release in feature_release.values():
+            release.patches = sorted(release.patches, key=lambda release: release.time)
 
         self._project._tags = tags
         self._project._releases = releases

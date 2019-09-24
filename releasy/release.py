@@ -22,7 +22,7 @@ class ReleaseFactory():
             return None
         else:
             (release_type, prefix, major, minor, patch) = release_info
-            release_version = "%d.%d.%d" % (major, minor, patch)
+            release_version = f"{major}.{minor}.{patch}"
             if release_version not in self._pre_release_cache:
                 self._pre_release_cache[release_version] = []
 
@@ -46,6 +46,7 @@ class ReleaseFactory():
                 for pre_release in self._pre_release_cache[release_version]:
                     release.add_pre_release(pre_release)
 
+            tag.release = release
             return release
 
     def _match_release(self, tagname):
@@ -112,13 +113,15 @@ class Release:
         self.major = major
         self.minor = minor
         self.patch = patch
-        self.version = "%d.%d.%d" % (self.major, self.minor, self.patch)
+        self.version = f"{major}.{minor}.{patch}"
+        self.feature_version = f"{major}.{minor}.x"
         self.base_releases = []
         self.reachable_releases = []
         self._tail_commits = []
         self.commits = []
         self.developers = ReleaseDeveloperRoleTracker()
         self.pre_releases = []
+        self.patches = []
         
     @property
     def name(self):
@@ -208,6 +211,9 @@ class Release:
 
         return self.__commit_stats.churn
 
+    def is_patch(self):
+        return self.patch != 0
+
     def add_commit(self, commit: Commit, assign_commit_to_release=True):
         is_newcomer = False
         if assign_commit_to_release:
@@ -247,6 +253,7 @@ class PreRelease(Release):
                          minor=minor,
                          patch=patch)
 
+    #TODO Remove
     @property
     def tail_commits(self):
         return self._tail_commits

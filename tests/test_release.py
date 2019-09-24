@@ -50,3 +50,30 @@ def test_release_length():
     assert project.releases[5].length == timedelta(days=9)
     assert project.releases[6].length == timedelta(days=0)
     assert project.releases[7].length == timedelta(days=5)
+
+
+def test_pre_releases():
+    miner = Miner(vcs=VcsMock())
+    project = miner.mine_releases()
+    assert len(project.releases[0].pre_releases) == 0
+    assert len(project.releases[1].pre_releases) == 0
+    assert len(project.releases[2].pre_releases) == 0
+    assert len(project.releases[3].pre_releases) == 0
+    assert len(project.releases[4].pre_releases) == 0
+    assert len(project.releases[5].pre_releases) == 2
+    assert len(project.releases[6].pre_releases) == 0
+    assert len(project.releases[7].pre_releases) == 0
+    
+
+
+def test_maintenance_releases():
+    miner = Miner(vcs=VcsMock())
+    project = miner.mine_releases()
+    assert len(project.releases[0].patches) == 1
+    assert len(project.releases[1].patches) == 0
+    assert len(project.releases[2].patches) == 0
+    assert len(project.releases[3].patches) == 0
+    assert len(project.releases[4].patches) == 0
+    assert len(project.releases[5].patches) == 1
+    assert len(project.releases[6].patches) == 0
+    assert len(project.releases[7].patches) == 0
