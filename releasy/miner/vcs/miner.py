@@ -59,14 +59,13 @@ class Miner():
                 if commit.parents:
                     for parent in commit.parents:
                         if parent.has_release():
-                            # if parent.release != release and parent.release not in release.base_releases:
-                            #     release.base_releases.append(parent.release)
                             self._track_base_release(release, parent)
-                            release._tail_commits.append(commit)
+                            release.tail_commits.append(commit)
                         else:
                             commit_stack.append(parent)
                 else: # root commit
-                    release._tail_commits.append(commit)
+                    #TODO create aadd method
+                    release.tail_commits.append(commit)
 
         if len(release.commits) == 0: # releases that point to tracked commit
             commit = release.head_commit
@@ -86,7 +85,7 @@ class Miner():
 
         release.base_releases = sorted(release.base_releases, key=lambda release: release.version)
         release.reachable_releases = sorted(release.reachable_releases, key=lambda release: release.version)
-        release._tail_commits = sorted(release._tail_commits, key=lambda commit: commit.author_time)
+        release.tail_commits = sorted(release.tail_commits, key=lambda commit: commit.author_time)
 
     def _track_base_release(self, release, commit):
         commit_stack = [ commit ]

@@ -117,7 +117,7 @@ class Release:
         self.feature_version = f"{major}.{minor}.x"
         self.base_releases = []
         self.reachable_releases = []
-        self._tail_commits = []
+        self.tail_commits = []
         self.commits = []
         self.developers = ReleaseDeveloperRoleTracker()
         self.pre_releases = []
@@ -132,24 +132,15 @@ class Release:
         return self._tag.commit
 
     @property
-    def tail_commits(self):
-        tail_commits = [] + self._tail_commits
-        for pre_release in self.pre_releases:
-            tail_commits += pre_release.tail_commits
-        tail_commits = sorted(tail_commits, key=lambda commit: commit.author_time)
-        return tail_commits
-
-    @property
     def time(self):
         return self._tag.time
 
     @property
     def length(self):
-        #TODO consider tag length
         if self.tail_commits:
             return self.time - self.tail_commits[0].author_time
         else:
-            return timedelta(0)
+            return self.time - self.head_commit.author_time
 
     @property
     def description(self):
@@ -234,9 +225,8 @@ class Release:
                 self.add_commit(commit, False)
             for newcomer in pre_release.developers.newcomers:
                 self.developers.force_newcomer(newcomer)
-
-        
-#            self.commits.extend(pre_release.commits)
+            self.tail_commits += pre_release.tail_commits
+            self.tail_commits = sorted(self.tail_commits, key=lambda commit: commit.author_time)
 
     def add_pre_release(self, pre_release: PreRelease):
         self.pre_releases.append(pre_release)
@@ -252,9 +242,4 @@ class PreRelease(Release):
                          major=major,
                          minor=minor,
                          patch=patch)
-
-    #TODO Remove
-    @property
-    def tail_commits(self):
-        return self._tail_commits
 
