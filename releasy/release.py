@@ -122,6 +122,10 @@ class Release:
         self.developers = ReleaseDeveloperRoleTracker()
         self.pre_releases = []
         self.patches = []
+        self.previous_release: Release = None
+        self.next_release: Release = None
+        self.previous_feature_release: Release = None
+        #TODO self.next_feature_release: Release = None
         
     @property
     def name(self):
@@ -206,8 +210,11 @@ class Release:
 
         return self.__commit_stats.churn
 
-    def is_patch(self):
+    def is_patch(self) -> bool:
         return self.patch != 0
+
+    def is_pre_release(self) -> bool:
+        return self.type == "PRE"
 
     def add_commit(self, commit: Commit, assign_commit_to_release=True):
         is_newcomer = False

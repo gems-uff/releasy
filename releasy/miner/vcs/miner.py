@@ -19,6 +19,7 @@ class Miner():
         """ Mine release related information, skipping commits """
         releases = []
         feature_release = {}
+        #TODO sort per graph position
         tags = sorted(self._vcs.tags(), key=lambda tag: tag.time)
         for tag in tags:
             release = self._release_factory.get_release(tag)
@@ -27,9 +28,20 @@ class Miner():
                 if not release.is_patch():
                     feature_release[release.feature_version] = release
 
+        previous_release = None
+        previous_feature_release = None
         for release in releases:
             if release.is_patch() and release.feature_version in feature_release:
                 feature_release[release.feature_version].patches.append(release)
+            
+            if previous_release:
+                previous_release.next_release = release
+            release.previous_release = previous_release
+            previous_release = release
+            
+            release.previous_feature_release = previous_feature_release
+            if not release.is_patch() and not release.is_pre_release():
+                previous_feature_release = release
 
         for release in feature_release.values():
             release.patches = sorted(release.patches, key=lambda release: release.time)

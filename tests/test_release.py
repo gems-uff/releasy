@@ -76,3 +76,46 @@ def test_maintenance_releases():
     assert len(project.releases[5].patches) == 1
     assert len(project.releases[6].patches) == 0
     assert len(project.releases[7].patches) == 0
+
+
+def test_linked_releases():
+    miner = Miner(vcs=VcsMock())
+    project = miner.mine_releases()
+    assert project.releases[0].previous_release == None
+    assert project.releases[1].previous_release == project.releases[0]
+    assert project.releases[2].previous_release == project.releases[1]
+    assert project.releases[3].previous_release == project.releases[2]
+    assert project.releases[4].previous_release == project.releases[3]
+    assert project.releases[5].previous_release == project.releases[4]
+    assert project.releases[6].previous_release == project.releases[5]
+    assert project.releases[7].previous_release == project.releases[6]
+    assert project.releases[0].next_release == project.releases[1]
+    assert project.releases[1].next_release == project.releases[2]
+    assert project.releases[2].next_release == project.releases[3]
+    assert project.releases[3].next_release == project.releases[4]
+    assert project.releases[4].next_release == project.releases[5]
+    assert project.releases[5].next_release == project.releases[6]
+    assert project.releases[6].next_release == project.releases[7]
+    assert project.releases[7].next_release == None
+
+
+def test_linked_feature_releases():
+    miner = Miner(vcs=VcsMock())
+    project = miner.mine_releases()
+    assert project.releases[0].previous_feature_release == None
+    assert project.releases[1].previous_feature_release == project.releases[0]
+    assert project.releases[2].previous_feature_release == project.releases[0]
+    assert project.releases[3].previous_feature_release == project.releases[2]
+    assert project.releases[4].previous_feature_release == project.releases[2]
+    assert project.releases[5].previous_feature_release == project.releases[2]
+    assert project.releases[6].previous_feature_release == project.releases[5]
+    assert project.releases[7].previous_feature_release == project.releases[5]
+    #TODO implement next_feature_release
+    # assert project.releases[0].next_feature_release == project.releases[2]
+    # assert project.releases[1].next_feature_release == project.releases[2]
+    # assert project.releases[2].next_feature_release == project.releases[5]
+    # assert project.releases[3].next_feature_release == project.releases[5]
+    # assert project.releases[4].next_feature_release == project.releases[5]
+    # assert project.releases[5].next_feature_release == project.releases[7]
+    # assert project.releases[6].next_feature_release == project.releases[7]
+    # assert project.releases[7].next_feature_release == None
