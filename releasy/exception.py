@@ -10,3 +10,7 @@ class CommitReleaseAlreadyAssigned(Exception):
         self.commit = commit
         self.release = release
         
+class MisplacedTimeException(Exception):
+    def __init__(self, release):
+        super().__init__(f"Release {release} has misplaced time")
+        self.release = release

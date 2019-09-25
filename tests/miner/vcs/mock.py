@@ -80,6 +80,47 @@ class VcsMock(Vcs):
     def commits(self):
         return self._commits
 
+
+class MisplacedTimeVcsMock(Vcs):
+    def __init__(self, misplaced_commits, path="./releasy"):
+        super().__init__(path)
+        ref_dt = datetime(2020, 1, 1, 12, 00)
+        misplaced_dt = datetime(1990, 1, 1, 00, 00)
+        one_day = timedelta(days=1)
+        self.dev = DevMock()
+        alice = self.dev.alice
+        
+        self._tags = []
+        commits = []
+
+        parents = []
+        for index in range(12):
+            commit_ref_dt = ref_dt
+            if index in misplaced_commits:
+                commit_ref_dt = misplaced_dt
+
+            commit = Commit(hashcode=index,
+                            parents=parents,
+                            author=alice, 
+                            author_time=commit_ref_dt,
+                            committer=alice,
+                            committer_time=commit_ref_dt,
+                            message="Commit %d" % index)
+            commits.append(commit)
+
+            if ((index+1) % 4 == 0):
+                tag = Tag(name=f"1.1.{int(index/4)}", 
+                          commit=commit)
+                self._tags.append(tag) 
+
+            ref_dt += one_day                            
+            parents = [commit]
+
+
+    def tags(self):
+        return self._tags
+    
+
 class DevMock():
     def __init__(self):
         self.alice = Developer(login="alice", name="Mrs. Alice", email="alice@example.com")

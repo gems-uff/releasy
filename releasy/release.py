@@ -8,7 +8,7 @@ from datetime import timedelta
 
 from .model import Tag, CommitTracker
 from .developer import ReleaseDeveloperRoleTracker
-from .exception import CommitReleaseAlreadyAssigned
+from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 
 
 class ReleaseFactory():
@@ -138,9 +138,13 @@ class Release:
     @property
     def length(self):
         if self.tail_commits:
-            return self.time - self.tail_commits[0].author_time
+            length = self.time - self.tail_commits[0].author_time
         else:
-            return self.time - self.head_commit.author_time
+            length = self.time - self.head_commit.author_time
+        
+        if length < timedelta(0):
+            raise MisplacedTimeException(self)
+        return length
 
     @property
     def description(self):

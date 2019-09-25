@@ -63,7 +63,6 @@ def test_pre_releases():
     assert len(project.releases[5].pre_releases) == 2
     assert len(project.releases[6].pre_releases) == 0
     assert len(project.releases[7].pre_releases) == 0
-    
 
 
 def test_maintenance_releases():
