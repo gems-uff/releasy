@@ -103,16 +103,15 @@ class Miner():
         commit_stack = [ commit ]
         visited_commit = set()
         while len(commit_stack):
-            cur_commit = commit_stack.pop()
-            if cur_commit not in visited_commit:
-                if cur_commit.release and cur_commit.release.head_commit == cur_commit:
-                    visited_commit.add(cur_commit)
-                    if cur_commit.release not in release.base_releases:
-                        release.base_releases.append(cur_commit.release)
-                else:
-                    for parent_commit in cur_commit.parents:
-                        if parent_commit not in visited_commit:
-                            commit_stack.append(parent_commit)
+            commit = commit_stack.pop()
+            visited_commit.add(commit)
+            if commit.release and commit.release.head_commit == commit:
+                if commit.release not in release.base_releases:
+                    release.base_releases.append(commit.release)
+            else:
+                for parent in commit.parents:
+                    if parent not in visited_commit:
+                        commit_stack.append(parent)
 
 
 class Vcs:
