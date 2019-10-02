@@ -46,7 +46,7 @@ class Miner():
         for release in feature_release.values():
             release.patches = sorted(release.patches, key=lambda release: release.time)
 
-        self._project._tags = tags
+        self._project.tags = tags
         self._project._releases = releases
         return self._project
 
@@ -70,7 +70,7 @@ class Miner():
 
                 if commit.parents:
                     for parent in commit.parents:
-                        if parent.has_release():
+                        if parent.has_release() and parent.release != release:
                             self._track_base_release(release, parent)
                             release.tail_commits.append(commit)
                         else:
@@ -104,14 +104,15 @@ class Miner():
         visited_commit = set()
         while len(commit_stack):
             cur_commit = commit_stack.pop()
-            if cur_commit.release and cur_commit.release.head_commit == cur_commit:
-                visited_commit.add(cur_commit)
-                if cur_commit.release not in release.base_releases:
-                    release.base_releases.append(cur_commit.release)
-            else:
-                for parent_commit in cur_commit.parents:
-                    if parent_commit not in visited_commit:
-                        commit_stack.append(parent_commit)
+            if cur_commit not in visited_commit:
+                if cur_commit.release and cur_commit.release.head_commit == cur_commit:
+                    visited_commit.add(cur_commit)
+                    if cur_commit.release not in release.base_releases:
+                        release.base_releases.append(cur_commit.release)
+                else:
+                    for parent_commit in cur_commit.parents:
+                        if parent_commit not in visited_commit:
+                            commit_stack.append(parent_commit)
 
 
 class Vcs:

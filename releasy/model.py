@@ -34,10 +34,24 @@ class Project:
         self._releases: List[Release] = []
         self.commits = [] #CommitTracker()
         self.developers = DeveloperRoleTracker()
+        self.tags: List[Tag] = []
 
     @property
     def releases(self) -> List[Release]:
         return self._releases
+
+    def get_releases(self, skip_pre=False, skip_patches=False):
+        releases = []
+        for release in self.releases:
+            if release.is_patch():
+                if not skip_patches:
+                    releases.append(release)
+            elif release.is_pre_release():
+                if not skip_pre:
+                    releases.append(release)
+            else:
+                releases.append(release)
+        return releases
 
     # def __init2__(self, name, path, regexp=None):
     #     self.name = name
@@ -110,6 +124,9 @@ class Tag:
             self.is_annotated = False
             self.time = commit.committer_time
             self.message = commit.committer_time
+    
+    def __repr__(self):
+        return self.name
 
 
 class Commit:
