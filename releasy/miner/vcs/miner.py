@@ -9,18 +9,16 @@ from ...release import ReleaseFactory, Release
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, vcs):
+    def __init__(self, vcs, release_prefixes=None):
         name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
-        self._release_factory = ReleaseFactory(self._project)
+        self._release_factory = ReleaseFactory(self._project, prefixes=release_prefixes)
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
         releases = []
         feature_release = {}
-        prefix_count = {}
-        prefixes = []
 
         #TODO sort per graph position
         tags = sorted(self._vcs.tags(), key=lambda tag: tag.time)
@@ -28,28 +26,8 @@ class Miner():
             release = self._release_factory.get_release(tag)
             if release:
                 releases.append(release)
-                if release.prefix not in prefix_count:
-                    prefix_count[release.prefix] = 0
-                prefix_count[release.prefix] += 1
-
-        # remove releases with different prefixes
-        max_prefix_count = 0
-        for prefix,count in prefix_count.items():
-            if count > max_prefix_count:
-                main_prefix = prefix
-                max_prefix_count = count
-
-        remove_release = []
-        for i,release in enumerate(releases):
-            if release.prefix != main_prefix:
-                remove_release.append(i)
-                release._tag.release = None #TODO improve - should be in builder
-        for release_index in reversed(remove_release):
-            del releases[release_index]
-            
-        for release in releases:
-            if not release.is_patch():
-                feature_release[release.feature_version] = release
+                if not release.is_patch():
+                    feature_release[release.feature_version] = release
 
         previous_release = None
         previous_feature_release = None

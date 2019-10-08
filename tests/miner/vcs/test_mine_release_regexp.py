@@ -8,7 +8,7 @@ from .mock import DifferentReleaseNameVcsMock
 
 
 def test_mine_release_regexp():
-    miner = Miner(vcs=DifferentReleaseNameVcsMock())
+    miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_prefixes=["v",None])
     project = miner.mine_releases()
     assert len(project.releases) == 7
     assert project.releases[0].version == "0.0.0"

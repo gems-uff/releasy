@@ -92,7 +92,7 @@ class DifferentReleaseNameVcsMock(Vcs):
         commit_data = [  
             "v0.0.0",
             "v0.1",
-            "v1.0.0",
+            "1.0.0",
             "v1.0.0-beta1",
             "v1.0.0beta2",
             "v1.0.0a1",

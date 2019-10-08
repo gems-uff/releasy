@@ -12,9 +12,10 @@ from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 
 
 class ReleaseFactory():
-    def __init__(self, project: Project):
+    def __init__(self, project: Project, prefixes=None):
         self._project = project
         self._pre_release_cache = {}
+        self.prefixes = prefixes
 
     def get_release(self, tag: Tag):
         release_info = self._match_release(tag.name)
@@ -23,31 +24,35 @@ class ReleaseFactory():
         else:
             (release_type, prefix, major, minor, patch) = release_info
             release_version = f"{major}.{minor}.{patch}"
-            if release_version not in self._pre_release_cache:
-                self._pre_release_cache[release_version] = []
 
-            if release_type == "PRE":
-                release = PreRelease(project=self._project, 
-                                     tag=tag,
-                                     release_type="PRE",
-                                     prefix=prefix,
-                                     major=major,
-                                     minor=minor,
-                                     patch=patch)
-                self._pre_release_cache[release_version].append(release)
-            else:
-                release = Release(project=self._project,
-                                  tag=tag, 
-                                  release_type="release_type",
-                                  prefix=prefix, 
-                                  major=major, 
-                                  minor=minor, 
-                                  patch=patch)
-                for pre_release in self._pre_release_cache[release_version]:
-                    release.add_pre_release(pre_release)
+        if self.prefixes and prefix not in self.prefixes:
+            return None
 
-            tag.release = release
-            return release
+        if release_version not in self._pre_release_cache:
+            self._pre_release_cache[release_version] = []
+
+        if release_type == "PRE":
+            release = PreRelease(project=self._project, 
+                                    tag=tag,
+                                    release_type="PRE",
+                                    prefix=prefix,
+                                    major=major,
+                                    minor=minor,
+                                    patch=patch)
+            self._pre_release_cache[release_version].append(release)
+        else:
+            release = Release(project=self._project,
+                                tag=tag, 
+                                release_type="release_type",
+                                prefix=prefix, 
+                                major=major, 
+                                minor=minor, 
+                                patch=patch)
+            for pre_release in self._pre_release_cache[release_version]:
+                release.add_pre_release(pre_release)
+
+        tag.release = release
+        return release
 
     def _match_release(self, tagname):
         pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?(-?(?P<pre>.+))?$")
