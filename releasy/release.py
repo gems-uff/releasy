@@ -50,7 +50,7 @@ class ReleaseFactory():
             return release
 
     def _match_release(self, tagname):
-        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)(-?(?P<pre>.+))?$")
+        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?(-?(?P<pre>.+))?$")
         re_match = pattern.search(tagname)
         if re_match:
             prefix = re_match.group("prefix")
@@ -70,6 +70,8 @@ class ReleaseFactory():
             patch = re_match.group("patch")
             if patch:
                 patch_version = int(patch)
+            else:
+                patch_version = 0
 
             if pre_release:
                 release_type = "PRE"
@@ -77,7 +79,7 @@ class ReleaseFactory():
                 release_type = "PATCH"
             elif minor_version > 0:
                 release_type = "MINOR"
-            elif major_version > 0:
+            else: # major_version > 0:
                 release_type = "MAJOR"
 
             return (release_type,

@@ -90,11 +90,14 @@ class DifferentReleaseNameVcsMock(Vcs):
         alice = dev.alice
 
         commit_data = [  
+            "v0.0.0",
+            "v0.1",
             "v1.0.0",
             "v1.0.0-beta1",
             "v1.0.0beta2",
             "v1.0.0a1",
-            "v1.0.0.b1"
+            "v1.0.0.b1",
+            "n2.0.0"
         ]
 
         commits = {}
