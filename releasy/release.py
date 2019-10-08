@@ -50,7 +50,7 @@ class ReleaseFactory():
             return release
 
     def _match_release(self, tagname):
-        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)(-(?P<pre>.+))?$")
+        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)(-?(?P<pre>.+))?$")
         re_match = pattern.search(tagname)
         if re_match:
             prefix = re_match.group("prefix")

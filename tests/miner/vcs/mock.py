@@ -80,6 +80,48 @@ class VcsMock(Vcs):
     def commits(self):
         return self._commits
 
+class DifferentReleaseNameVcsMock(Vcs):
+    def __init__(self):
+        super().__init__("./releasy")
+
+        ref_dt = datetime(2020, 1, 1, 12, 00)        
+        one_day = timedelta(days=1)
+        dev = DevMock()
+        alice = dev.alice
+
+        commit_data = [  
+            "v1.0.0",
+            "v1.0.0-beta1",
+            "v1.0.0beta2",
+            "v1.0.0a1",
+            "v1.0.0.b1"
+        ]
+
+        commits = {}
+        tags = []
+        parents = []
+        index = 1
+        for tagname in commit_data:
+                commits[index] = Commit(hashcode=index,
+                                        parents=parents,
+                                        author=alice, 
+                                        author_time=ref_dt,
+                                        committer=alice,
+                                        committer_time=ref_dt,
+                                        message="Commit %d" % index)
+                tag = Tag(name=tagname, 
+                          commit=commits[index], 
+                          time=ref_dt, 
+                          message=f"tag {tagname}")
+                tags.append(tag)
+
+                parents = [index]
+                index += 1
+                ref_dt += one_day
+
+        self._commits = commits
+        self._tags = tags
+
 
 class MisplacedTimeVcsMock(Vcs):
     def __init__(self, misplaced_commits, path="./releasy"):

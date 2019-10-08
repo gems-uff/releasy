@@ -123,7 +123,9 @@ class Vcs:
     """
     def __init__(self, path):
         self.path = path
+        self._tags = []
 
     def tags(self):
         """ Return repository tags """
-        pass
+        return self._tags
+
