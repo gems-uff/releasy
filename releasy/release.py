@@ -132,7 +132,7 @@ class Release:
         self.previous_release: Release = None
         self.next_release: Release = None
         self.previous_feature_release: Release = None
-        #TODO self.next_feature_release: Release = None
+        self.next_feature_release: Release = None
         
     @property
     def name(self):

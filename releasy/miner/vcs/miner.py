@@ -9,8 +9,9 @@ from ...release import ReleaseFactory, Release
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, vcs, release_prefixes=None):
-        name = os.path.basename(vcs.path)
+    def __init__(self, vcs, name=None, release_prefixes=None):
+        if not name:
+            name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
         self._release_factory = ReleaseFactory(self._project, prefixes=release_prefixes)
@@ -43,7 +44,7 @@ class Miner():
             release.previous_feature_release = previous_feature_release
             if not release.is_patch() and not release.is_pre_release():
                 previous_feature_release = release
-
+            
         for release in feature_release.values():
             release.patches = sorted(release.patches, key=lambda release: release.time)
 
