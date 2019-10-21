@@ -1,5 +1,4 @@
-# Module responsible to parse code repositories and mine releases and related
-# information
+# Module responsible to mine code repositories and extract releases information
 #
 import os.path
 
@@ -9,12 +8,12 @@ from ...release import ReleaseFactory, Release
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, vcs, name=None, release_prefixes=None):
+    def __init__(self, vcs, name=None, release_prefixes=None, release_suffixes=None):
         if not name:
             name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
-        self._release_factory = ReleaseFactory(self._project, prefixes=release_prefixes)
+        self._release_factory = ReleaseFactory(self._project, prefixes=release_prefixes, suffixes=release_suffixes)
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """

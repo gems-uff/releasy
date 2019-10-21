@@ -97,7 +97,8 @@ class DifferentReleaseNameVcsMock(Vcs):
             "v1.0.0beta2",
             "v1.0.0a1",
             "v1.0.0.b1",
-            "n2.0.0"
+            "n2.0.0",
+            "3.0.0Final"
         ]
 
         commits = {}

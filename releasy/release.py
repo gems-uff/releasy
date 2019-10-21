@@ -12,17 +12,18 @@ from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 
 
 class ReleaseFactory():
-    def __init__(self, project: Project, prefixes=None):
+    def __init__(self, project: Project, prefixes=None, suffixes=None):
         self._project = project
         self._pre_release_cache = {}
         self.prefixes = prefixes
+        self.suffixes = suffixes
 
     def get_release(self, tag: Tag):
         release_info = self._match_release(tag.name)
         if not release_info:
             return None
         else:
-            (release_type, prefix, major, minor, patch) = release_info
+            (release_type, prefix, suffix, major, minor, patch) = release_info
             release_version = f"{major}.{minor}.{patch}"
 
         if self.prefixes and prefix not in self.prefixes:
@@ -55,10 +56,11 @@ class ReleaseFactory():
         return release
 
     def _match_release(self, tagname):
-        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?(-?(?P<pre>.+))?$")
+        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?((?P<suffix>-?(?P<pre>.+)))?$")
         re_match = pattern.search(tagname)
         if re_match:
             prefix = re_match.group("prefix")
+            suffix = re_match.group("suffix")
             major_version = 0
             minor_version = 0
             patch_version = 0
@@ -89,6 +91,7 @@ class ReleaseFactory():
 
             return (release_type,
                     prefix,
+                    suffix,
                     major_version,
                     minor_version,
                     patch_version)
