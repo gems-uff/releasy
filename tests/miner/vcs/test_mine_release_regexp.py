@@ -8,7 +8,7 @@ from .mock import DifferentReleaseNameVcsMock
 
 
 def test_mine_release_prefixes():
-    miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_prefixes=["v",None])
+    miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_prefixes=["v",""])
     project = miner.mine_releases()
     assert len(project.releases) == 8
     assert project.releases[0].version == "0.0.0"
@@ -22,7 +22,13 @@ def test_mine_release_prefixes():
 
 
 def test_mine_release_suffixes():
-    miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_suffixes=["Final"])
+    miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_prefixes=["v",""], ignored_suffixes=["Final"])
     project = miner.mine_releases()
-    assert project.releases[-1].version == "3.0.0"
-    
+    assert not project.releases[0].suffix
+    assert not project.releases[1].suffix
+    assert not project.releases[2].suffix
+    assert project.releases[3].suffix == "beta1"
+    assert project.releases[4].suffix == "beta2"
+    assert project.releases[5].suffix == "a1"
+    assert project.releases[6].suffix == "b1"
+    assert not project.releases[7].suffix

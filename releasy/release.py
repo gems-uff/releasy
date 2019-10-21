@@ -12,91 +12,92 @@ from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 
 
 class ReleaseFactory():
-    def __init__(self, project: Project, prefixes=None, suffixes=None):
+    def __init__(self, project: Project, prefixes=None, ignored_suffixes=None):
         self._project = project
         self._pre_release_cache = {}
         self.prefixes = prefixes
-        self.suffixes = suffixes
+        self.ignored_suffixes = ignored_suffixes
 
     def get_release(self, tag: Tag):
-        release_info = self._match_release(tag.name)
+        release_info = self.get_release_info_from_tag(tag.name)
         if not release_info:
             return None
-        else:
-            (release_type, prefix, suffix, major, minor, patch) = release_info
-            release_version = f"{major}.{minor}.{patch}"
-
-        if self.prefixes and prefix not in self.prefixes:
-            return None
+        
+        (release_type, prefix, suffix, major, minor, patch) = release_info
+        release_version = f"{major}.{minor}.{patch}"
 
         if release_version not in self._pre_release_cache:
             self._pre_release_cache[release_version] = []
 
+        release = Release(
+            project=self._project, 
+            tag=tag,
+            release_type=release_type,
+            prefix=prefix,
+            suffix=suffix,
+            major=major,
+            minor=minor,
+            patch=patch
+        )
         if release_type == "PRE":
-            release = PreRelease(project=self._project, 
-                                    tag=tag,
-                                    release_type="PRE",
-                                    prefix=prefix,
-                                    major=major,
-                                    minor=minor,
-                                    patch=patch)
             self._pre_release_cache[release_version].append(release)
         else:
-            release = Release(project=self._project,
-                                tag=tag, 
-                                release_type="release_type",
-                                prefix=prefix, 
-                                major=major, 
-                                minor=minor, 
-                                patch=patch)
             for pre_release in self._pre_release_cache[release_version]:
                 release.add_pre_release(pre_release)
 
         tag.release = release
         return release
 
-    def _match_release(self, tagname):
-        pattern = re.compile(r"^(?P<prefix>(?:.*?[^0-9\.]))?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?((?P<suffix>-?(?P<pre>.+)))?$")
-        re_match = pattern.search(tagname)
-        if re_match:
-            prefix = re_match.group("prefix")
-            suffix = re_match.group("suffix")
-            major_version = 0
-            minor_version = 0
-            patch_version = 0
-            pre_release = re_match.group("pre")
-
-            major = re_match.group("major")
-            if major:
-                major_version = int(major)
-
-            minor = re_match.group("minor")
-            if minor:
-                minor_version = int(minor)
-
-            patch = re_match.group("patch")
-            if patch:
-                patch_version = int(patch)
-            else:
-                patch_version = 0
-
-            if pre_release:
-                release_type = "PRE"
-            elif patch_version > 0:
-                release_type = "PATCH"
-            elif minor_version > 0:
-                release_type = "MINOR"
-            else: # major_version > 0:
-                release_type = "MAJOR"
-
-            return (release_type,
-                    prefix,
-                    suffix,
-                    major_version,
-                    minor_version,
-                    patch_version)
-        else:        
+    def get_release_info_from_tag(self, tagname):
+        prefix_pattern_str = r"(?P<prefix>.*?)"
+        suffix_pattern_str = r"[.-]?(?P<suffix>.*)"
+        version_pattern_str = r"(?P<version>([0-9]+\.?){2,3})"
+        
+        pattern_str = f"{prefix_pattern_str}{version_pattern_str}{suffix_pattern_str}"
+        pattern = re.compile(pattern_str)
+        pattern_match = pattern.match(tagname)
+        if not pattern_match:
             return False
+
+        prefix = pattern_match.group("prefix")
+        if self.prefixes and prefix not in self.prefixes:
+            return False
+
+        suffix = pattern_match.group("suffix")
+        if self.ignored_suffixes:
+            for ignored_suffix in self.ignored_suffixes:
+                ignored_suffix_pattern_str = f"{ignored_suffix}$"
+                ignored_suffix_pattern = re.compile(ignored_suffix_pattern_str)
+                suffix = re.sub(ignored_suffix_pattern, "", suffix)
+
+        version = pattern_match.group("version")
+
+        semantic_pattern_str = r"(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?"
+        semantic_pattern = re.compile(semantic_pattern_str)
+        semantic_match = semantic_pattern.match(version)
+        if not semantic_match:
+            return False
+
+        major = int(semantic_match.group("major"))
+        minor = int(semantic_match.group("minor"))
+        if semantic_match.group("patch"):
+            patch = int(semantic_match.group("patch"))
+        else:
+            patch = 0
+
+        if suffix:
+            release_type = "PRE"
+        else:
+            release_type = "NORMAL"
+
+        return (
+            release_type,
+            prefix,
+            suffix,
+            major,
+            minor,
+            patch
+        )
 
 
 class Release:
@@ -115,11 +116,12 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
+    def __init__(self, project: Project, tag, release_type=None, prefix=None, suffix=None, major=None, minor=None, patch=None):
         self.project = project
         self._tag = tag
         self.type = release_type
         self.prefix = prefix
+        self.suffix = suffix
         self.major = major
         self.minor = minor
         self.patch = patch
@@ -249,18 +251,6 @@ class Release:
             self.tail_commits += pre_release.tail_commits
             self.tail_commits = sorted(self.tail_commits, key=lambda commit: commit.author_time)
 
-    def add_pre_release(self, pre_release: PreRelease):
+    def add_pre_release(self, pre_release: Release):
         self.pre_releases.append(pre_release)
         self.commits.extend(pre_release.commits)
-
-
-class PreRelease(Release):
-    def __init__(self, project: Project, tag, release_type=None, prefix=None, major=None, minor=None, patch=None):
-        super().__init__(project=project,
-                         tag=tag,
-                         release_type=release_type,
-                         prefix=prefix,
-                         major=major,
-                         minor=minor,
-                         patch=patch)
-
