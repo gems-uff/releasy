@@ -12,11 +12,15 @@ from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 
 
 class ReleaseFactory():
-    def __init__(self, project: Project, prefixes=None, ignored_suffixes=None):
+    def __init__(self, project: Project, prefixes=None, ignored_suffixes=None, version_separator=None):
         self._project = project
         self._pre_release_cache = {}
         self.prefixes = prefixes
         self.ignored_suffixes = ignored_suffixes
+        if not version_separator:
+            self.version_separator = r"\."
+        else:
+            self.version_separator = version_separator
 
     def get_release(self, tag: Tag):
         release_info = self.get_release_info_from_tag(tag.name)
@@ -49,9 +53,10 @@ class ReleaseFactory():
         return release
 
     def get_release_info_from_tag(self, tagname):
+        vsep = self.version_separator
         prefix_pattern_str = r"(?P<prefix>.*?)"
         suffix_pattern_str = r"[.-]?(?P<suffix>.*)"
-        version_pattern_str = r"(?P<version>([0-9]+\.?){2,3})"
+        version_pattern_str = r"(?P<version>([0-9]+" + vsep + r"?){2,3})"
         
         pattern_str = f"{prefix_pattern_str}{version_pattern_str}{suffix_pattern_str}"
         pattern = re.compile(pattern_str)
@@ -72,7 +77,7 @@ class ReleaseFactory():
 
         version = pattern_match.group("version")
 
-        semantic_pattern_str = r"(?P<major>[0-9]+)\.(?P<minor>[0-9]+)(\.(?P<patch>[0-9]+))?"
+        semantic_pattern_str = r"(?P<major>[0-9]+)" + vsep + r"(?P<minor>[0-9]+)(" + vsep + r"(?P<patch>[0-9]+))?"
         semantic_pattern = re.compile(semantic_pattern_str)
         semantic_match = semantic_pattern.match(version)
         if not semantic_match:

@@ -98,6 +98,7 @@ class DifferentReleaseNameVcsMock(Vcs):
             "v1.0.0a1",
             "v1.0.0.b1",
             "n2.0.0",
+            "v2_0_1",
             "3.0.0Final"
         ]
 

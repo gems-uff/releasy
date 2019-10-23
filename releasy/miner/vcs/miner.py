@@ -8,12 +8,17 @@ from ...release import ReleaseFactory, Release
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None):
+    def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None, version_separator=None):
         if not name:
             name = os.path.basename(vcs.path)
         self._vcs = vcs
         self._project = Project(name)
-        self._release_factory = ReleaseFactory(self._project, prefixes=release_prefixes, ignored_suffixes=ignored_suffixes)
+        self._release_factory = ReleaseFactory(
+            self._project,
+            prefixes=release_prefixes,
+            ignored_suffixes=ignored_suffixes,
+            version_separator=version_separator
+        )
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """

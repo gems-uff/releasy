@@ -32,3 +32,9 @@ def test_mine_release_suffixes():
     assert project.releases[5].suffix == "a1"
     assert project.releases[6].suffix == "b1"
     assert not project.releases[7].suffix
+
+def test_mine_release_version_separator():
+    miner = Miner(vcs=DifferentReleaseNameVcsMock(), version_separator="_")
+    project = miner.mine_releases()
+    assert len(project.releases) == 1
+    assert project.releases[0].version == "2.0.1"
