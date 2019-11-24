@@ -1,4 +1,5 @@
 import json
+import cProfile
 
 from releasy.miner.vcs.git import GitVcs
 from releasy.miner.vcs.miner import Miner
@@ -48,11 +49,13 @@ def print_release_stat(project):
 # project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
 # miner = Miner(vcs=GitVcs("../../repos/sapos"))
 miner = Miner(vcs=GitVcs("../../repos/git/git"))
-project = miner.mine_releases()
+cProfile.run('miner.mine_commits()')
+
+#project = miner.mine_releases()
 #project = miner.mine_commits()
 # project = ProjectFactory.create("../../repos/angular")
 # project = Project.create("local", "../repos/atom", GitVcs())
 # project = Project.create("local", "../repos/mongo", GitVcs())
 #project = Project.create("local", "../repos/old/puppet", GitVcs())
 # print_commits(project)
-print_release_stat(project)
+#print_release_stat(project)

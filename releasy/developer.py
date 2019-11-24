@@ -36,13 +36,14 @@ class DeveloperTracker():
     """ Track developers """
     def __init__(self):
         self._developers = []
-        # self._developers_index = {}
+        self._developers_index = {}
         # self._developers_commits = {}
 
     def add(self, developer: Developer, commit: Commit):
         new_developer = False
-        if developer not in self._developers:
+        if developer.login not in self._developers_index:
             self._developers.append(developer)
+            self._developers_index[developer.login] = developer
             new_developer = True
         return new_developer
 

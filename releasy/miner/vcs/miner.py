@@ -108,16 +108,16 @@ class Miner():
 
     def _track_base_release(self, release, commit):
         commit_stack = [ commit ]
-        visited_commit = set()
+        visited_commit = {}
         while len(commit_stack):
             commit = commit_stack.pop()
-            visited_commit.add(commit)
+            visited_commit[commit.hashcode] = 1
             if commit.release and commit.release.head_commit == commit:
                 if commit.release not in release.base_releases:
                     release.base_releases.append(commit.release)
             else:
                 for parent in commit.parents:
-                    if parent not in visited_commit:
+                    if parent.hashcode not in visited_commit:
                         commit_stack.append(parent)
 
 
