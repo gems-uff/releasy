@@ -45,19 +45,25 @@ class GitTag(Tag):
 
     def __init__(self, vcs: GitVcs, rtag: pygit2.Reference):
         name = rtag.shorthand
+        commit = None
+        time = None
+        message = None
         raw_commit = rtag.peel()
-        commit = vcs.get_commit(raw_commit)
-        target = vcs._repo.get(rtag.target)
-        if target.type == pygit2.GIT_OBJ_TAG:
-            tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
-            time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
-            try:
-                message = target.message
-            except:
-                message = ""
-        else:
+        if raw_commit.type == pygit2.GIT_OBJ_COMMIT:
+            commit = vcs.get_commit(raw_commit)
             time = commit.committer_time
             message = commit.committer_time
+
+            target = vcs._repo.get(rtag.target) 
+            if target.type == pygit2.GIT_OBJ_TAG: # Annotated commit
+                if target.tagger:
+                    tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
+                    time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
+                try:
+                    message = target.message
+                except:
+                    message = ""
+        
         super().__init__(name=name, commit=commit, time=time, message=message)
 
 

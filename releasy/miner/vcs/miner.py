@@ -26,7 +26,8 @@ class Miner():
         feature_release = {}
 
         #TODO sort per graph position
-        tags = sorted(self._vcs.tags(), key=lambda tag: tag.time)
+        tags = [tag for tag in self._vcs.tags() if tag.commit]
+        tags = sorted(tags, key=lambda tag: tag.time)
         for tag in tags:
             release = self._release_factory.get_release(tag)
             if release:

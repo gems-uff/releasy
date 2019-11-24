@@ -116,14 +116,17 @@ class Tag:
         self.name = name
         self.commit = commit
         self.release = None
+        self.time = None
+        self.message = None
         if time: # annotated tag
             self.is_annotated = True
             self.time = time
             self.message = message
         else:
             self.is_annotated = False
-            self.time = commit.committer_time
-            self.message = commit.committer_time
+            if commit:
+                self.time = commit.committer_time
+                self.message = commit.committer_time
     
     def __repr__(self):
         return self.name
