@@ -8,7 +8,7 @@ from ...release import ReleaseFactory, Release
 class Miner():
     """ Mine a single repository """
 
-    def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None, version_separator=None):
+    def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None, version_separator=None, track_base_release=True):
         if not name:
             name = os.path.basename(vcs.path)
         self._vcs = vcs
@@ -19,6 +19,7 @@ class Miner():
             ignored_suffixes=ignored_suffixes,
             version_separator=version_separator
         )
+        self.track_base_release = track_base_release
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
@@ -107,6 +108,9 @@ class Miner():
         release.tail_commits = sorted(release.tail_commits, key=lambda commit: commit.author_time)
 
     def _track_base_release(self, release, commit):
+        if not self.track_base_release:
+            return
+            
         commit_stack = [ commit ]
         visited_commit = {}
         while len(commit_stack):

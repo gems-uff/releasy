@@ -48,7 +48,7 @@ def print_release_stat(project):
 # project = ProjectFactory.create(".", GitVcs())
 # project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
 # miner = Miner(vcs=GitVcs("../../repos/sapos"))
-miner = Miner(vcs=GitVcs("../../repos/git/git"))
+miner = Miner(vcs=GitVcs("../../repos/git/git"), track_base_release=False)
 cProfile.run('miner.mine_commits()')
 
 #project = miner.mine_releases()
