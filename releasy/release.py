@@ -246,7 +246,7 @@ class Release:
         try:
             return switch[of]()
         except:
-            return -1
+            return timedelta(0)
 
 
     def is_patch(self) -> bool:
