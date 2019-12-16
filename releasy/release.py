@@ -6,10 +6,10 @@ if TYPE_CHECKING:
 import re
 from datetime import timedelta
 
+import releasy
 from .model import Tag, CommitTracker
 from .developer import ReleaseDeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
-
 
 class ReleaseFactory():
     def __init__(self, project: Project, prefixes=None, ignored_suffixes=None, version_separator=None):
@@ -226,6 +226,28 @@ class Release:
             self.__commit_stats = self.head.diff_stats()
 
         return self.__commit_stats.churn
+
+    def get_time(self, of=releasy.RELEASE_TIME):
+        switch = {
+            releasy.RELEASE_TIME: lambda : self.time,
+            releasy.START_DEVELOPMENT_TIME: lambda : self.time
+        }
+
+        try:
+            return switch[of]()
+        except:
+            return -1
+
+    def get_length(self, of=releasy.DEVELOPMENT_LENGTH):
+        switch = {
+            releasy.DEVELOPMENT_LENGTH: lambda : self.length,
+        }
+
+        try:
+            return switch[of]()
+        except:
+            return -1
+
 
     def is_patch(self) -> bool:
         return self.patch != 0
