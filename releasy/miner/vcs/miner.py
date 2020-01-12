@@ -6,7 +6,11 @@ from ...model import Project, Commit
 from ...release import ReleaseFactory, Release
 
 class Miner():
-    """ Mine a single repository """
+    """ Mine a single repository 
+    
+    This class is responsible for minig an repository and extrat all available 
+    release information.
+    """
 
     def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None, version_separator=None, track_base_release=True):
         if not name:
@@ -26,9 +30,7 @@ class Miner():
         releases = []
         feature_release = {}
 
-        #TODO sort per graph position
-        tags = [tag for tag in self._vcs.tags() if tag.commit]
-        tags = sorted(tags, key=lambda tag: tag.time)
+        tags = [tag for tag in sorted(self._vcs.tags(), key=lambda tag: tag.time) if tag.commit]
         for tag in tags:
             release = self._release_factory.get_release(tag)
             if release:

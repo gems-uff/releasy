@@ -12,6 +12,7 @@ import re
 import yaml
 import os
 
+import releasy
 from .phase import Development, Stage, Maintenance
 from .developer import DeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned
@@ -38,41 +39,14 @@ class Project:
 
     @property
     def releases(self) -> List[Release]:
-        return self._releases
+        return self.get_releases()
 
-    def get_releases(self, skip_pre=False, skip_patches=False):
+    def get_releases(self, release_type=releasy.RELEASE_TYPE_ANY):
         releases = []
-        for release in self.releases:
-            if release.is_patch():
-                if not skip_patches:
-                    releases.append(release)
-            elif release.is_pre_release():
-                if not skip_pre:
-                    releases.append(release)
-            else:
+        for release in self._releases:
+            if release.is_type(release_type):
                 releases.append(release)
         return releases
-
-    # def __init2__(self, name, path, regexp=None):
-    #     self.name = name
-    #     self.path = path
-    #     self.config_path = os.path.join(self.path, '.releasy')
-    #     self.releases = []
-    #     self.__vcs = None
-    #     self.__developer_db = None
-    #     self.developers = DeveloperRoleTracker()
-    #     self._config_ctrl = []
-    #     self.commits = CommitTracker()
-    #     self.release_pattern = None
-
-    #     self.load_config()
-
-    #     if regexp:
-    #         self.release_pattern = re.compile(regexp)
-    #         self._config_ctrl.append('release_pattern')
-    #     if not self.release_pattern: # default
-    #         self.release_pattern = re.compile(r'^(?:.*?[^0-9\.])?(?P<major>[0-9]+)\.(?P<minor>[0-9]+)\.(?P<patch>[0-9]+)$')
-    #         # self.release_pattern = re.compile(r'^.*(?P<major>[0-9]+)[\._\-](?P<minor>[0-9]+)[\._\-](?P<patch>[0-9]+)$')
 
     def __repr__(self):
         return self.name

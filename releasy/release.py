@@ -23,6 +23,14 @@ class ReleaseFactory():
             self.version_separator = version_separator
 
     def get_release(self, tag: Tag):
+        """ Build the release
+
+        Parameters:
+            tag (Tag): the tag to parse
+            
+        Returns:
+            the release or None if the tag does not represent a release
+        """
         release_info = self.get_release_info_from_tag(tag.name)
         if not release_info:
             return None
@@ -43,7 +51,7 @@ class ReleaseFactory():
             minor=minor,
             patch=patch
         )
-        if release_type == "PRE":
+        if release.is_type(releasy.RELEASE_TYPE_PRE):
             self._pre_release_cache[release_version].append(release)
         else:
             for pre_release in self._pre_release_cache[release_version]:
@@ -91,9 +99,15 @@ class ReleaseFactory():
             patch = 0
 
         if suffix:
-            release_type = "PRE"
+            release_type = releasy.RELEASE_TYPE_PRE
+        elif patch > 0:
+            release_type = releasy.RELEASE_TYPE_PATCH
+        elif minor > 0:
+            release_type = releasy.RELEASE_TYPE_MINOR
+        elif major > 0:
+            release_type = releasy.RELEASE_TYPE_MAJOR
         else:
-            release_type = "NORMAL"
+            release_type = releasy.RELEASE_TYPE_UNKNOW
 
         return (
             release_type,
@@ -121,7 +135,7 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project: Project, tag, release_type=None, prefix=None, suffix=None, major=None, minor=None, patch=None):
+    def __init__(self, project: Project, tag, release_type=releasy.RELEASE_TYPE_UNKNOW, prefix=None, suffix=None, major=None, minor=None, patch=None):
         self.project = project
         self._tag = tag
         self.type = release_type
@@ -227,6 +241,12 @@ class Release:
 
         return self.__commit_stats.churn
 
+    def is_type(self, release_type):
+        if self.type & release_type == self.type:
+            return True
+        else:
+            return False
+
     def get_time(self, of=releasy.RELEASE_TIME):
         switch = {
             releasy.RELEASE_TIME: lambda : self.time,
@@ -250,10 +270,10 @@ class Release:
 
 
     def is_patch(self) -> bool:
-        return self.patch != 0
+        return self.is_type(releasy.RELEASE_TYPE_PATCH)
 
     def is_pre_release(self) -> bool:
-        return self.type == "PRE"
+        return self.is_type(releasy.RELEASE_TYPE_PRE)
 
     def add_commit(self, commit: Commit, assign_commit_to_release=True):
         is_newcomer = False
