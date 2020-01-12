@@ -42,7 +42,8 @@ class Miner():
             The project with all release metadas
         """
         self.mine_releases()
-        self.mine_commits()
+        if not skip_commit:
+            self.mine_commits()
         return self._project
 
     def mine_releases(self):
