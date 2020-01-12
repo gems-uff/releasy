@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 
+import releasy
 from releasy.miner.vcs.miner import Miner
 
 from .miner.vcs.mock import VcsMock
@@ -63,59 +64,20 @@ def test_pre_releases():
     assert len(project.releases[5].pre_releases) == 2
     assert len(project.releases[6].pre_releases) == 0
     assert len(project.releases[7].pre_releases) == 0
+    assert len(project.get_releases(releasy.RELEASE_TYPE_PRE)) == 2
 
 
-def test_maintenance_releases():
+def test_duplicated_releases():
     miner = Miner(vcs=VcsMock())
     project = miner.mine_releases()
-    assert len(project.releases[0].patches) == 1
-    assert len(project.releases[1].patches) == 0
-    assert len(project.releases[2].patches) == 0
-    assert len(project.releases[3].patches) == 0
-    assert len(project.releases[4].patches) == 0
-    assert len(project.releases[5].patches) == 1
-    assert len(project.releases[6].patches) == 0
-    assert len(project.releases[7].patches) == 0
-
-
-def test_linked_releases():
-    miner = Miner(vcs=VcsMock())
-    project = miner.mine_releases()
-    assert project.releases[0].previous_release == None
-    assert project.releases[1].previous_release == project.releases[0]
-    assert project.releases[2].previous_release == project.releases[1]
-    assert project.releases[3].previous_release == project.releases[2]
-    assert project.releases[4].previous_release == project.releases[3]
-    assert project.releases[5].previous_release == project.releases[4]
-    assert project.releases[6].previous_release == project.releases[5]
-    assert project.releases[7].previous_release == project.releases[6]
-    assert project.releases[0].next_release == project.releases[1]
-    assert project.releases[1].next_release == project.releases[2]
-    assert project.releases[2].next_release == project.releases[3]
-    assert project.releases[3].next_release == project.releases[4]
-    assert project.releases[4].next_release == project.releases[5]
-    assert project.releases[5].next_release == project.releases[6]
-    assert project.releases[6].next_release == project.releases[7]
-    assert project.releases[7].next_release == None
-
-
-def test_linked_feature_releases():
-    miner = Miner(vcs=VcsMock())
-    project = miner.mine_releases()
-    assert project.releases[0].previous_feature_release == None
-    assert project.releases[1].previous_feature_release == project.releases[0]
-    assert project.releases[2].previous_feature_release == project.releases[0]
-    assert project.releases[3].previous_feature_release == project.releases[2]
-    assert project.releases[4].previous_feature_release == project.releases[2]
-    assert project.releases[5].previous_feature_release == project.releases[2]
-    assert project.releases[6].previous_feature_release == project.releases[5]
-    assert project.releases[7].previous_feature_release == project.releases[5]
-    #TODO implement next_feature_release
-    # assert project.releases[0].next_feature_release == project.releases[2]
-    # assert project.releases[1].next_feature_release == project.releases[2]
-    # assert project.releases[2].next_feature_release == project.releases[5]
-    # assert project.releases[3].next_feature_release == project.releases[5]
-    # assert project.releases[4].next_feature_release == project.releases[5]
-    # assert project.releases[5].next_feature_release == project.releases[7]
-    # assert project.releases[6].next_feature_release == project.releases[7]
-    # assert project.releases[7].next_feature_release == None
+    assert not project.releases[0].is_duplicated()
+    assert not project.releases[1].is_duplicated()
+    assert not project.releases[2].is_duplicated()
+    assert not project.releases[3].is_duplicated()
+    assert not project.releases[4].is_duplicated()
+    assert not project.releases[5].is_duplicated()
+    assert project.releases[6].is_duplicated()
+    assert not project.releases[7].is_duplicated()
+    assert project.releases[6].original == project.releases[5]
+    assert len(project.get_releases(releasy.RELEASE_TYPE_DUPLICATED)) == 1
+    assert len(project.get_releases(releasy.RELEASE_TYPE_COMMON)) == 5

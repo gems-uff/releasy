@@ -22,7 +22,7 @@ class ReleaseFactory():
         else:
             self.version_separator = version_separator
 
-    def get_release(self, tag: Tag):
+    def build(self, tag: Tag, orign_release: None):
         """ Build the release
 
         Parameters:
@@ -41,6 +41,9 @@ class ReleaseFactory():
         if release_version not in self._pre_release_cache:
             self._pre_release_cache[release_version] = []
 
+        if orign_release: #TODO create duplicated release class
+            release_type = releasy.RELEASE_TYPE_DUPLICATED
+
         release = Release(
             project=self._project, 
             tag=tag,
@@ -51,6 +54,11 @@ class ReleaseFactory():
             minor=minor,
             patch=patch
         )
+
+        if orign_release: 
+            release.original = orign_release
+            orign_release.aliases.append(release)
+
         if release.is_type(releasy.RELEASE_TYPE_PRE):
             self._pre_release_cache[release_version].append(release)
         else:
@@ -58,6 +66,7 @@ class ReleaseFactory():
                 release.add_pre_release(pre_release)
 
         tag.release = release
+        
         return release
 
     def get_release_info_from_tag(self, tagname):
@@ -107,7 +116,7 @@ class ReleaseFactory():
         elif major > 0:
             release_type = releasy.RELEASE_TYPE_MAJOR
         else:
-            release_type = releasy.RELEASE_TYPE_UNKNOW
+            release_type = releasy.RELEASE_TYPE_UNKNOWN
 
         return (
             release_type,
@@ -135,7 +144,7 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project: Project, tag, release_type=releasy.RELEASE_TYPE_UNKNOW, prefix=None, suffix=None, major=None, minor=None, patch=None):
+    def __init__(self, project: Project, tag, release_type=releasy.RELEASE_TYPE_UNKNOWN, prefix=None, suffix=None, major=None, minor=None, patch=None):
         self.project = project
         self._tag = tag
         self.type = release_type
@@ -152,11 +161,8 @@ class Release:
         self.commits = []
         self.developers = ReleaseDeveloperRoleTracker()
         self.pre_releases = []
-        self.patches = []
-        self.previous_release: Release = None
-        self.next_release: Release = None
-        self.previous_feature_release: Release = None
-        self.next_feature_release: Release = None
+        self.aliases = []
+        self.original = None # in case of duplicate return the original release
         
     @property
     def name(self):
@@ -246,6 +252,9 @@ class Release:
             return True
         else:
             return False
+
+    def is_duplicated(self):
+        return self.is_type(releasy.RELEASE_TYPE_DUPLICATED)
 
     def get_time(self, of=releasy.RELEASE_TIME):
         switch = {

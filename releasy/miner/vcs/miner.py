@@ -2,13 +2,15 @@
 #
 import os.path
 
+import releasy
 from ...model import Project, Commit
 from ...release import ReleaseFactory, Release
 
 class Miner():
-    """ Mine a single repository 
+    """ 
+    Mine a single repository 
     
-    This class is responsible for minig an repository and extrat all available 
+    This class is responsible for mining an repository and extrat all available 
     release information.
     """
 
@@ -24,41 +26,60 @@ class Miner():
             version_separator=version_separator
         )
         self.track_base_release = track_base_release
+        # ---
+        self._releases = [] #TODO use project._releases
+        self._commit_references = {} # Commit Hash -> Release
+
+    def mine(self, skip_commit = False):
+        """ Mine the software repository
+        
+        Parameters:
+            skip_commit (bool): if true, the miner will ignore the release 
+            history. This parameter is usefull when only tag information is 
+            needed.
+
+        Returns:
+            The project with all release metadas
+        """
+        self.mine_releases()
+        self.mine_commits()
+        return self._project
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
-        releases = []
-        feature_release = {}
-
         tags = [tag for tag in sorted(self._vcs.tags(), key=lambda tag: tag.time) if tag.commit]
         for tag in tags:
-            release = self._release_factory.get_release(tag)
-            if release:
-                releases.append(release)
-                if not release.is_patch():
-                    feature_release[release.feature_version] = release
-
-        previous_release = None
-        previous_feature_release = None
-        for release in releases:
-            if release.is_patch() and release.feature_version in feature_release:
-                feature_release[release.feature_version].patches.append(release)
-            
-            if previous_release:
-                previous_release.next_release = release
-            release.previous_release = previous_release
-            previous_release = release
-            
-            release.previous_feature_release = previous_feature_release
-            if not release.is_patch() and not release.is_pre_release():
-                previous_feature_release = release
-            
-        for release in feature_release.values():
-            release.patches = sorted(release.patches, key=lambda release: release.time)
+            main_release = self._get_main_release(tag)
+            release = self._release_factory.build(tag, main_release)
+            self._save_release(release)
 
         self._project.tags = tags
-        self._project._releases = releases
+        self._project._releases = self._releases
         return self._project
+
+    def _is_duplicated_reference(self, tag): #TODO eval move to Tag class
+        """ Verify if the head commit is in used in another release """
+        head_commit = tag.commit
+        commit_ide = head_commit.hashcode
+        if commit_ide in self._commit_references:
+            return True
+        else:
+            return False
+
+    def _get_main_release(self, tag): #TODO eval move to Tag class
+        """ If the release is duplicated, return the original release """
+        head_commit = tag.commit
+        commit_ide = head_commit.hashcode
+        if commit_ide in self._commit_references:
+            return self._commit_references[commit_ide]
+        else:
+            return None
+
+    def _save_release(self, release):
+        if release:
+            self._releases.append(release)
+            head_commit = release.head_commit
+            self._commit_references[head_commit.hashcode] = release
 
     def mine_commits(self) -> Project:
         """ Mine commit and associate related information to releases """
