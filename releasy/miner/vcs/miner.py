@@ -55,7 +55,7 @@ class Miner():
             self._save_release(release)
 
         self._project.tags = tags
-        self._project._releases = self._releases
+        self._project._assign_releases(self._releases)
         return self._project
 
     def _is_duplicated_reference(self, tag): #TODO eval move to Tag class

@@ -37,6 +37,21 @@ class Project:
         self.developers = DeveloperRoleTracker()
         self.tags: List[Tag] = []
 
+    def _assign_releases(self, releases):
+        release_prefixes = {}
+        release_suffixes = {}
+        for release in releases:
+            if release.prefix not in release_prefixes:
+                release_prefixes[release.prefix] = 0
+            if release.suffix not in release_suffixes:
+                release_suffixes[release.suffix] = 0
+            release_prefixes[release.prefix] += 1
+            release_suffixes[release.suffix] += 1
+
+        self._releases = releases
+        self.release_prefixes = release_prefixes
+        self.release_suffixes = release_suffixes            
+
     @property
     def releases(self) -> List[Release]:
         return self.get_releases()

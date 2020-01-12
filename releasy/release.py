@@ -148,7 +148,11 @@ class Release:
         self.project = project
         self._tag = tag
         self.type = release_type
+        if not prefix: #TODO check for default arguments
+            prefix = ""
         self.prefix = prefix
+        if not suffix: #TODO check for default arguments
+            suffix = ""
         self.suffix = suffix
         self.major = major
         self.minor = minor
