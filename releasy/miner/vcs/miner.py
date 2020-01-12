@@ -13,7 +13,6 @@ class Miner():
     This class is responsible for mining an repository and extrat all available 
     release information.
     """
-
     def __init__(self, vcs, name=None, release_prefixes=None, ignored_suffixes=None, version_separator=None, track_base_release=True):
         if not name:
             name = os.path.basename(vcs.path)
@@ -48,7 +47,8 @@ class Miner():
 
     def mine_releases(self):
         """ Mine release related information, skipping commits """
-        tags = [tag for tag in sorted(self._vcs.tags(), key=lambda tag: tag.time) if tag.commit]
+        tags = [tag for tag in self._vcs.tags() if tag.commit] #TODO add test to check nom commit tags
+        tags = sorted(tags, key=lambda tag: tag.time)
         for tag in tags:
             main_release = self._get_main_release(tag)
             release = self._release_factory.build(tag, main_release)
