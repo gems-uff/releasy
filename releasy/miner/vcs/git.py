@@ -51,8 +51,6 @@ class GitTag(Tag):
         raw_commit = rtag.peel()
         if raw_commit.type == pygit2.GIT_OBJ_COMMIT:
             commit = vcs.get_commit(raw_commit)
-            time = commit.committer_time
-            message = commit.committer_time
 
             target = vcs._repo.get(rtag.target) 
             if target.type == pygit2.GIT_OBJ_TAG: # Annotated commit

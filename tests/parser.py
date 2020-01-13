@@ -48,8 +48,14 @@ def print_release_stat(project):
 # project = ProjectFactory.create(".", GitVcs())
 # project = ProjectFactory.create("../../repos/discourse.git", GitVcs())
 # miner = Miner(vcs=GitVcs("../../repos/sapos"))
-miner = Miner(vcs=GitVcs("../../repos/git/git"), track_base_release=False)
-cProfile.run('miner.mine_commits()')
+#miner = Miner(vcs=GitVcs("../../repos/git/git"), track_base_release=False)
+miner = Miner(vcs=GitVcs("../../repos/tensorflow/tensorflow"), track_base_release=False)
+
+#project = cProfile.run('miner.mine(skip_commits=True)')
+project = miner.mine(skip_commits=True)
+
+for tag in project.tags:
+    print(tag.name, tag.is_annotated)
 
 #project = miner.mine_releases()
 #project = miner.mine_commits()

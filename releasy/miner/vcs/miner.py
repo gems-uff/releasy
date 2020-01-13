@@ -29,7 +29,7 @@ class Miner():
         self._releases = [] #TODO use project._releases
         self._commit_references = {} # Commit Hash -> Release
 
-    def mine(self, skip_commit = False):
+    def mine(self, skip_commits = False):
         """ Mine the software repository
         
         Parameters:
@@ -41,7 +41,7 @@ class Miner():
             The project with all release metadas
         """
         self.mine_releases()
-        if not skip_commit:
+        if not skip_commits:
             self.mine_commits()
         return self._project
 

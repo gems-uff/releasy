@@ -115,7 +115,7 @@ class Tag:
             self.is_annotated = False
             if commit:
                 self.time = commit.committer_time
-                self.message = commit.committer_time
+                self.message = commit.message
     
     def __repr__(self):
         return self.name
