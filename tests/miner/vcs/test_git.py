@@ -4,7 +4,7 @@ from releasy.miner.vcs.miner import Miner
 def test_git_mine_releases():
     miner = Miner(vcs=GitVcs("."))
     project = miner.mine_releases()
-    assert project.releases[1].name == "1.0.0"
+    assert project.releases[1].name == "1.0.1"
 
 def test_git_mine_commits():
     miner = Miner(vcs=GitVcs("."))
