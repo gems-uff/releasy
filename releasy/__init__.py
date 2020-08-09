@@ -1,3 +1,10 @@
+from releasy.miner.vcs.miner import Miner
+from releasy.miner.vcs.git import GitVcs
+
+def mine(path):
+    miner = Miner(GitVcs(path))
+    project = miner.mine_commits()
+    return project
 
 # Times
 RELEASE_TIME            = 0
