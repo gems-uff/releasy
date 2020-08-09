@@ -7,12 +7,13 @@ if TYPE_CHECKING:
     from typing import List
     from .release import Release
 
+from .const import RELEASE_TYPE_ANY
 from datetime import timedelta
 import re
 import yaml
 import os
 
-import releasy
+#import releasy
 from .phase import Development, Stage, Maintenance
 from .developer import DeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned
@@ -56,7 +57,7 @@ class Project:
     def releases(self) -> List[Release]:
         return self.get_releases()
 
-    def get_releases(self, release_type=releasy.RELEASE_TYPE_ANY):
+    def get_releases(self, release_type=RELEASE_TYPE_ANY):
         releases = []
         for release in self._releases:
             if release.is_type(release_type):

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 import re
 from datetime import timedelta
 
-import releasy
+from .const import RELEASE_TYPE_MAJOR, RELEASE_TYPE_MINOR, RELEASE_TYPE_DUPLICATED, RELEASE_TIME, START_DEVELOPMENT_TIME, DEVELOPMENT_LENGTH, RELEASE_TYPE_PATCH, RELEASE_TYPE_PRE, RELEASE_TYPE_UNKNOWN
 from .model import Tag, CommitTracker
 from .developer import ReleaseDeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
@@ -42,7 +42,7 @@ class ReleaseFactory():
             self._pre_release_cache[release_version] = []
 
         if orign_release: #TODO create duplicated release class
-            release_type = releasy.RELEASE_TYPE_DUPLICATED
+            release_type = RELEASE_TYPE_DUPLICATED
 
         release = Release(
             project=self._project, 
@@ -59,7 +59,7 @@ class ReleaseFactory():
             release.original = orign_release
             orign_release.aliases.append(release)
 
-        if release.is_type(releasy.RELEASE_TYPE_PRE):
+        if release.is_type(RELEASE_TYPE_PRE):
             self._pre_release_cache[release_version].append(release)
         else:
             for pre_release in self._pre_release_cache[release_version]:
@@ -108,15 +108,15 @@ class ReleaseFactory():
             patch = 0
 
         if suffix:
-            release_type = releasy.RELEASE_TYPE_PRE
+            release_type = RELEASE_TYPE_PRE
         elif patch > 0:
-            release_type = releasy.RELEASE_TYPE_PATCH
+            release_type = RELEASE_TYPE_PATCH
         elif minor > 0:
-            release_type = releasy.RELEASE_TYPE_MINOR
+            release_type = RELEASE_TYPE_MINOR
         elif major > 0:
-            release_type = releasy.RELEASE_TYPE_MAJOR
+            release_type = RELEASE_TYPE_MAJOR
         else:
-            release_type = releasy.RELEASE_TYPE_UNKNOWN
+            release_type = RELEASE_TYPE_UNKNOWN
 
         return (
             release_type,
@@ -144,7 +144,7 @@ class Release:
         length: release duration
     """
 
-    def __init__(self, project: Project, tag, release_type=releasy.RELEASE_TYPE_UNKNOWN, prefix=None, suffix=None, major=None, minor=None, patch=None):
+    def __init__(self, project: Project, tag, release_type=RELEASE_TYPE_UNKNOWN, prefix=None, suffix=None, major=None, minor=None, patch=None):
         self.project = project
         self._tag = tag
         self.type = release_type
@@ -258,12 +258,12 @@ class Release:
             return False
 
     def is_duplicated(self):
-        return self.is_type(releasy.RELEASE_TYPE_DUPLICATED)
+        return self.is_type(RELEASE_TYPE_DUPLICATED)
 
-    def get_time(self, of=releasy.RELEASE_TIME):
+    def get_time(self, of=RELEASE_TIME):
         switch = {
-            releasy.RELEASE_TIME: lambda : self.time,
-            releasy.START_DEVELOPMENT_TIME: lambda : self.time
+            RELEASE_TIME: lambda : self.time,
+            START_DEVELOPMENT_TIME: lambda : self.time
         }
 
         try:
@@ -271,9 +271,9 @@ class Release:
         except:
             return -1
 
-    def get_length(self, of=releasy.DEVELOPMENT_LENGTH):
+    def get_length(self, of=DEVELOPMENT_LENGTH):
         switch = {
-            releasy.DEVELOPMENT_LENGTH: lambda : self.length,
+            DEVELOPMENT_LENGTH: lambda : self.length,
         }
 
         try:
@@ -283,10 +283,10 @@ class Release:
 
 
     def is_patch(self) -> bool:
-        return self.is_type(releasy.RELEASE_TYPE_PATCH)
+        return self.is_type(RELEASE_TYPE_PATCH)
 
     def is_pre_release(self) -> bool:
-        return self.is_type(releasy.RELEASE_TYPE_PRE)
+        return self.is_type(RELEASE_TYPE_PRE)
 
     def add_commit(self, commit: Commit, assign_commit_to_release=True):
         is_newcomer = False

@@ -1,16 +1,3 @@
-
-from .const import *
-
-from releasy.miner.vcs.miner import Miner
-from releasy.miner.vcs.git import GitVcs
-
-def mine(path):
-    miner = Miner(GitVcs(path))
-    project = miner.mine_commits()
-    print(RELEASE_TIME)
-    return project
-
-
 # Times
 RELEASE_TIME            = 0
 START_DEVELOPMENT_TIME  = 1
