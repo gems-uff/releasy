@@ -149,6 +149,13 @@ class Commit:
         self.committer_time = committer_time
         self.release = None
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return hash(self) == hash(other)
+
     def has_release(self) -> bool:
         return self.release != None
 
