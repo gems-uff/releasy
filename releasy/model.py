@@ -127,7 +127,7 @@ class Commit:
     Commit
 
     Attributes:
-        id: commit id
+        hashcode: commit id
         message: commit message
         subject: first line from commit message
         committer: contributor responsible for the commit
@@ -139,6 +139,7 @@ class Commit:
     def __init__(self, hashcode, parents=None, message=None, 
                  author=None, author_time=None, 
                  committer=None, committer_time=None):
+        self.id = hashcode
         self.hashcode = hashcode
         self.parents = parents
         self.message = message

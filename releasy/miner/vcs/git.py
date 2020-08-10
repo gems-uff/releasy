@@ -39,6 +39,14 @@ class GitVcs(Vcs):
             self._commit_cache[hashcode] = commit
         return self._commit_cache[hashcode]
 
+    def commits(self): #TODO transverse all tags
+        last = self._repo[self._repo.head.target]
+        commits = []
+        for raw_commit in self._repo.walk(last.id, pygit2.GIT_SORT_TIME):
+            commit = self.get_commit(raw_commit)
+            commits.append(commit)
+        return commits
+
 
 class GitTag(Tag):
     """ Encapsulate Git Tag """

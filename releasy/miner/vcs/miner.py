@@ -164,3 +164,7 @@ class Vcs:
         """ Return repository tags """
         return self._tags
 
+    def commits(self):
+        pass
+
+
