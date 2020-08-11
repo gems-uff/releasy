@@ -4,22 +4,25 @@
 from releasy.miner.vcs.git import GitVcs
 from releasy.mine_strategy import TagReleaseMineStrategy, HistoryMineStrategy, TrueReleaseMatcher, TimeMineStrategy
 
-#path = "../../repos2/angular/angular"
+path = "../../repos2/angular/angular"
 # path = "../../repos2/ansible/ansible"
-path = "../../repos2/jekyll/jekyll"
+#path = "../../repos2/jekyll/jekyll"
+#path = "../../repos2/d3/d3"
+path = "../../repos2/vuejs/vue"
 
 vcs = GitVcs(path)
 release_matcher = TrueReleaseMatcher()
 release_strategy = TagReleaseMineStrategy(vcs, release_matcher)
 releases = release_strategy.mine_releases()
 
+print("parsing by time")
+time_commit_strategy = TimeMineStrategy(vcs, releases)
+time_release_commits = time_commit_strategy.mine_commits()
+
 print("parsing by history")
 history_commit_strategy = HistoryMineStrategy(vcs, releases)
 history_release_commits = history_commit_strategy.mine_commits()
 
-print("parsing by time")
-time_commit_strategy = TimeMineStrategy(vcs, releases)
-time_release_commits = time_commit_strategy.mine_commits()
 
 for release in releases:
     history_set = set(history_release_commits[release.name])
@@ -45,7 +48,7 @@ for release in releases:
     else:
         fmeasure = 2*precision*recall/(precision+recall)
 
-    print(f"f-measure:{fmeasure:1.2f} precision:{precision:1.2f} recall:{recall:1.2f} true_pos:{len(true_positive):4} false_pos:{len(false_positive):4} false_positive:{len(false_negative):4} name:{release.name}")
+    print(f"f-measure:{fmeasure:1.2f} precision:{precision:1.2f} recall:{recall:1.2f} tpos:{len(true_positive):4} fpos:{len(false_positive):4} fneg:{len(false_negative):4} pcommits:{len(history_set):4} tcommits:{len(time_set):4} name:{release.name}")
     #print(f"h:{len(history_release_commits[release.name]):4} t:{len(time_release_commits[release.name]):4} name:{release.name}")
 
 # # Path based
