@@ -43,12 +43,15 @@ class GitVcs(Vcs):
         commit_ref = {}
         commits = []
         for tag in self.tags():
-            last = tag.commit._raw_commit
-            for raw_commit in self._repo.walk(last.id, pygit2.GIT_SORT_TIME):
-                commit = self.get_commit(raw_commit)
+            commit_stack = [ tag.commit ]
+            while len(commit_stack):
+                commit = commit_stack.pop()
                 if commit.id not in commit_ref:
-                    commit_ref[commit.id] = True
                     commits.append(commit)
+                    commit_ref[commit.id] = True
+                    if commit.parents:
+                        for parent in commit.parents:
+                            commit_stack.append(parent)
         return commits
 
 
