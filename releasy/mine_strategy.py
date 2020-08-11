@@ -140,13 +140,13 @@ class TimeMineStrategy(CommitMineStrategy):
                     cur_release_commits.append(cur_commit)
                     commit_index += 1
                 else:
-                    cur_release_commits = sorted(cur_release_commits, key=lambda commit: commit.committer_time, reverse=True)
-                    release_commits[cur_release.name] = cur_release_commits
                     has_commits = False
                 
-                if commit_index > len(commits):
+                if commit_index >= len(commits):
                     has_commits = False
 
+            cur_release_commits = sorted(cur_release_commits, key=lambda commit: commit.committer_time, reverse=True)
+            release_commits[cur_release.name] = cur_release_commits        
             release_index += 1
             if release_index >= len(releases):
                 has_releases = False

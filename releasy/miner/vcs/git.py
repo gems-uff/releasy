@@ -39,12 +39,16 @@ class GitVcs(Vcs):
             self._commit_cache[hashcode] = commit
         return self._commit_cache[hashcode]
 
-    def commits(self): #TODO transverse all tags
-        last = self._repo[self._repo.head.target]
+    def commits(self): # TODO optimize to visit commits single time
+        commit_ref = {}
         commits = []
-        for raw_commit in self._repo.walk(last.id, pygit2.GIT_SORT_TIME):
-            commit = self.get_commit(raw_commit)
-            commits.append(commit)
+        for tag in self.tags():
+            last = tag.commit._raw_commit
+            for raw_commit in self._repo.walk(last.id, pygit2.GIT_SORT_TIME):
+                commit = self.get_commit(raw_commit)
+                if commit.id not in commit_ref:
+                    commit_ref[commit.id] = True
+                    commits.append(commit)
         return commits
 
 
