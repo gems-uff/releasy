@@ -61,6 +61,7 @@ def test_time_mine_strategy():
     assert len(release_commits['v1.1.0']) == 3
     assert len(release_commits['v2.0.0-alpha1']) == 2
 
+
 def test_range_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()
@@ -72,4 +73,4 @@ def test_range_mine_strategy():
     assert len(release_commits['v1.0.0']) == 2
     assert len(release_commits['v1.0.1']) == 2
     assert len(release_commits['v1.1.0']) == 2
-    assert len(release_commits['v2.0.0-alpha1']) == 2
+    assert len(release_commits['v2.0.0-alpha1']) == 4

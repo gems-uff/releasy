@@ -166,7 +166,7 @@ class TimeMineStrategy(CommitMineStrategy):
         super().__init__(vcs, releases)
         self.release_index = {}
         
-    def mine_commits(self):
+    def mine_commits(self): #TODO handle order with release order
         releases = sorted(self.releases, key=lambda release: release.time)
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
 
@@ -210,4 +210,24 @@ class RangeMineStrategy(CommitMineStrategy):
         self.release_index = {}
         
     def mine_commits(self):
-        pass
+        release_commits = {}
+        prev_commit_set = set()
+        for release in self.releases:
+            cur_commit_set = self._track_commits(release)
+            range_commit_set = cur_commit_set - prev_commit_set
+            release_commits[release.name] = list(range_commit_set)
+            prev_commit_set = cur_commit_set
+        return release_commits
+        
+
+    def _track_commits(self, release: Release):
+        commit_stack = [ release.head ]
+        commits = set()
+        while len(commit_stack):
+            commit = commit_stack.pop()
+            commits.add(commit)
+
+            if commit.parents:
+                for parent in commit.parents:
+                    commit_stack.append(parent)
+        return commits
