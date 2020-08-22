@@ -1,7 +1,38 @@
 # Releasy Abstract data model
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import List
 
-from .model import Tag
+   
+class Tag:
+    """Tag
 
+    Attributes:
+        name: tag name
+        commit: tagged commit
+        time: tag time
+        message (str): tag message - annotated tags only
+    """
+
+    def __init__(self, name, commit, time=None, message=None):
+        self.name = name
+        self.commit = commit
+        self.release = None
+        self.time = None
+        self.message = None
+        if time: # annotated tag
+            self.is_annotated = True
+            self.time = time
+            self.message = message
+        else:
+            self.is_annotated = False
+            if commit:
+                self.time = commit.committer_time
+                self.message = commit.message
+    
+    def __repr__(self):
+        return self.name
 
 
 class Release:
@@ -23,6 +54,47 @@ class Release:
         return self.name
 
 
+class Commit:
+    """
+    Commit
+
+    Attributes:
+        hashcode: commit id
+        message: commit message
+        subject: first line from commit message
+        committer: contributor responsible for the commit
+        author: contributor responsible for the code
+        time: commit time
+        author_time: author time
+        release: associated release
+    """
+    def __init__(self, hashcode, parents=None, message=None, 
+                 author=None, author_time=None, 
+                 committer=None, committer_time=None):
+        self.id = hashcode
+        self.hashcode = hashcode
+        self.parents = parents
+        self.message = message
+        self.author = author
+        self.author_time = author_time
+        self.committer = committer
+        self.committer_time = committer_time
+        self.release = None
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return hash(self) == hash(other)
+
+    def has_release(self) -> bool:
+        return self.release != None
+
+    def __repr__(self):
+        return str(self.hashcode)
+
+
 class Vcs:
     """
     Version Control Repository
@@ -34,11 +106,9 @@ class Vcs:
         self.path = path
         self._tags = []
 
-    def tags(self):
+    def tags(self) -> List[Tag]:
         """ Return repository tags """
         return self._tags
 
-    def commits(self):
+    def commits(self) -> List[Commit]:
         pass
-
-
