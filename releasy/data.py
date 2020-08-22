@@ -1,7 +1,8 @@
-#
-#
-#
+# Releasy Abstract data model
+
 from .model import Tag
+
+
 
 class Release:
     """A single software release 
@@ -20,4 +21,24 @@ class Release:
 
     def __repr__(self):
         return self.name
+
+
+class Vcs:
+    """
+    Version Control Repository
+
+    Attributes:
+        __commit_dict: internal dictionary of commits
+    """
+    def __init__(self, path):
+        self.path = path
+        self._tags = []
+
+    def tags(self):
+        """ Return repository tags """
+        return self._tags
+
+    def commits(self):
+        pass
+
 

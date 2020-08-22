@@ -5,7 +5,7 @@ import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
 from releasy.model import Project, Tag, Commit, CommitStats
-from ...developer import Developer
+from .developer import Developer
 from .miner import Vcs
 
 class GitVcs(Vcs):

@@ -12,7 +12,7 @@ import re
 
 from .release import Release
 from .model import Tag, Commit
-from .miner.vcs.miner import Vcs
+from .data import Vcs
 from .data import Release
 
 
@@ -33,7 +33,7 @@ class ReleaseSorter:
         raise NotImplementedError()
 
 
-class ReleaseMineStratety:
+class AbstractReleaseMiner:
     """Mine releases bases on a strategy. It discover the releases. """
 
     def __init__(self, vcs: Vcs, matcher: ReleaseMatcher, sorter: ReleaseSorter):
@@ -49,7 +49,7 @@ class ReleaseMineStratety:
         raise NotImplementedError()
 
 
-class CommitMineStrategy:
+class AbstractCommitMiner:
     """ Mine release commits based on a strategy. It assign commits to 
     releases """
 
@@ -96,7 +96,7 @@ class VersionReleaseSorter(ReleaseSorter):
         pass
 
 
-class TagReleaseMineStrategy(ReleaseMineStratety):
+class TagReleaseMiner(AbstractReleaseMiner):
     """ Mine tags for releases """
 
     def __init__(self, vcs: Vcs, release_matcher: ReleaseMatcher, 
@@ -119,7 +119,7 @@ class TagReleaseMineStrategy(ReleaseMineStratety):
         return sorted_releases
 
 
-class PathMineStrategy(CommitMineStrategy):
+class PathCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the commit history. It walk through the commit
     parents to retrieve the commit history and split them based on the 
     releases found in its history. """ 
@@ -158,7 +158,7 @@ class PathMineStrategy(CommitMineStrategy):
         return commits
 
 
-class TimeMineStrategy(CommitMineStrategy):
+class TimeCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
@@ -201,7 +201,7 @@ class TimeMineStrategy(CommitMineStrategy):
         return release_commits
 
 
-class RangeMineStrategy(CommitMineStrategy):
+class RangeCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 

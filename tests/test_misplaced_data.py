@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pytest
 
-from releasy.miner.vcs.miner import Miner
+from releasy.miner_legacy import Miner
 from releasy.exception import MisplacedTimeException
 
 from .mock import MisplacedTimeVcsMock

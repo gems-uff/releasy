@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from releasy.model import Commit, Tag
 from releasy.developer import Developer
-from releasy.miner.vcs.miner import Vcs
+from releasy.data import Vcs
 
 
 class VcsMock(Vcs):

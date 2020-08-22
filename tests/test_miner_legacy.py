@@ -1,4 +1,4 @@
-from releasy.miner.vcs.miner import Miner
+from releasy.miner_legacy import Miner
 
 from .mock import VcsMock
 

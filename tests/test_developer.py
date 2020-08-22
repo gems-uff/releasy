@@ -1,5 +1,5 @@
-from releasy.miner.vcs.miner import Miner
-from .miner.vcs.mock import VcsMock
+from releasy.miner_legacy import Miner
+from .mock import VcsMock
 
 def test_release_authors():
     vcs = VcsMock()

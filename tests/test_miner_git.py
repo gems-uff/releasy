@@ -1,5 +1,6 @@
-from releasy.miner.vcs.git import GitVcs
-from releasy.miner.vcs.miner import Miner
+
+from releasy.miner_git import GitVcs
+from releasy.miner_legacy import Miner
 
 def test_git_mine_releases():
     miner = Miner(vcs=GitVcs("."))
