@@ -141,6 +141,9 @@ class ReleaseSet:
         self.releases.append(data)
         self.index[release.name] = len(self.releases)-1
 
+    def __len__(self):
+      return len(self.releases)
+
 
 class ReleaseData:
     """ Connect release and commits """

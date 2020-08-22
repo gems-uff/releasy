@@ -25,9 +25,9 @@ def test_release_mine_stratety():
 
 
 def test_commit_mine_strategy():
-    commit_strategy = AbstractCommitMiner(None, None)
+    commit_miner = AbstractCommitMiner(None, None)
     with pytest.raises(NotImplementedError):
-        commit_strategy.mine_commits()
+        commit_miner.mine_commits()
 
 
 def test_true_release_matcher():
@@ -65,12 +65,12 @@ def test_path_mine_strategy():
     release_sorter = TimeReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
-    commit_strategy = PathCommitMiner(vcs, releases)
-    release_commits = commit_strategy.mine_commits()
-    assert len(release_commits['v1.0.0']) == 2
-    assert len(release_commits['v1.0.1']) == 2
-    assert len(release_commits['v1.1.0']) == 2
-    assert len(release_commits['v2.0.0-alpha1']) == 3
+    commit_miner = PathCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert len(releases[0].commits) == 2
+    assert len(releases[1].commits) == 2
+    assert len(releases[2].commits) == 2
+    assert len(releases[3].commits) == 3
 
 
 def test_time_mine_strategy():
@@ -79,8 +79,8 @@ def test_time_mine_strategy():
     release_sorter = TimeReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
-    commit_strategy = TimeCommitMiner(vcs, releases)
-    release_commits = commit_strategy.mine_commits()
+    commit_miner = TimeCommitMiner(vcs, releases)
+    release_commits = commit_miner.mine_commits()
     assert len(release_commits['v1.0.0']) == 2
     assert len(release_commits['v1.0.1']) == 2
     assert len(release_commits['v1.1.0']) == 3
@@ -93,9 +93,9 @@ def test_range_mine_strategy():
     release_sorter = TimeReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
-    commit_strategy = RangeCommitMiner(vcs, releases)
-    release_commits = commit_strategy.mine_commits()
-    assert len(release_commits['v1.0.0']) == 2
-    assert len(release_commits['v1.0.1']) == 2
-    assert len(release_commits['v1.1.0']) == 2
-    assert len(release_commits['v2.0.0-alpha1']) == 4
+    commit_miner = RangeCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert len(releases[0].commits) == 2
+    assert len(releases[1].commits) == 2
+    assert len(releases[2].commits) == 2
+    assert len(releases[3].commits) == 4

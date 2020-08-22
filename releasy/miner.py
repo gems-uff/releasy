@@ -38,7 +38,7 @@ class AbstractReleaseMiner:
         self.matcher = matcher
         self.sorter = sorter
 
-    def mine_releases(self) -> List[Release]:
+    def mine_releases(self) -> ReleaseSet:
         """ Mine the releases 
 
         :return: the list of releases in reverse cronological order
@@ -50,7 +50,7 @@ class AbstractCommitMiner:
     """ Mine release commits based on a strategy. It assign commits to 
     releases """
 
-    def __init__(self, vcs: Vcs, releases: List[Release]):
+    def __init__(self, vcs: Vcs, releases: ReleaseSet):
         self.vcs = vcs
         self.releases = releases
 
@@ -81,7 +81,7 @@ class VersionReleaseMatcher(ReleaseMatcher):
 
 class TimeReleaseSorter(ReleaseSorter):
     """ Sort releases using time """
-    def sort(self, releases):
+    def sort(self, releases): #TODO use ReleaseSet
         sorted_releases = sorted(releases, key=lambda release: release.time)
         return sorted_releases
 
@@ -100,7 +100,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
             release_sorter: ReleaseSorter):
         super().__init__(vcs, release_matcher, release_sorter)
 
-    def mine_releases(self) -> List[Release]:
+    def mine_releases(self) -> ReleaseSet:
         """ Discover releases """
         # Tags can reference any git object. For release detectioin purpouse, 
         # we only need tags that reference commits
@@ -112,8 +112,13 @@ class TagReleaseMiner(AbstractReleaseMiner):
                 release = TagRelease(tag)
                 releases.append(release)
 
+        #TODO use ReleaseSet
         sorted_releases = self.sorter.sort(releases)
-        return sorted_releases
+
+        releases = ReleaseSet()
+        for release in sorted_releases:
+            releases.add(release, None)
+        return releases
 
 
 class PathCommitMiner(AbstractCommitMiner):
@@ -121,21 +126,20 @@ class PathCommitMiner(AbstractCommitMiner):
     parents to retrieve the commit history and split them based on the 
     releases found in its history. """ 
 
-    def __init__(self, vcs: Vcs, releases: List[Release]):
+    def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
         self.release_index = {}
         self.commit_index = {}
 
     def mine_commits(self):
-        releases = sorted(self.releases, key=lambda release: release.time) #TODO
-        for release in releases:
+        releases = ReleaseSet()
+        for release in self.releases:
             self.release_index[release.head.id] = True
 
-        release_commits = {}
-        for release in releases:
+        for release in self.releases:
             commits = self._track_commits(release)
-            release_commits[release.name] = commits
-        return release_commits
+            releases.add(release.release, commits)
+        return releases
     
     def _track_commits(self, release: Release) -> List[Commit]:
         commits = []
@@ -159,12 +163,12 @@ class TimeCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
-    def __init__(self, vcs: Vcs, releases: List[Release]):
+    def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
         self.release_index = {}
         
-    def mine_commits(self): #TODO handle order with release order
-        releases = sorted(self.releases, key=lambda release: release.time)
+    def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
+        releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
 
         release_commits = {}
@@ -173,7 +177,7 @@ class TimeCommitMiner(AbstractCommitMiner):
 
         has_releases = True
         while has_releases:
-            cur_release = releases[release_index]
+            cur_release = self.releases[release_index]
             cur_release_commits = []
             
             has_commits = True
@@ -202,20 +206,18 @@ class RangeCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
-    def __init__(self, vcs: Vcs, releases: List[Release]):
+    def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
-        self.release_index = {}
         
-    def mine_commits(self):
-        release_commits = {}
+    def mine_commits(self) -> ReleaseSet:
+        releases = ReleaseSet()
         prev_commit_set = set()
         for release in self.releases:
             cur_commit_set = self._track_commits(release)
             range_commit_set = cur_commit_set - prev_commit_set
-            release_commits[release.name] = list(range_commit_set)
+            releases.add(release, list(range_commit_set))
             prev_commit_set = cur_commit_set
-        return release_commits
-        
+        return releases
 
     def _track_commits(self, release: Release):
         commit_stack = [ release.head ]
