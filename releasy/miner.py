@@ -10,10 +10,7 @@ if TYPE_CHECKING:
 
 import re
 
-from .release import Release
-from .model import Tag, Commit
-from .data import Vcs
-from .data import Release
+from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet
 
 
 class ReleaseMatcher:
@@ -57,7 +54,7 @@ class AbstractCommitMiner:
         self.vcs = vcs
         self.releases = releases
 
-    def mine_commits(self):
+    def mine_commits(self) -> ReleaseSet:
         raise NotImplementedError()
 
 
@@ -112,7 +109,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
         releases = []
         for tag in tags:
             if self.matcher.is_release(tag.name):
-                release = Release(tag)
+                release = TagRelease(tag)
                 releases.append(release)
 
         sorted_releases = self.sorter.sort(releases)
@@ -130,7 +127,7 @@ class PathCommitMiner(AbstractCommitMiner):
         self.commit_index = {}
 
     def mine_commits(self):
-        releases = sorted(self.releases, key=lambda release: release.time)
+        releases = sorted(self.releases, key=lambda release: release.time) #TODO
         for release in releases:
             self.release_index[release.head.id] = True
 

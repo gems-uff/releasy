@@ -4,7 +4,8 @@ from datetime import datetime, timezone, timedelta
 import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
-from releasy.model import Project, Tag, Commit, CommitStats
+from .model import CommitStats
+from .data import Project, Tag, Commit
 from .developer import Developer
 from .miner import Vcs
 

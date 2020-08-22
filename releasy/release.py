@@ -7,7 +7,8 @@ import re
 from datetime import timedelta
 
 from .const import RELEASE_TYPE_MAJOR, RELEASE_TYPE_MINOR, RELEASE_TYPE_DUPLICATED, RELEASE_TIME, START_DEVELOPMENT_TIME, DEVELOPMENT_LENGTH, RELEASE_TYPE_PATCH, RELEASE_TYPE_PRE, RELEASE_TYPE_UNKNOWN
-from .model import Tag, CommitTracker
+from .model import CommitTracker
+from .data import Tag
 from .developer import ReleaseDeveloperRoleTracker
 from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
 

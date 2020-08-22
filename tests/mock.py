@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 
-from releasy.model import Commit, Tag
 from releasy.developer import Developer
-from releasy.data import Vcs
+from releasy.data import Vcs, Commit, Tag
 
 
 class VcsMock(Vcs):

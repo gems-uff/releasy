@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
+    from .miner import AbstractReleaseMiner
     from typing import List
 
    
@@ -43,15 +44,22 @@ class Release:
     :head: the last commit of the release
     """
 
-    def __init__(self, tag: Tag):
-        self._tag = tag
-        self.name = tag.name
-        self.time = tag.time
-        self.head = tag.commit
-
+    def __init__(self, name, commit, time, description):
+        self.name = name
+        self.head = commit
+        self.time = time
+        self.description = description
 
     def __repr__(self):
         return self.name
+
+
+class TagRelease(Release):
+    """ A release represented by a tag """
+
+    def __init__(self, tag: Tag):
+        super().__init__(tag.name, tag.commit, tag.time, None) #TODO add description
+        self.tag = tag
 
 
 class Commit:
@@ -112,3 +120,47 @@ class Vcs:
 
     def commits(self) -> List[Commit]:
         pass
+
+
+class ReleaseSet:
+    """ An easy form to retrieve releases """
+    def __init__(self):
+        self.index = {}
+        self.releases : List[ReleaseData] = []
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.releases[key]
+        elif isinstance(key, str):
+            return self.releases[self.index[key]]
+        else: 
+            raise TypeError()
+
+    def add(self, release: Release, commits: List[Commit]):
+        data = ReleaseData(release, commits)
+        self.releases.append(data)
+        self.index[release.name] = len(self.releases)-1
+
+
+class ReleaseData:
+    """ Connect release and commits """
+    def __init__(self, release: Release = None, commits: List[Commit] = None):
+        self.release = release
+        self.commits = commits
+
+    def __getattr__(self, name):
+        if name in dir(self.release):
+            return getattr(self.release, name)
+        else:
+            raise AttributeError
+
+
+class Project:
+    def __init__(self, vcs: Vcs, releases: ReleaseSet):
+        self.vcs = vcs
+        self.releases = releases
+
+
+        
+
+    

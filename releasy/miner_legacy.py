@@ -3,7 +3,8 @@
 import os.path
 
 import releasy
-from .model import Project, Commit
+from .model import Project
+from .data import Commit
 from .release import ReleaseFactory, Release
 
 class Miner():
