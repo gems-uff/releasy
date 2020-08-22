@@ -78,7 +78,7 @@ class VcsMock(Vcs):
         return self._tags
     
     def commits(self):
-        return self._commits
+        return self._commits.values()
 
 class DifferentReleaseNameVcsMock(Vcs):
     def __init__(self):

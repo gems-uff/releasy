@@ -53,7 +53,7 @@ def test_release_length():
     assert project.releases[7].get_length() == timedelta(days=5)
 
 
-def test_pre_releases():
+def ignore_test_pre_releases():
     miner = Miner(vcs=VcsMock())
     project = miner.mine_releases()
     assert len(project.releases[0].pre_releases) == 0
@@ -67,7 +67,7 @@ def test_pre_releases():
     assert len(project.get_releases(releasy.RELEASE_TYPE_PRE)) == 2
 
 
-def test_duplicated_releases():
+def ignore_test_duplicated_releases():
     miner = Miner(vcs=VcsMock())
     project = miner.mine_releases()
     assert not project.releases[0].is_duplicated()
