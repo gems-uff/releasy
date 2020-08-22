@@ -17,20 +17,20 @@ from .data import Release
 
 
 class ReleaseMatcher:
-    """ Check if an object is a release """
+    """ Check if a name represent a release """
 
-    def is_release(self, object) -> bool:
+    def is_release(self, name: str) -> bool:
         """
         :return: True if the object is a release
         """
-        pass
+        raise NotImplementedError()
 
 
 class ReleaseSorter:
     """ Sort releases according to a criteria """
 
     def sort(self, releases):
-        pass
+        raise NotImplementedError()
 
 
 class ReleaseMineStratety:
@@ -46,7 +46,7 @@ class ReleaseMineStratety:
 
         :return: the list of releases in reverse cronological order
         """
-        pass
+        raise NotImplementedError()
 
 
 class CommitMineStrategy:
@@ -57,14 +57,14 @@ class CommitMineStrategy:
         self.vcs = vcs
         self.releases = releases
 
-    def mine_commits():
-        pass
+    def mine_commits(self):
+        raise NotImplementedError()
 
 
-class TrueReleaseMatcher:
+class TrueReleaseMatcher(ReleaseMatcher):
     """ Matcher that consider all tags as releases """
 
-    def is_release(self, tag: Tag) -> bool:
+    def is_release(self, name: str) -> bool:
         return True
 
 
@@ -75,8 +75,8 @@ class VersionReleaseMatcher(ReleaseMatcher):
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
 
-    def is_release(self, tag: Tag) -> bool:
-        if self.version_regexp.match(tag.name):
+    def is_release(self, name: str) -> bool:
+        if self.version_regexp.match(name):
             return True
         else:
             return False
@@ -111,7 +111,7 @@ class TagReleaseMineStrategy(ReleaseMineStratety):
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
         releases = []
         for tag in tags:
-            if self.matcher.is_release(tag):
+            if self.matcher.is_release(tag.name):
                 release = Release(tag)
                 releases.append(release)
 

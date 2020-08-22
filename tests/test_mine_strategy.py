@@ -1,8 +1,34 @@
 #import releasy
 #import releasy.mine_strategy
+import pytest
+
 from releasy.mine_strategy import *
 
 from .miner.vcs.mock import VcsMock
+
+
+def test_release_matcher():
+    release_matcher = ReleaseMatcher()
+    with pytest.raises(NotImplementedError):
+        release_matcher.is_release(None)
+
+
+def test_release_sorter():
+    release_sorter = ReleaseSorter()
+    with pytest.raises(NotImplementedError):
+        release_sorter.sort(None)
+
+
+def test_release_mine_stratety():
+    release_strategy = ReleaseMineStratety(None, None, None)
+    with pytest.raises(NotImplementedError):
+        release_strategy.mine_releases()
+
+
+def test_commit_mine_strategy():
+    commit_strategy = CommitMineStrategy(None, None)
+    with pytest.raises(NotImplementedError):
+        commit_strategy.mine_commits()
 
 
 def test_true_release_matcher():
@@ -32,7 +58,7 @@ def test_time_release_sorter():
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
     assert releases[-1].name == 'v2.1.0'
-    
+
 
 def test_path_mine_strategy():
     vcs = VcsMock()
