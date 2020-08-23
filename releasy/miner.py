@@ -177,12 +177,12 @@ class TimeCommitMiner(AbstractCommitMiner):
         commit_index = 0
         release_index = 0
 
-        has_releases = True
+        has_releases = release_index < len(self.releases)
         while has_releases:
             cur_release = self.releases[release_index]
             cur_release_commits = []
             
-            has_commits = True
+            has_commits = commit_index < len(commits)
             while has_commits:
                 cur_commit = commits[commit_index]
                 
@@ -221,6 +221,7 @@ class RangeCommitMiner(AbstractCommitMiner):
             prev_commit_set = cur_commit_set
         return releases
 
+    #TODO improve performance recording previous paths
     def _track_commits(self, release: Release):
         commit_index = {}
         commit_stack = [ release.head ]

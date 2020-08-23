@@ -4,7 +4,9 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, TimeReleaseSorter
 
-vcs = GitVcs("../../repos2/vuejs/vue")
+# vcs = GitVcs("../../repos2/vuejs/vue")
+vcs = GitVcs("../../repos2/facebook/react")
+
 release_matcher = VersionReleaseMatcher()
 release_sorter = TimeReleaseSorter()
 
