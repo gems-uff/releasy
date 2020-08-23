@@ -26,7 +26,14 @@ class ReleaseMatcher:
 class ReleaseSorter:
     """ Sort releases according to a criteria """
 
-    def sort(self, releases):
+    def sort(self, releases: ReleaseSet):
+        internal_releases = releases.get_all()
+        sorted_internal_releases = self._internal_sort(releases)
+        sorted_releases = ReleaseSet()
+        sorted_releases.add_all(sorted_internal_releases)
+        return sorted_releases
+        
+    def _internal_sort(self, releases: List[Release]) -> List[Release]:
         raise NotImplementedError()
 
 
@@ -81,7 +88,7 @@ class VersionReleaseMatcher(ReleaseMatcher):
 
 class TimeReleaseSorter(ReleaseSorter):
     """ Sort releases using time """
-    def sort(self, releases): #TODO use ReleaseSet
+    def _internal_sort(self, releases: List[Release]) -> List[Release]:
         sorted_releases = sorted(releases, key=lambda release: release.time)
         return sorted_releases
 
@@ -106,19 +113,15 @@ class TagReleaseMiner(AbstractReleaseMiner):
         # we only need tags that reference commits
         tags = [tag for tag in self.vcs.tags() if tag.commit]
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
-        releases = []
+        releases = ReleaseSet()
         for tag in tags:
             if self.matcher.is_release(tag.name):
                 release = TagRelease(tag)
-                releases.append(release)
+                releases.add(release, None)
 
         #TODO use ReleaseSet
         sorted_releases = self.sorter.sort(releases)
-
-        releases = ReleaseSet()
-        for release in sorted_releases:
-            releases.add(release, None)
-        return releases
+        return sorted_releases
 
 
 class PathCommitMiner(AbstractCommitMiner):

@@ -13,9 +13,11 @@ def test_release_matcher():
 
 
 def test_release_sorter():
+    releases = ReleaseSet()
+    releases.add(Release("A", None, None, None), None)
     release_sorter = ReleaseSorter()
     with pytest.raises(NotImplementedError):
-        release_sorter.sort(None)
+        release_sorter.sort(releases)
 
 
 def test_release_mine_stratety():
@@ -81,10 +83,10 @@ def test_time_mine_strategy():
     releases = release_miner.mine_releases()
     commit_miner = TimeCommitMiner(vcs, releases)
     releases = commit_miner.mine_commits()
-    assert len(releases['v1.0.0'].commits) == 2
-    assert len(releases['v1.0.1'].commits) == 2
-    assert len(releases['v1.1.0'].commits) == 3
-    assert len(releases['v2.0.0-alpha1'].commits) == 2
+    assert len(releases[0].commits) == 2
+    assert len(releases[1].commits) == 2
+    assert len(releases[2].commits) == 3
+    assert len(releases[3].commits) == 2
 
 
 def test_range_mine_strategy():
