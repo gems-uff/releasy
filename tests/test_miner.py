@@ -80,11 +80,11 @@ def test_time_mine_strategy():
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
     commit_miner = TimeCommitMiner(vcs, releases)
-    release_commits = commit_miner.mine_commits()
-    assert len(release_commits['v1.0.0']) == 2
-    assert len(release_commits['v1.0.1']) == 2
-    assert len(release_commits['v1.1.0']) == 3
-    assert len(release_commits['v2.0.0-alpha1']) == 2
+    releases = commit_miner.mine_commits()
+    assert len(releases['v1.0.0'].commits) == 2
+    assert len(releases['v1.0.1'].commits) == 2
+    assert len(releases['v1.1.0'].commits) == 3
+    assert len(releases['v2.0.0-alpha1'].commits) == 2
 
 
 def test_range_mine_strategy():

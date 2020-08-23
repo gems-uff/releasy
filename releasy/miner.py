@@ -171,7 +171,6 @@ class TimeCommitMiner(AbstractCommitMiner):
         releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
 
-        release_commits = {}
         commit_index = 0
         release_index = 0
 
@@ -194,12 +193,12 @@ class TimeCommitMiner(AbstractCommitMiner):
                     has_commits = False
 
             cur_release_commits = sorted(cur_release_commits, key=lambda commit: commit.committer_time, reverse=True)
-            release_commits[cur_release.name] = cur_release_commits        
+            releases.add(cur_release, cur_release_commits)        
             release_index += 1
-            if release_index >= len(releases):
+            if release_index >= len(self.releases):
                 has_releases = False
 
-        return release_commits
+        return releases
 
 
 class RangeCommitMiner(AbstractCommitMiner):
