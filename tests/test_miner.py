@@ -1,6 +1,7 @@
 #import releasy
 #import releasy.mine_strategy
 import pytest
+from datetime import datetime
 
 from releasy.miner import *
 from .mock import VcsMock
@@ -18,7 +19,6 @@ def test_release_sorter():
     release_sorter = ReleaseSorter()
     with pytest.raises(NotImplementedError):
         release_sorter.sort(releases)
-
 
 def test_release_mine_stratety():
     release_miner = AbstractReleaseMiner(None, None, None)
@@ -59,6 +59,16 @@ def test_time_release_sorter():
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
     assert releases[-1].name == 'v2.1.0'
+
+
+def test_time_release_sorter2():
+    releases = ReleaseSet()
+    releases.add(Release("1", None, datetime(2020, 1, 2, 12, 00), None), None)
+    releases.add(Release("0", None, datetime(2020, 1, 1, 12, 00), None), None)
+    release_sorter = TimeReleaseSorter()
+    sorted_releases = release_sorter.sort(releases)
+    assert releases[0].name == "1"
+    assert sorted_releases[0].name == "0"
 
 
 def test_path_mine_strategy():

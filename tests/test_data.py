@@ -8,14 +8,7 @@ def test_release_set():
     assert releases[0].name == "0"
     assert releases[1].name == "1"
     assert releases["1"].name == "1"
-
-def ignore_test_release_set_sort():
-    releases = ReleaseSet()
-    releases.add(Release("1", None, None, None), None)
-    releases.add(Release("0", None, None, None), None)
-    releases = releases.sort()
-    assert releases[0].name == "0"
-    
+  
 
 def test_release_data():
     releases = ReleaseSet()
