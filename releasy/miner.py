@@ -222,13 +222,16 @@ class RangeCommitMiner(AbstractCommitMiner):
         return releases
 
     def _track_commits(self, release: Release):
+        commit_index = {}
         commit_stack = [ release.head ]
         commits = set()
         while len(commit_stack):
             commit = commit_stack.pop()
             commits.add(commit)
+            commit_index[commit] = True
 
             if commit.parents:
                 for parent in commit.parents:
-                    commit_stack.append(parent)
+                    if parent not in commit_index:
+                        commit_stack.append(parent)
         return commits
