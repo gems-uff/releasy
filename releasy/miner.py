@@ -111,41 +111,60 @@ class VersionReleaseSorter(ReleaseSorter):
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
         self.version_sep = re.compile("[\._]")
+        self.pre_release_sep = re.compile(r"(?P<name>[^0-9]*)?(?P<number>[0-9]*)?")
 
     def _key_compare(self):
         return False
 
+    def _tokenize(self, release: Release):
+        name = release.name
+        match = self.version_regexp.match(name)
+        version = match.group("version")
+        suffix = match.group("suffix")
+        tokens = self.version_sep.split(version)
+        for part in self.version_sep.split(suffix):
+            sep = self.pre_release_sep.match(part)
+            if sep and sep.group("name"):
+                tokens.append("name")
+            if sep and sep.group("number"):
+                tokens.append("number")
+        return tokens
+
+    def _get_token(self, token, position):
+        if position < len(token):
+            token_value = token[position]
+            token_is_number = token_value.isdigit()
+            if token_is_number:
+                token_value = int(token_value)
+        else:
+            token_value = 0
+            token_is_number = True
+        return (token_value, token_is_number)
+
     def _cmp(self, r1: Release, r2: Release):
-        n1 = r1.name
-        m1 = self.version_regexp.match(n1)
-        v1 = m1.group("version")
-        s1 = m1.group("suffix")
-        vs1 = self.version_sep.split(v1)
+        tk1 = self._tokenize(r1)
+        tk2 = self._tokenize(r2)
 
-        n2 = r2.name
-        m2 = self.version_regexp.match(n2)
-        v2 = m2.group("version")
-        s2 = m2.group("suffix")
-        vs2 = self.version_sep.split(v2)
-
+        # Compare versions
         i = 0
-        while i < max(len(vs1), len(vs2)):
-            if i < len(vs1):
-                c1 = int(vs1[i])
-            else:
-                c1 = 0
-            
-            if i < len(vs2):
-                c2 = int(vs2[i])
-            else:
-                c2 = 0
+        while i < max(len(tk1), len(tk2)):
+            (c1, c1_is_number) = self._get_token(tk1, i)
+            (c2, c2_is_number)= self._get_token(tk2, i)
 
-            r = c1 - c2
-            if r != 0:
-                return r
-
+            if c1_is_number and c2_is_number:
+                cmp = c1 - c2
+                if cmp != 0:
+                    return cmp
+            elif c1_is_number and not c2_is_number:
+                return 1
+            elif not c1_is_number and c2_is_number:
+                return -1
+            else:
+                if c1 > c2:
+                    return  1
+                elif c1 < c2:
+                    return -1
             i += 1
-        
         return 0
 
 
