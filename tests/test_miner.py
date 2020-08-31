@@ -71,6 +71,17 @@ def test_time_release_sorter2():
     assert sorted_releases[0].name == "0"
 
 
+def test_version_release_sorter():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    assert releases[0].name == 'v1.0.0'
+    assert releases[1].name == 'v1.0.1'
+    assert releases[-1].name == 'v2.1.0'
+
+
 def test_path_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()

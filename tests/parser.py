@@ -4,8 +4,8 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, TimeReleaseSorter
 
-# vcs = GitVcs("../../repos2/vuejs/vue")
-vcs = GitVcs("../../repos2/facebook/react")
+vcs = GitVcs("../../repos2/vuejs/vue")
+#vcs = GitVcs("../../repos2/facebook/react")
 
 release_matcher = VersionReleaseMatcher()
 release_sorter = TimeReleaseSorter()
@@ -18,11 +18,11 @@ range_miner = RangeCommitMiner(vcs, release_set)
 time_miner = TimeCommitMiner(vcs, release_set)
 
 print(f" - parsing by path")
-path_release_set = path_miner.mine_commits()
+#path_release_set = path_miner.mine_commits()
 print(f" - parsing by time")
 time_release_set = time_miner.mine_commits()
 print(f" - parsing by range")
-range_release_set = range_miner.mine_commits()
+#range_release_set = range_miner.mine_commits()
 
 
 # def print_commits(project):

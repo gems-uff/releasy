@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from typing import List
 
 import re
+from functools import cmp_to_key
 
 from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet
 
@@ -28,12 +29,21 @@ class ReleaseSorter:
 
     def sort(self, releases: ReleaseSet):
         internal_releases = releases.get_all()
-        sorted_internal_releases = self._internal_sort(releases)
+        if self._key_compare():
+            sorted_internal_releases = sorted(internal_releases, key=self._key)
+        else: 
+            sorted_internal_releases = sorted(internal_releases, key=cmp_to_key(self._cmp))
         sorted_releases = ReleaseSet()
         sorted_releases.add_all(sorted_internal_releases)
         return sorted_releases
         
-    def _internal_sort(self, releases: List[Release]) -> List[Release]:
+    def _key_compare(self):
+        return True
+
+    def _key(self, release: Release):
+        raise NotImplementedError()
+
+    def _cmp(self, release: Release):
         raise NotImplementedError()
 
 
@@ -75,6 +85,7 @@ class TrueReleaseMatcher(ReleaseMatcher):
 class VersionReleaseMatcher(ReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
     def __init__(self):
+        # TODO define in a single object - repeated in VersionReleaseSorter
         self.version_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
@@ -88,16 +99,55 @@ class VersionReleaseMatcher(ReleaseMatcher):
 
 class TimeReleaseSorter(ReleaseSorter):
     """ Sort releases using time """
-    def _internal_sort(self, releases: List[Release]) -> List[Release]:
-        sorted_releases = sorted(releases, key=lambda release: release.time)
-        return sorted_releases
+    def _key(self, release: Release):
+        return release.time
 
 
 class VersionReleaseSorter(ReleaseSorter):
     """ Sort release using its versions """
+    def __init__(self):
+        # TODO define in a single object - repeated in VersionReleaseMatcher
+        self.version_regexp = re.compile(
+            r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
+        )
+        self.version_sep = re.compile("[\._]")
 
-    def sort(self):
-        pass
+    def _key_compare(self):
+        return False
+
+    def _cmp(self, r1: Release, r2: Release):
+        n1 = r1.name
+        m1 = self.version_regexp.match(n1)
+        v1 = m1.group("version")
+        s1 = m1.group("suffix")
+        vs1 = self.version_sep.split(v1)
+
+        n2 = r2.name
+        m2 = self.version_regexp.match(n2)
+        v2 = m2.group("version")
+        s2 = m2.group("suffix")
+        vs2 = self.version_sep.split(v2)
+
+        i = 0
+        while i < max(len(vs1), len(vs2)):
+            if i < len(vs1):
+                c1 = int(vs1[i])
+            else:
+                c1 = 0
+            
+            if i < len(vs2):
+                c2 = int(vs2[i])
+            else:
+                c2 = 0
+
+            r = c1 - c2
+            if r != 0:
+                return r
+
+            i += 1
+        
+        return 0
+
 
 
 class TagReleaseMiner(AbstractReleaseMiner):
