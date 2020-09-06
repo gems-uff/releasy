@@ -58,7 +58,13 @@ def test_time_release_sorter():
     releases = release_miner.mine_releases()
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
-    assert releases[-1].name == 'v2.1.0'
+    assert releases[2].name == 'v1.1.0'
+    assert releases[3].name == 'v2.0.0-alpha1'
+    assert releases[4].name == 'v2.0.0-beta1'
+    assert releases[5].name == 'v1.0.2'
+    assert releases[6].name == 'v2.0.0'
+    assert releases[7].name == 'v2.0.1'
+    assert releases[8].name == 'v2.1.0'
 
 
 def test_time_release_sorter2():
@@ -79,7 +85,13 @@ def test_version_release_sorter():
     releases = release_miner.mine_releases()
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
-    assert releases[-1].name == 'v2.1.0'
+    assert releases[2].name == 'v1.0.2'
+    assert releases[3].name == 'v1.1.0'
+    assert releases[4].name == 'v2.0.0-alpha1'
+    assert releases[5].name == 'v2.0.0-beta1'
+    assert releases[6].name == 'v2.0.0'
+    assert releases[7].name == 'v2.0.1'
+    assert releases[8].name == 'v2.1.0'
 
 
 def test_path_mine_strategy():
@@ -99,26 +111,37 @@ def test_path_mine_strategy():
 def test_time_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()
-    release_sorter = TimeReleaseSorter()
+    release_sorter = VersionReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
     commit_miner = TimeCommitMiner(vcs, releases)
     releases = commit_miner.mine_commits()
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
-    assert len(releases[2].commits) == 3
-    assert len(releases[3].commits) == 2
+    assert len(releases[2].commits) == 10
+    assert len(releases[3].commits) == 3
+    assert len(releases[4].commits) == 2
+    assert len(releases[5].commits) == 2
+    assert len(releases[6].commits) == 4
+    assert len(releases[7].commits) == 0
+    assert len(releases[8].commits) == 6
 
 
 def test_range_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()
-    release_sorter = TimeReleaseSorter()
+    release_sorter = VersionReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
     commit_miner = RangeCommitMiner(vcs, releases)
     releases = commit_miner.mine_commits()
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
-    assert len(releases[2].commits) == 2
-    assert len(releases[3].commits) == 4
+    assert len(releases[2].commits) == 1
+    assert len(releases[3].commits) == 2 # interesting case
+    assert len(releases[4].commits) == 4
+    assert len(releases[5].commits) == 2
+    assert len(releases[6].commits) == 4
+    assert len(releases[7].commits) == 0
+    assert len(releases[8].commits) == 6
+
