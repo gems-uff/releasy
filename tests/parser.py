@@ -2,13 +2,15 @@ import json
 import cProfile
 
 from releasy.miner_git import GitVcs
-from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, TimeReleaseSorter
+from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
-vcs = GitVcs("../../repos2/vuejs/vue")
+#vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
+#vcs = GitVcs("../../repos2/facebook/react")
+vcs = GitVcs("../../repos2/laravel/laravel")
 
 release_matcher = VersionReleaseMatcher()
-release_sorter = TimeReleaseSorter()
+release_sorter = VersionReleaseSorter()
 
 release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
 release_set = release_miner.mine_releases()

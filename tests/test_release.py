@@ -14,9 +14,10 @@ def test_release_time():
     assert project.releases[2].get_time() == datetime(2020, 1, 7,  12, 00)
     assert project.releases[3].get_time() == datetime(2020, 1, 9,  12, 00)
     assert project.releases[4].get_time() == datetime(2020, 1, 11, 12, 00)
-    assert project.releases[5].get_time() == datetime(2020, 1, 14, 13, 00)
-    assert project.releases[6].get_time() == datetime(2020, 1, 14, 14, 00)
-    assert project.releases[7].get_time() == datetime(2020, 1, 20, 12, 00)
+    assert project.releases[5].get_time() == datetime(2020, 1, 14, 12, 00)
+    assert project.releases[6].get_time() == datetime(2020, 1, 15, 13, 00)
+    assert project.releases[7].get_time() == datetime(2020, 1, 15, 14, 00)
+    assert project.releases[8].get_time() == datetime(2020, 1, 21, 12, 00)
 
 
 def test_release_base():
@@ -28,16 +29,19 @@ def test_release_base():
     assert len(project.releases[3].base_releases) == 2
     assert len(project.releases[4].base_releases) == 1
     assert len(project.releases[5].base_releases) == 1
-    assert len(project.releases[6].base_releases) == 1
+    assert len(project.releases[6].base_releases) == 2
     assert len(project.releases[7].base_releases) == 1
+    assert len(project.releases[8].base_releases) == 1
     assert project.releases[1].base_releases[0] == project.releases[0]
     assert project.releases[2].base_releases[0] == project.releases[0]
     assert project.releases[3].base_releases[0] == project.releases[1]
     assert project.releases[3].base_releases[1] == project.releases[2]
     assert project.releases[4].base_releases[0] == project.releases[3]
-    assert project.releases[5].base_releases[0] == project.releases[4]
+    assert project.releases[5].base_releases[0] == project.releases[1]
     assert project.releases[6].base_releases[0] == project.releases[5]
-    assert project.releases[7].base_releases[0] == project.releases[5]
+    assert project.releases[6].base_releases[1] == project.releases[4]
+    assert project.releases[7].base_releases[0] == project.releases[6]
+    assert project.releases[8].base_releases[0] == project.releases[6]
 
 
 def test_release_length():
@@ -48,9 +52,10 @@ def test_release_length():
     assert project.releases[2].get_length() == timedelta(days=1)
     assert project.releases[3].get_length() == timedelta(days=4)
     assert project.releases[4].get_length() == timedelta(days=1)
-    assert project.releases[5].get_length() == timedelta(days=9)+timedelta(hours=1)
-    assert project.releases[6].get_length() == timedelta(days=0)+timedelta(hours=2)
-    assert project.releases[7].get_length() == timedelta(days=5)
+    assert project.releases[5].get_length() == timedelta(days=0)
+    assert project.releases[6].get_length() == timedelta(days=10)+timedelta(hours=1) # check
+    assert project.releases[7].get_length() == timedelta(days=0)+timedelta(hours=2)
+    assert project.releases[8].get_length() == timedelta(days=5)
 
 
 def ignore_test_pre_releases():

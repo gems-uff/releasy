@@ -130,9 +130,9 @@ class VersionReleaseSorter(ReleaseSorter):
                 tokens.append("number")
         return tokens
 
-    def _get_token(self, token, position):
-        if position < len(token):
-            token_value = token[position]
+    def _get_token(self, tokens, position):
+        if position < len(tokens):
+            token_value = tokens[position]
             token_is_number = token_value.isdigit()
             if token_is_number:
                 token_value = int(token_value)

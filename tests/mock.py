@@ -34,14 +34,15 @@ class VcsMock(Vcs):
             (10,[9]    ,alice  ,alice  ,one_day,None    ,["v2.0.0-beta1"]),    #r4
             (11,[2]    ,alice  ,alice  ,one_day,None    ,[]),
             (12,[10,11],alice  ,alice  ,one_day,None    ,[]),
-            (13,[12]   ,alice  ,alice  ,one_day,one_hour,["v2.0.0", "v2.0.1"]),#r5,6
-            (14,[13]   ,alice  ,alice  ,one_day,None    ,[]),
+            (13,[3]    ,alice  ,alice  ,one_day,None    ,["v1.0.2"]),
+            (14,[13,12],alice  ,alice  ,one_day,one_hour,["v2.0.0", "v2.0.1"]),#r5,6
             (15,[14]   ,alice  ,alice  ,one_day,None    ,[]),
-            (16,[13]   ,alice  ,alice  ,one_day,None    ,[]),
-            (17,[15,10],alice  ,alice  ,one_day,None    ,[]),
-            (18,[15,16],alice  ,alice  ,one_day,None    ,[]),
-            (19,[17,18],alice  ,alice  ,one_day,None    ,["v2.1.0"]),         #r7
-            (20,[19]   ,alice  ,alice  ,one_day,None    ,[]),
+            (16,[15]   ,alice  ,alice  ,one_day,None    ,[]),
+            (17,[14]   ,alice  ,alice  ,one_day,None    ,[]),
+            (18,[16,10],alice  ,alice  ,one_day,None    ,[]),
+            (19,[16,17],alice  ,alice  ,one_day,None    ,[]),
+            (20,[18,19],alice  ,alice  ,one_day,None    ,["v2.1.0"]),         #r7
+            (21,[20]   ,alice  ,alice  ,one_day,None    ,[]),
         ]
 
         commits = {}

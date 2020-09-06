@@ -38,7 +38,7 @@ def test_true_release_matcher():
     release_sorter = TimeReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
-    assert len(releases) == 9
+    assert len(releases) == 10
 
 
 def test_version_release_matcher():
@@ -47,7 +47,7 @@ def test_version_release_matcher():
     release_sorter = TimeReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
-    assert len(releases) == 8
+    assert len(releases) == 9
 
 
 def test_time_release_sorter():
