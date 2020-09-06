@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from typing import List
 
 import re
+from datetime import timedelta
 from functools import cmp_to_key
 
 from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet
@@ -110,7 +111,7 @@ class VersionReleaseSorter(ReleaseSorter):
         self.version_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
-        self.version_sep = re.compile("[\._]")
+        self.version_sep = re.compile(r"[\._]")
         self.pre_release_sep = re.compile(r"(?P<name>[^0-9]*)?(?P<number>[0-9]*)?")
 
     def _key_compare(self):
@@ -243,33 +244,18 @@ class TimeCommitMiner(AbstractCommitMiner):
         releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
 
-        commit_index = 0
-        release_index = 0
+        start = commits[0].committer_time - timedelta(days=1)
+        for cur_release in self.releases:
+            end = cur_release.time
 
-        has_releases = release_index < len(self.releases)
-        while has_releases:
-            cur_release = self.releases[release_index]
             cur_release_commits = []
-            
-            has_commits = commit_index < len(commits)
-            while has_commits:
-                cur_commit = commits[commit_index]
-                
-                if cur_commit.committer_time <= cur_release.time:
-                    cur_release_commits.append(cur_commit)
-                    commit_index += 1
-                else:
-                    has_commits = False
-                
-                if commit_index >= len(commits):
-                    has_commits = False
+            for commit in commits:
+                if commit.committer_time > start and commit.committer_time <= end:
+                    cur_release_commits.append(commit)
+            releases.add(cur_release, cur_release_commits)     
 
-            cur_release_commits = sorted(cur_release_commits, key=lambda commit: commit.committer_time, reverse=True)
-            releases.add(cur_release, cur_release_commits)        
-            release_index += 1
-            if release_index >= len(self.releases):
-                has_releases = False
-
+            prev_release = cur_release
+            start = prev_release.time
         return releases
 
 
