@@ -7,7 +7,7 @@ from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, Ti
 #vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/facebook/react")
-vcs = GitVcs("../../repos2/laravel/laravel")
+vcs = GitVcs("../../repos2/laravel/framework")
 
 release_matcher = VersionReleaseMatcher()
 release_sorter = VersionReleaseSorter()

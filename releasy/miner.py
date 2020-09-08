@@ -126,9 +126,9 @@ class VersionReleaseSorter(ReleaseSorter):
         for part in self.version_sep.split(suffix):
             sep = self.pre_release_sep.match(part)
             if sep and sep.group("name"):
-                tokens.append("name")
+                tokens.append(sep.group("name"))
             if sep and sep.group("number"):
-                tokens.append("number")
+                tokens.append(sep.group("number"))
         return tokens
 
     def _get_token(self, tokens, position):

@@ -150,3 +150,6 @@ def test_range_mine_strategy():
     assert len(releases[7].commits) == 0
     assert len(releases[8].commits) == 6
 
+def test_count_repository_commits():
+    vcs = VcsMock()
+    assert len(vcs.commits()) == 22

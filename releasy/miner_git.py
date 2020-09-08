@@ -41,18 +41,23 @@ class GitVcs(Vcs):
         return self._commit_cache[hashcode]
 
     def commits(self): # TODO optimize to visit commits single time
+        refs = list(self._repo.references)
         commit_ref = {}
         commits = []
-        for tag in self.tags():
-            commit_stack = [ tag.commit ]
-            while len(commit_stack):
-                commit = commit_stack.pop()
-                if commit.id not in commit_ref:
-                    commits.append(commit)
-                    commit_ref[commit.id] = True
-                    if commit.parents:
-                        for parent in commit.parents:
-                            commit_stack.append(parent)
+        for ref_name in refs:
+            ref = self._repo.lookup_reference(ref_name)
+            raw_target = ref.peel()
+            if raw_target.type == pygit2.GIT_OBJ_COMMIT:
+                commit = self.get_commit(raw_target)
+                commit_stack = [ commit ]
+                while len(commit_stack):
+                    commit = commit_stack.pop()
+                    if commit.id not in commit_ref:
+                        commits.append(commit)
+                        commit_ref[commit.id] = True
+                        if commit.parents:
+                            for parent in commit.parents:
+                                commit_stack.append(parent)
         return commits
 
 
