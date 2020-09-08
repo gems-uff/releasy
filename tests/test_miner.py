@@ -50,6 +50,15 @@ def test_version_release_matcher():
     assert len(releases) == 9
 
 
+def test_version_wo_pre_release_matcher():
+    vcs = VcsMock()
+    release_matcher = VersionWoPreReleaseMatcher()
+    release_sorter = TimeReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    assert len(releases) == 7
+
+
 def test_time_release_sorter():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()

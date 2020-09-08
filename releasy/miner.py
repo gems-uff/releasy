@@ -97,6 +97,21 @@ class VersionReleaseMatcher(ReleaseMatcher):
         else:
             return False
 
+class VersionWoPreReleaseMatcher(ReleaseMatcher):
+    """ Matcher that consider tags with version number as releases """
+    def __init__(self):
+        # TODO define in a single object - repeated in VersionReleaseSorter
+        self.version_regexp = re.compile(
+            r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
+        )
+
+    def is_release(self, name: str) -> bool:
+        match = self.version_regexp.match(name)
+        if match and not match.group("suffix"):
+            return True
+        else:
+            return False
+
 
 class TimeReleaseSorter(ReleaseSorter):
     """ Sort releases using time """
