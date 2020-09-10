@@ -22,7 +22,7 @@ def test_release_data():
 
 def test_release_name():
     release_name = ReleaseName("name", "prefix", "version", "suffix")
-    assert str(release_name) == "name"
+    assert release_name == "name"
     assert release_name.value == "name"
     assert release_name.prefix == "prefix"
     assert release_name.version == "version"
@@ -32,4 +32,10 @@ def test_release_name():
 def test_release_wo_name():
     with pytest.raises(ValueError):
         release_name = ReleaseName("", "prefix", "version", "suffix")
+
+def test_prefixes():
+    releases = ReleaseSet()
+    releases.add(Release(ReleaseName("v1.0.0", "v", "1.0.0", ""), None, None, None), None)
+    releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None), None)
+    assert len(releases.prefixes) == 2
 

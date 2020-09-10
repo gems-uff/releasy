@@ -44,22 +44,21 @@ class Release:
     :head: the last commit of the release
     """
 
-    def __init__(self, name, commit, time, description, version = None,
-            prefix = None, suffix = None):
+    def __init__(self, name: ReleaseName, commit: Commit, time, description):
         self.name = name
         self.head = commit
         self.time = time
         self.description = description
 
     def __repr__(self):
-        return self.name
+        return repr(self.name)
 
 
 class TagRelease(Release):
     """ A release represented by a tag """
 
-    def __init__(self, tag: Tag):
-        super().__init__(tag.name, tag.commit, tag.time, None) #TODO add description
+    def __init__(self, tag: Tag, name: ReleaseName):
+        super().__init__(name, tag.commit, tag.time, None) #TODO add description
         self.tag = tag
 
 
@@ -150,6 +149,16 @@ class ReleaseSet:
     def get_all(self):
         return self.releases
 
+    @property
+    def prefixes(self):
+        """ return a set with all the release prefixes, including None if there
+        is at least one release withou prefix """
+        prefixes = set()
+        for release in self.releases:
+            prefixes.add(release.name.prefix)
+        return prefixes
+
+
     def __len__(self):
       return len(self.releases)
 
@@ -167,18 +176,20 @@ class ReleaseData:
             raise AttributeError
 
 
-class ReleaseName:
+class ReleaseName(str):
     """ Represent a release name, with prefix, version and suffix """
     def __init__(self, name: str, prefix: str, version: str, suffix: str):
-        self.value = name
-        if not self.value:
+        if not name:
             raise ValueError("release name must have a non empty name")
+        self.value = name
         self.prefix = prefix or None
         self.version = version or None
         self.suffix = suffix or None
+
+    def __new__(self, name, *args, **kwargs):
+        return super().__new__(self, name)
     
-    def __str__(self):
-        return self.value
+    
 
 
 class Project:

@@ -202,8 +202,9 @@ class TagReleaseMiner(AbstractReleaseMiner):
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
         releases = ReleaseSet()
         for tag in tags:
-            if self. matcher.parse(tag.name):
-                release = TagRelease(tag)
+            release_name = self. matcher.parse(tag.name)
+            if release_name:
+                release = TagRelease(tag, release_name)
                 releases.add(release, None)
 
         #TODO use ReleaseSet
