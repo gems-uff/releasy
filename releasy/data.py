@@ -44,7 +44,8 @@ class Release:
     :head: the last commit of the release
     """
 
-    def __init__(self, name, commit, time, description):
+    def __init__(self, name, commit, time, description, version = None,
+            prefix = None, suffix = None):
         self.name = name
         self.head = commit
         self.time = time
@@ -164,6 +165,20 @@ class ReleaseData:
             return getattr(self.release, name)
         else:
             raise AttributeError
+
+
+class ReleaseName:
+    """ Represent a release name, with prefix, version and suffix """
+    def __init__(self, name: str, prefix: str, version: str, suffix: str):
+        self.value = name
+        if not self.value:
+            raise ValueError("release name must have a non empty name")
+        self.prefix = prefix or None
+        self.version = version or None
+        self.suffix = suffix or None
+    
+    def __str__(self):
+        return self.value
 
 
 class Project:

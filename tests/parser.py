@@ -6,9 +6,9 @@ from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, Ti
 
 #vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
-#vcs = GitVcs("../../repos2/facebook/react")
+vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
-vcs = GitVcs("../../repos2/facebook\jest")
+#vcs = GitVcs("../../repos2/facebook\jest")
 
 release_matcher = VersionReleaseMatcher()
 time_release_sorter = TimeReleaseSorter()
@@ -21,15 +21,15 @@ version_release_miner = TagReleaseMiner(vcs, release_matcher, version_release_so
 version_release_set = version_release_miner.mine_releases()
 
 path_miner = PathCommitMiner(vcs, time_release_set)
-range_miner = RangeCommitMiner(vcs, version_release_miner)
-time_miner = TimeCommitMiner(vcs, version_release_miner)
+range_miner = RangeCommitMiner(vcs, version_release_set)
+time_miner = TimeCommitMiner(vcs, version_release_set)
 
 print(f" - parsing by path")
-path_release_set = path_miner.mine_commits()
+# path_release_set = path_miner.mine_commits()
 print(f" - parsing by time")
-#time_release_set = time_miner.mine_commits()
+time_release_set = time_miner.mine_commits()
 print(f" - parsing by range")
-#range_release_set = range_miner.mine_commits()
+range_release_set = range_miner.mine_commits()
 
 
 # def print_commits(project):

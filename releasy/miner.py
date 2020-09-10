@@ -12,15 +12,15 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet
+from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet, ReleaseName
 
 
 class ReleaseMatcher:
     """ Check if a name represent a release """
 
-    def is_release(self, name: str) -> bool:
+    def parse(self, name: str) -> ReleaseName:
         """
-        :return: True if the object is a release
+        :return: The release name or None if it is not a release
         """
         raise NotImplementedError()
 
@@ -79,8 +79,8 @@ class AbstractCommitMiner:
 class TrueReleaseMatcher(ReleaseMatcher):
     """ Matcher that consider all tags as releases """
 
-    def is_release(self, name: str) -> bool:
-        return True
+    def parse(self, name: str) -> bool:
+        return ReleaseName(name, None, None, None)
 
 
 class VersionReleaseMatcher(ReleaseMatcher):
@@ -91,26 +91,28 @@ class VersionReleaseMatcher(ReleaseMatcher):
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
 
-    def is_release(self, name: str) -> bool:
-        if self.version_regexp.match(name):
-            return True
+    def parse(self, name: str) -> bool:
+        match = self.version_regexp.match(name)
+        if match:
+            prefix = match.group("prefix")
+            version = match.group("version")
+            suffix = match.group("suffix")
+            return ReleaseName(name, prefix, version, suffix)
         else:
-            return False
+            return None
 
-class VersionWoPreReleaseMatcher(ReleaseMatcher):
+
+class VersionWoPreReleaseMatcher(VersionReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
     def __init__(self):
-        # TODO define in a single object - repeated in VersionReleaseSorter
-        self.version_regexp = re.compile(
-            r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
-        )
+        super().__init__()
 
-    def is_release(self, name: str) -> bool:
-        match = self.version_regexp.match(name)
-        if match and not match.group("suffix"):
-            return True
+    def parse(self, name: str) -> bool:
+        release_name = super().parse(name)
+        if release_name and release_name.suffix == None:
+            return release_name
         else:
-            return False
+            return None
 
 
 class TimeReleaseSorter(ReleaseSorter):
@@ -200,7 +202,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
         releases = ReleaseSet()
         for tag in tags:
-            if self.matcher.is_release(tag.name):
+            if self. matcher.parse(tag.name):
                 release = TagRelease(tag)
                 releases.add(release, None)
 

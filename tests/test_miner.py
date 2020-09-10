@@ -10,7 +10,7 @@ from .mock import VcsMock
 def test_release_matcher():
     release_matcher = ReleaseMatcher()
     with pytest.raises(NotImplementedError):
-        release_matcher.is_release(None)
+        release_matcher.parse(None)
 
 
 def test_release_sorter():
