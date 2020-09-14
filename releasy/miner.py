@@ -261,21 +261,21 @@ class TimeCommitMiner(AbstractCommitMiner):
     def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
         releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
+        
+        commit_index = {}
+        for i,commit in enumerate(commits):
+            commit_index[commit] = i
 
-        start = commits[0].committer_time - timedelta(days=1)
+        start_commit_index = 0
         for cur_release in self.releases:
-            end = cur_release.time
-
-            cur_release_commits = []
-            for commit in commits:
-                if commit.committer_time > start and commit.committer_time <= end:
-                    cur_release_commits.append(commit)
-            releases.add(cur_release, cur_release_commits)     
-
+            end_commit_index = commit_index[cur_release.head]
+            cur_release_commits = commits[start_commit_index:end_commit_index+1]
+            releases.add(cur_release, cur_release_commits)
             prev_release = cur_release
-            start = prev_release.time
-        return releases
+            start_commit_index = commit_index[prev_release.head]+1
 
+        return releases
+       
 
 class RangeCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
