@@ -123,7 +123,8 @@ class Vcs:
 
 
 class ReleaseSet:
-    """ An easy form to retrieve releases """
+    """ An easy form to retrieve releases. It contains a set of releases 
+    and its commits """
     def __init__(self):
         self.index = {}
         self.releases : List[ReleaseData] = []
@@ -173,6 +174,9 @@ class ReleaseData:
             return getattr(self.release, name)
         else:
             raise AttributeError
+
+    def __repr__(self):
+        return repr(self.name)
 
 
 class ReleaseName(str):

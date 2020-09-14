@@ -283,15 +283,22 @@ class RangeCommitMiner(AbstractCommitMiner):
 
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
+        self._release_history = {}
+        self._release_index = {}
         
     def mine_commits(self) -> ReleaseSet:
         releases = ReleaseSet()
-        prev_commit_set = set()
-        for release in self.releases:
-            cur_commit_set = self._track_commits(release)
-            range_commit_set = cur_commit_set - prev_commit_set
-            releases.add(release, list(range_commit_set))
-            prev_commit_set = cur_commit_set
+
+        for cur_release in reversed(self.releases):
+            self._release_index[cur_release.head.id] = cur_release
+
+        prev_release_commits = set()
+        for cur_release in self.releases:
+            cur_release_history = self._track_commits(cur_release)
+            self._release_history[cur_release.name] = cur_release_history
+            cur_release_commits = cur_release_history - prev_release_commits
+            releases.add(cur_release, cur_release_commits)
+            prev_release_commits = cur_release_history
         return releases
 
     #TODO improve performance recording previous paths
@@ -301,11 +308,21 @@ class RangeCommitMiner(AbstractCommitMiner):
         commits = set()
         while len(commit_stack):
             commit = commit_stack.pop()
-            commits.add(commit)
-            commit_index[commit] = True
 
-            if commit.parents:
-                for parent in commit.parents:
-                    if parent not in commit_index:
-                        commit_stack.append(parent)
+            cached = False
+            if commit != release.head and commit.id in self._release_index:
+                reachable_release = self._release_index[commit.id]
+                if reachable_release.name in self._release_history:
+                    reachable_commits = self._release_history[reachable_release.name]
+                    commits |= reachable_commits
+                    cached = True
+            
+            if not cached:
+                commits.add(commit)
+                commit_index[commit] = True
+
+                if commit.parents:
+                    for parent in commit.parents:
+                        if parent not in commit_index:
+                            commit_stack.append(parent)
         return commits
