@@ -9,6 +9,8 @@ from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, Ti
 vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
 #vcs = GitVcs("../../repos2/facebook\jest")
+vcs = GitVcs("../../repos2/symfony/symfony")
+
 
 release_matcher = VersionReleaseMatcher()
 time_release_sorter = TimeReleaseSorter()
@@ -27,7 +29,7 @@ time_miner = TimeCommitMiner(vcs, version_release_set)
 print(f" - parsing by path")
 # path_release_set = path_miner.mine_commits()
 print(f" - parsing by time")
-time_release_set = time_miner.mine_commits()
+# time_release_set = time_miner.mine_commits()
 print(f" - parsing by range")
 range_release_set = range_miner.mine_commits()
 

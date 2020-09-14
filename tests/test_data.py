@@ -1,5 +1,5 @@
 import pytest
-from releasy.data import Release, ReleaseSet, Commit, ReleaseName
+from releasy.data import Release, ReleaseSet, Commit, ReleaseName, FrequencySet
 
 def test_release_set():
     releases = ReleaseSet()
@@ -39,3 +39,12 @@ def test_prefixes():
     releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None), None)
     assert len(releases.prefixes) == 2
 
+def test_frequency_set():
+    fset = FrequencySet()
+    fset.add("a")
+    fset.add("a")
+    fset.add("a")
+    fset.add("b")
+    assert len(fset) == 2
+    assert fset.count("a") == 3
+    assert fset.count("b") == 1

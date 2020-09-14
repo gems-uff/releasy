@@ -153,11 +153,10 @@ class ReleaseSet:
     def prefixes(self):
         """ return a set with all the release prefixes, including None if there
         is at least one release withou prefix """
-        prefixes = set()
+        prefixes = FrequencySet()
         for release in self.releases:
             prefixes.add(release.name.prefix)
         return prefixes
-
 
     def __len__(self):
       return len(self.releases)
@@ -198,6 +197,21 @@ class Project:
         self.releases = releases
 
 
-        
+### Utilities
+
+
+class FrequencySet(set):
+    def __init__(self):
+        self._count = {}
+
+    def add(self, value):
+        super().add(value)
+        if value not in self._count:
+            self._count[value] = 1
+        else:
+            self._count[value] += 1
+
+    def count(self, value):
+        return self._count[value]
 
     
