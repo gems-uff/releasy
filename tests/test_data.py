@@ -43,7 +43,7 @@ def test_suffixes():
     releases = ReleaseSet()
     releases.add(Release(ReleaseName("v1.0.0a", "v", "1.0.0", "a"), None, None, None), None)
     releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None), None)
-    assert len(releases.suffixes) == 1
+    assert len(releases.suffixes) == 2
 
 
 def test_frequency_set():
