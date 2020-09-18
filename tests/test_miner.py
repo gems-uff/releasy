@@ -58,6 +58,15 @@ def test_version_wo_pre_release_matcher():
     releases = release_miner.mine_releases()
     assert len(releases) == 7
 
+def test_version_wo_pre_release_matcher2():
+    vcs = VcsMock()
+    release_matcher = VersionWoPreReleaseMatcher(suffix_exception="-alpha1")
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    assert len(releases) == 8
+    assert releases[4].name == "v2.0.0-alpha1"
+
 
 def test_time_release_sorter():
     vcs = VcsMock()

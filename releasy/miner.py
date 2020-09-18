@@ -104,13 +104,20 @@ class VersionReleaseMatcher(ReleaseMatcher):
 
 class VersionWoPreReleaseMatcher(VersionReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
-    def __init__(self):
+    def __init__(self, suffix_exception: str = None):
         super().__init__()
+        if suffix_exception:
+            self.suffix_exception = re.compile(suffix_exception)
+        else:
+            self.suffix_exception = None
 
     def parse(self, name: str) -> bool:
         release_name = super().parse(name)
-        if release_name and release_name.suffix == None:
-            return release_name
+        if release_name:
+            if release_name.suffix == None:
+                return release_name
+            elif self.suffix_exception and self.suffix_exception.match(release_name.suffix):
+                return release_name
         else:
             return None
 

@@ -9,8 +9,8 @@ vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
 #vcs = GitVcs("../../repos2/facebook\jest")
-# vcs = GitVcs("../../repos2/symfony/symfony")
-#vcs = GitVcs("../../repos2/git/git")
+vcs = GitVcs("../../repos2/symfony/symfony")
+vcs = GitVcs("../../repos2/git/git")
 
 
 release_matcher = VersionReleaseMatcher()
