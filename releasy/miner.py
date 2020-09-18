@@ -190,8 +190,13 @@ class VersionReleaseSorter(ReleaseSorter):
                 elif c1 < c2:
                     return -1
             i += 1
-        return 0
 
+        if r1.time > r2.time:
+            return 1
+        elif r1.time < r2.time:
+            return -1
+        else:
+            return 0
 
 
 class TagReleaseMiner(AbstractReleaseMiner):

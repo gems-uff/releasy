@@ -4,13 +4,15 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
-vcs = GitVcs("../../repos2/vuejs/vue")
+# vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
 #vcs = GitVcs("../../repos2/facebook\jest")
-vcs = GitVcs("../../repos2/symfony/symfony")
+# vcs = GitVcs("../../repos2/symfony/symfony")
+# vcs = GitVcs("../../repos2/git/git")
 vcs = GitVcs("../../repos2/git/git")
+vcs = GitVcs("../../repos2/sinatra/sinatra")
 
 
 release_matcher = VersionReleaseMatcher()
@@ -34,7 +36,7 @@ print(f" - parsing by time")
 cProfile.run("time_miner.mine_commits()")
 # time_release_set = time_miner.mine_commits()
 print(f" - parsing by range")
-#range_release_set = range_miner.mine_commits()
+range_release_set = range_miner.mine_commits()
 cProfile.run("range_miner.mine_commits()")
 
 

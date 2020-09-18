@@ -113,6 +113,16 @@ def test_version_release_sorter():
     assert releases[8].name == 'v2.1.0'
 
 
+def test_version_release_sorter2():
+    releases = ReleaseSet()
+    releases.add(Release(ReleaseName("v1.0.1","v","1.0.1",None), None, datetime(2020, 1, 2, 12, 00), None), None)
+    releases.add(Release(ReleaseName("1.0.1","","1.0.1",None), None, datetime(2020, 1, 1, 12, 00), None), None)
+    release_sorter = VersionReleaseSorter()
+    sorted_releases = release_sorter.sort(releases)
+    assert releases[0].name == "v1.0.1"
+    assert sorted_releases[0].name == "1.0.1"
+
+
 def test_path_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()
