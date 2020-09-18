@@ -159,6 +159,15 @@ class ReleaseSet:
             prefixes.add(release.name.prefix)
         return prefixes
 
+    @property
+    def suffixes(self):
+        """ return a set with all the release suffixes """
+        suffixes = FrequencySet()
+        for release in self.releases:
+            if release.name.suffix:
+                suffixes.add(release.name.suffix)
+        return suffixes
+
     def __len__(self):
       return len(self.releases)
 
