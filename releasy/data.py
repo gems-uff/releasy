@@ -123,8 +123,8 @@ class Vcs:
 
 
 class ReleaseSet:
-    """ An easy form to retrieve releases. It contains a set of releases 
-    and its commits """
+    """ An easy form to retrieve releases. It contains a set of releases, 
+    its commits, and base releases"""
     def __init__(self):
         self.index = {}
         self.releases : List[ReleaseData] = []
@@ -137,10 +137,14 @@ class ReleaseSet:
         else: 
             raise TypeError()
 
-    def add(self, release: Release, commits: List[Commit]):
-        data = ReleaseData(release, commits)
+    def add(self, release: Release, commits: List[Commit], 
+            base_releases: List[ReleaseData] = None):
+
+        data = ReleaseData(release, commits, base_releases)
         self.releases.append(data)
         self.index[release.name] = len(self.releases)-1
+
+        return data
 
     def add_all(self, releases: List[ReleaseData]):
         for release in releases:
@@ -173,9 +177,11 @@ class ReleaseSet:
 
 class ReleaseData:
     """ Connect release and commits """
-    def __init__(self, release: Release = None, commits: List[Commit] = None):
+    def __init__(self, release: Release = None, commits: List[Commit] = None, 
+                 base_releases: List[ReleaseData] = None):
         self.release = release
         self.commits = commits
+        self.base_releases = base_releases
 
     def __getattr__(self, name):
         if name in dir(self.release):
@@ -200,8 +206,6 @@ class ReleaseName(str):
     def __new__(self, name, *args, **kwargs):
         return super().__new__(self, name)
     
-    
-
 
 class Project:
     def __init__(self, vcs: Vcs, releases: ReleaseSet):

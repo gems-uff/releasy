@@ -179,6 +179,76 @@ def test_range_mine_strategy():
     assert len(releases[7].commits) == 0
     assert len(releases[8].commits) == 6
 
+
+def test_path_mine_base_release():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    commit_miner = PathCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert not releases[0].base_releases
+    assert len(releases[1].base_releases) == 1
+    assert len(releases[2].base_releases) == 1
+    assert len(releases[3].base_releases) == 1
+    assert len(releases[4].base_releases) == 2
+    assert len(releases[5].base_releases) == 1
+    assert len(releases[6].base_releases) == 3
+    assert len(releases[7].base_releases) == 1
+    assert len(releases[8].base_releases) == 2
+
+    # assert list(releases[1].base_releases)[0].release == releases[0].release
+    # assert list(releases[2].base_releases)[0].release == releases[1].release
+    # assert list(releases[3].base_releases)[0].release == releases[1].release
+    # assert list(releases[4].base_releases)[0].release == releases[1].release
+    # assert list(releases[4].base_releases)[1].release == releases[3].release
+    # assert list(releases[5].base_releases)[0].release == releases[4].release
+    # assert list(releases[6].base_releases)[0].release == releases[5].release
+    # assert list(releases[6].base_releases)[1].release == releases[1].release
+    # assert list(releases[7].base_releases)[0].release == releases[6].release
+    # assert list(releases[8].base_releases)[0].release == releases[7].release
+
+
+def test_time_mine_base_release():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    commit_miner = TimeCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert releases[0].base_releases == None
+    assert releases[1].base_releases == [releases[0]]
+    assert releases[2].base_releases == [releases[1]]
+    assert releases[3].base_releases == [releases[2]]
+    assert releases[4].base_releases == [releases[3]]
+    assert releases[5].base_releases == [releases[4]]
+    assert releases[6].base_releases == [releases[5]]
+    assert releases[7].base_releases == [releases[6]]
+    assert releases[8].base_releases == [releases[7]]
+
+
+def test_range_mine_base_release():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    commit_miner = RangeCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert releases[0].base_releases == None
+    assert releases[1].base_releases == [releases[0]]
+    assert releases[2].base_releases == [releases[1]]
+    assert releases[3].base_releases == [releases[2]]
+    assert releases[4].base_releases == [releases[3]]
+    assert releases[5].base_releases == [releases[4]]
+    assert releases[6].base_releases == [releases[5]]
+    assert releases[7].base_releases == [releases[6]]
+    assert releases[8].base_releases == [releases[7]]
+
+
 def test_count_repository_commits():
     vcs = VcsMock()
     assert len(vcs.commits()) == 22
+

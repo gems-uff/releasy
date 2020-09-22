@@ -237,29 +237,35 @@ class PathCommitMiner(AbstractCommitMiner):
     def mine_commits(self):
         releases = ReleaseSet()
         for release in self.releases:
-            self.release_index[release.head.id] = True
+            self.release_index[release.head.id] = release
 
         for release in self.releases:
-            commits = self._track_commits(release)
-            releases.add(release.release, commits)
+            commits, base_releases = self._track_commits(release)
+            releases.add(release.release, commits, base_releases)
         return releases
     
     def _track_commits(self, release: Release) -> List[Commit]:
         commits = []
+        base_releases = set()
         commit_stack = [ release.head ]
         while len(commit_stack):
             commit = commit_stack.pop()
-            if commit.id not in self.commit_index:
+            if commit.id in self.commit_index and self.commit_index[commit.id] != release:
+                base_releases.add(self.commit_index[commit.id])
+            elif commit.id in self.release_index and commit.id != release.head.id:
+                base_releases.add(self.release_index[commit.id])
+            else:
                 commits.append(commit)
-                self.commit_index[commit.id] = True
+                self.commit_index[commit.id] = release
 
                 if commit.parents:
                     for parent in commit.parents:
-                        if not parent.id in self.release_index:
-                            commit_stack.append(parent)
+                        commit_stack.append(parent)
 
         commits = sorted(commits, key=lambda commit: commit.committer_time, reverse=True)
-        return commits
+        if not base_releases:
+            base_releases = None
+        return commits, base_releases
 
 
 class TimeCommitMiner(AbstractCommitMiner):
@@ -279,12 +285,14 @@ class TimeCommitMiner(AbstractCommitMiner):
             commit_index[commit] = i
 
         start_commit_index = 0
+        prev_release_data = None
         for cur_release in self.releases:
             end_commit_index = commit_index[cur_release.head]
             cur_release_commits = commits[start_commit_index:end_commit_index+1]
-            releases.add(cur_release, cur_release_commits)
+            release_data = releases.add(cur_release, cur_release_commits, prev_release_data)
             prev_release = cur_release
             start_commit_index = commit_index[prev_release.head]+1
+            prev_release_data = [release_data]
 
         return releases
        
@@ -305,12 +313,14 @@ class RangeCommitMiner(AbstractCommitMiner):
             self._release_index[cur_release.head.id] = cur_release
 
         prev_release_commits = set()
+        prev_release = None
         for cur_release in self.releases:
             cur_release_history = self._track_commits(cur_release)
             self._release_history[cur_release.name] = cur_release_history
             cur_release_commits = cur_release_history - prev_release_commits
-            releases.add(cur_release, cur_release_commits)
+            cur_release_data = releases.add(cur_release, cur_release_commits, prev_release)
             prev_release_commits = cur_release_history
+            prev_release = [cur_release_data]
         return releases
 
     #TODO improve performance recording previous paths
