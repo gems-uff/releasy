@@ -144,7 +144,6 @@ class ReleaseSet:
         self.releases.append(data)
         self.index[release.name] = len(self.releases)-1
 
-        return data
 
     def add_all(self, releases: List[ReleaseData]):
         for release in releases:

@@ -199,6 +199,7 @@ class VersionReleaseSorter(ReleaseSorter):
             return 0
 
 
+# TODO Return set of releases instead of ReleaseData
 class TagReleaseMiner(AbstractReleaseMiner):
     """ Mine tags for releases """
 
@@ -285,14 +286,14 @@ class TimeCommitMiner(AbstractCommitMiner):
             commit_index[commit] = i
 
         start_commit_index = 0
-        prev_release_data = None
+        base_releases = []
         for cur_release in self.releases:
             end_commit_index = commit_index[cur_release.head]
             cur_release_commits = commits[start_commit_index:end_commit_index+1]
-            release_data = releases.add(cur_release, cur_release_commits, prev_release_data)
+            releases.add(cur_release, cur_release_commits, base_releases)
             prev_release = cur_release
             start_commit_index = commit_index[prev_release.head]+1
-            prev_release_data = [release_data]
+            base_releases = [prev_release]
 
         return releases
        
@@ -313,14 +314,14 @@ class RangeCommitMiner(AbstractCommitMiner):
             self._release_index[cur_release.head.id] = cur_release
 
         prev_release_commits = set()
-        prev_release = None
+        base_releases = []
         for cur_release in self.releases:
             cur_release_history = self._track_commits(cur_release)
             self._release_history[cur_release.name] = cur_release_history
             cur_release_commits = cur_release_history - prev_release_commits
-            cur_release_data = releases.add(cur_release, cur_release_commits, prev_release)
+            releases.add(cur_release, cur_release_commits, base_releases)
             prev_release_commits = cur_release_history
-            prev_release = [cur_release_data]
+            base_releases = [cur_release]
         return releases
 
     #TODO improve performance recording previous paths
