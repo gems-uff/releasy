@@ -251,8 +251,9 @@ class PathCommitMiner(AbstractCommitMiner):
         commit_stack = [ release.head ]
         while len(commit_stack):
             commit = commit_stack.pop()
-            if commit.id in self.commit_index and self.commit_index[commit.id] != release:
-                base_releases.add(self.commit_index[commit.id])
+            if commit.id in self.commit_index:
+                if self.commit_index[commit.id] != release:
+                    base_releases.add(self.commit_index[commit.id])
             elif commit.id in self.release_index and commit.id != release.head.id:
                 base_releases.add(self.release_index[commit.id])
             else:
