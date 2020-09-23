@@ -266,7 +266,7 @@ class PathCommitMiner(AbstractCommitMiner):
 
         commits = sorted(commits, key=lambda commit: commit.committer_time, reverse=True)
         if not base_releases:
-            base_releases = None
+            base_releases = []
         return commits, base_releases
 
 
