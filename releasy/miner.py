@@ -280,22 +280,20 @@ class TimeCommitMiner(AbstractCommitMiner):
         
     def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
         releases = ReleaseSet()
-        commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
+        commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time) # error on vuejs v2.1.1
         
-        commit_index = {}
-        for i,commit in enumerate(commits):
-            commit_index[commit] = i
-
-        start_commit_index = 0
         base_releases = []
+        prev_release_time = commits[0].committer_time - timedelta(days=1)
         for cur_release in self.releases:
-            end_commit_index = commit_index[cur_release.head]
-            cur_release_commits = commits[start_commit_index:end_commit_index+1]
-            releases.add(cur_release, cur_release_commits, base_releases)
-            prev_release = cur_release
-            start_commit_index = commit_index[prev_release.head]+1
-            base_releases = [prev_release]
+            cur_release_time = cur_release.time
+            cur_release_commits = []
+            for cur_commit in commits:
+                if cur_commit.committer_time > prev_release_time and cur_commit.committer_time <= cur_release_time:
+                    cur_release_commits.append(cur_commit)
 
+            releases.add(cur_release, cur_release_commits, base_releases)
+            prev_release_time = cur_release_time
+            base_releases = [cur_release]
         return releases
        
 

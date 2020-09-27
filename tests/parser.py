@@ -4,15 +4,15 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import TagReleaseMiner, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
-# vcs = GitVcs("../../repos2/vuejs/vue")
+vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
 #vcs = GitVcs("../../repos2/facebook\jest")
 # vcs = GitVcs("../../repos2/symfony/symfony")
 # vcs = GitVcs("../../repos2/git/git")
-vcs = GitVcs("../../repos2/git/git")
-vcs = GitVcs("../../repos2/sinatra/sinatra")
+# vcs = GitVcs("../../repos2/git/git")
+# vcs = GitVcs("../../repos2/sinatra/sinatra")
 
 
 release_matcher = VersionReleaseMatcher()
@@ -30,14 +30,14 @@ range_miner = RangeCommitMiner(vcs, version_release_set)
 time_miner = TimeCommitMiner(vcs, version_release_set)
 
 print(f" - parsing by path")
-cProfile.run("path_miner.mine_commits()")
-# path_release_set = path_miner.mine_commits()
+#cProfile.run("path_miner.mine_commits()")
+#path_release_set = path_miner.mine_commits()
 print(f" - parsing by time")
 cProfile.run("time_miner.mine_commits()")
-# time_release_set = time_miner.mine_commits()
+#time_release_set = time_miner.mine_commits()
 print(f" - parsing by range")
-range_release_set = range_miner.mine_commits()
-cProfile.run("range_miner.mine_commits()")
+#range_release_set = range_miner.mine_commits()
+#cProfile.run("range_miner.mine_commits()")
 
 
 # def print_commits(project):
