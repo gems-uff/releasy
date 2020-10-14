@@ -252,3 +252,21 @@ def test_count_repository_commits():
     vcs = VcsMock()
     assert len(vcs.commits()) == 22
 
+
+def test_count_merges():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    commit_miner = PathCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert len(releases[0].merges) == 0
+    assert len(releases[1].merges) == 0
+    assert len(releases[2].merges) == 0
+    assert len(releases[3].merges) == 0
+    assert len(releases[4].merges) == 1
+    assert len(releases[5].merges) == 0
+    assert len(releases[6].merges) == 2
+    assert len(releases[7].merges) == 0
+    assert len(releases[8].merges) == 3
