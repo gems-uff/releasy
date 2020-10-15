@@ -233,4 +233,13 @@ class FrequencySet(set):
     def count(self, value):
         return self._count[value]
 
+    def mode(self):
+        max_count = 0
+        max_value = None
+        for value in self._count:
+            if self._count[value] > max_count:
+                max_count = self._count[value]
+                max_value = value
+        return max_value
+
     
