@@ -85,13 +85,17 @@ class TrueReleaseMatcher(ReleaseMatcher):
 
 class VersionReleaseMatcher(ReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
-    def __init__(self):
+    def __init__(self, release_exceptions: List[str] = None):
         # TODO define in a single object - repeated in VersionReleaseSorter
         self.version_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
+        self.release_exceptions = release_exceptions
 
     def parse(self, name: str) -> bool:
+        if self.release_exceptions and name in self.release_exceptions:
+            return None
+
         match = self.version_regexp.match(name)
         if match:
             prefix = match.group("prefix")
@@ -104,8 +108,8 @@ class VersionReleaseMatcher(ReleaseMatcher):
 
 class VersionWoPreReleaseMatcher(VersionReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
-    def __init__(self, suffix_exception: str = None):
-        super().__init__()
+    def __init__(self, release_exceptions: List[str] = None, suffix_exception: str = None):
+        super().__init__(release_exceptions=release_exceptions)
         if suffix_exception:
             self.suffix_exception = re.compile(suffix_exception)
         else:
