@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from .miner import AbstractReleaseMiner
     from typing import List
 
+import re
    
 class Tag:
     """Tag
@@ -205,6 +206,23 @@ class ReleaseName(str):
         self.prefix = prefix or None
         self.version = version or None
         self.suffix = suffix or None
+
+    @property
+    def semantic_version(self):
+        """ Return 3 first version numbers separated by dot. Add 0 to missing 
+        version and remove version number beyond 3 """
+        
+        version_sep = re.compile(r"[\._]")
+
+        if not self.version:
+            return None
+        
+        version_part = version_sep.split(self.version)
+        version_part_cnt = len (version_part)
+
+        for i in range(3 - version_part_cnt):
+            version_part.append("0")
+        return f"{version_part[0]}.{version_part[1]}.{version_part[2]}"
 
     def __new__(self, name, *args, **kwargs):
         return super().__new__(self, name)

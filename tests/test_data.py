@@ -29,6 +29,21 @@ def test_release_name():
     assert release_name.suffix == "suffix"
 
 
+def test_release_semantic_version():
+    release_name = ReleaseName("v1.1.0", "v", "1.1.0", "")
+    assert release_name.semantic_version == "1.1.0"
+    release_name = ReleaseName("v1.1.1", "v", "1.1.1", "")
+    assert release_name.semantic_version == "1.1.1"
+    release_name = ReleaseName("v1.0.0", "v", "1.0.0", "")
+    assert release_name.semantic_version == "1.0.0"
+    release_name = ReleaseName("v1", "v", "1", "")
+    assert release_name.semantic_version == "1.0.0"
+    release_name = ReleaseName("v2.0", "v", "2.0", "")
+    assert release_name.semantic_version == "2.0.0"
+    release_name = ReleaseName("v2.1.3.2", "v", "2.1.3.2", "")
+    assert release_name.semantic_version == "2.1.3"
+
+
 def test_release_wo_name():
     with pytest.raises(ValueError):
         release_name = ReleaseName("", "prefix", "version", "suffix")
