@@ -150,13 +150,32 @@ def test_path_mine_strategy():
     assert len(releases[8].commits) == 6
 
 
-def test_time_mine_strategy():
+def time_mine_strategy():
     vcs = VcsMock()
     release_matcher = VersionReleaseMatcher()
     release_sorter = VersionReleaseSorter()
     release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
     releases = release_miner.mine_releases()
     commit_miner = TimeCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert len(releases[0].commits) == 2
+    assert len(releases[1].commits) == 2
+    assert len(releases[2].commits) == 1
+    assert len(releases[3].commits) == 0
+    assert len(releases[4].commits) == 2
+    assert len(releases[5].commits) == 2
+    assert len(releases[6].commits) == 4
+    assert len(releases[7].commits) == 0
+    assert len(releases[8].commits) == 6
+
+
+def test_time_naive_mine_strategy():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_sorter = VersionReleaseSorter()
+    release_miner = TagReleaseMiner(vcs, release_matcher, release_sorter)
+    releases = release_miner.mine_releases()
+    commit_miner = TimeNaiveCommitMiner(vcs, releases)
     releases = commit_miner.mine_commits()
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
