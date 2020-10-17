@@ -12,8 +12,10 @@ vcs = GitVcs("../../repos2/vuejs/vue")
 # vcs = GitVcs("../../repos2/symfony/symfony")
 # vcs = GitVcs("../../repos2/git/git")
 # vcs = GitVcs("../../repos2/git/git")
-vcs = GitVcs("../../repos2/electron/electron")
-vcs = GitVcs("../../repos2/nodejs/node")
+#vcs = GitVcs("../../repos2/electron/electron")
+#vcs = GitVcs("../../repos2/nodejs/node")
+vcs = GitVcs("../../repos2/briannesbitt/Carbon")
+
 
 release_matcher = VersionReleaseMatcher()
 release_miner = TagReleaseMiner(vcs, release_matcher)
@@ -26,17 +28,14 @@ path_miner = PathCommitMiner(vcs, releases)
 range_miner = RangeCommitMiner(vcs, releases_wbases)
 time_miner = TimeCommitMiner(vcs, releases_wbases)
 
+path_release_set = path_miner.mine_commits()
+range_release_set = range_miner.mine_commits()
+time_release_set = time_miner.mine_commits()
+#time_naive_release_set = time_naive_miner.mine_commits()
 print(f" - parsing by path")
 #cProfile.run("path_miner.mine_commits()")
-#path_release_set = path_miner.mine_commits()
-print(f" - parsing by time")
-cProfile.run("time_miner.mine_commits()")
-#time_release_set = time_miner.mine_commits()
-print(f" - parsing by range")
-#range_release_set = range_miner.mine_commits()
-#cProfile.run("range_miner.mine_commits()")
 
-
+print(f"end")
 # def print_commits(project):
 #     for release in project.releases:
 #         print(release.name)
