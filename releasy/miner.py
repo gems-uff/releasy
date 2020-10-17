@@ -36,6 +36,12 @@ class ReleaseSorter:
             sorted_internal_releases = sorted(internal_releases, key=cmp_to_key(self._cmp))
         sorted_releases = ReleaseSet()
         sorted_releases.add_all(sorted_internal_releases)
+
+        prev_base_releases = []
+        for release in sorted_releases:
+            release.base_releases = prev_base_releases
+            prev_base_releases = [release]
+
         return sorted_releases
         
     def _key_compare(self):
@@ -51,15 +57,14 @@ class ReleaseSorter:
 class AbstractReleaseMiner:
     """Mine releases bases on a strategy. It discover the releases. """
 
-    def __init__(self, vcs: Vcs, matcher: ReleaseMatcher, sorter: ReleaseSorter):
+    def __init__(self, vcs: Vcs, matcher: ReleaseMatcher):
         self.vcs = vcs
         self.matcher = matcher
-        self.sorter = sorter
 
     def mine_releases(self) -> ReleaseSet:
         """ Mine the releases 
 
-        :return: the list of releases in reverse cronological order
+        :return: the list of releases
         """
         raise NotImplementedError()
 
@@ -203,13 +208,24 @@ class VersionReleaseSorter(ReleaseSorter):
             return 0
 
 
+class TimeVersionReleaseSorter(VersionReleaseSorter):
+    def sort(self, releases: ReleaseSet):
+        sorted_releases = super().sort(releases)
+        for release in sorted_releases:
+            if release.base_releases:
+                base_release = release.base_releases[0] #TODO consider multiple releases
+                while release.time < base_release.time:
+                    release.base_releases = base_release.base_releases
+                    base_release = release.base_releases[0]
+        return sorted_releases
+
+
 # TODO Return set of releases instead of ReleaseData
 class TagReleaseMiner(AbstractReleaseMiner):
     """ Mine tags for releases """
 
-    def __init__(self, vcs: Vcs, release_matcher: ReleaseMatcher, 
-            release_sorter: ReleaseSorter):
-        super().__init__(vcs, release_matcher, release_sorter)
+    def __init__(self, vcs: Vcs, release_matcher: ReleaseMatcher):
+        super().__init__(vcs, release_matcher)
 
     def mine_releases(self) -> ReleaseSet:
         """ Discover releases """
@@ -223,10 +239,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
             if release_name:
                 release = TagRelease(tag, release_name)
                 releases.add(release, None)
-
-        #TODO use ReleaseSet
-        sorted_releases = self.sorter.sort(releases)
-        return sorted_releases
+        return releases
 
 
 class PathCommitMiner(AbstractCommitMiner):
@@ -235,6 +248,10 @@ class PathCommitMiner(AbstractCommitMiner):
     releases found in its history. """ 
 
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
+        internal_releases = releases.get_all()
+        sorted_internal_releases = sorted(internal_releases, key=lambda release: release.time)
+        releases = ReleaseSet()
+        releases.add_all(sorted_internal_releases)
         super().__init__(vcs, releases)
         self.release_index = {}
         self.commit_index = {}
