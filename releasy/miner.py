@@ -307,13 +307,13 @@ class ReachableCommitMiner(AbstractCommitMiner):
     def _track_commits(self, head: Commit, start_time = None):
         """ return a list of all reachable commits from head made after start_time """
         ctrl = set()
-        commits = []
+        commits = set()
         commit_stack = [ head ]
         while commit_stack:
             commit = commit_stack.pop()
             if commit not in ctrl:
-                if commit.committer_time > start_time:
-                    commits.append(commit)
+                if not start_time or commit.committer_time > start_time:
+                    commits.add(commit)
 
                 for parent in commit.parents:
                     commit_stack.append(parent)
@@ -324,74 +324,40 @@ class TimeCommitMiner(ReachableCommitMiner):
     """ Mine reachable commits until made after the previous release """
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
-        self._release_history = {}
-        self._release_index = {}
 
     def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
         releases = ReleaseSet()
-        commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time)
-        
         base_releases = []
-        prev_release_time = commits[0].committer_time - timedelta(days=1)
+        prev_release = None
+        prev_release_time = None
         for cur_release in self.releases:
+            if prev_release:
+                prev_release_time = prev_release.head.committer_time
+
             cur_release_commits = self._track_commits(cur_release.head, prev_release_time)
             releases.add(cur_release, cur_release_commits, base_releases)
-            prev_release_time = cur_release.head.committer_time
-            base_releases = [cur_release]
+            base_releases = [cur_release] # TODO calculate externally
+            prev_release = cur_release
         return releases
 
 
-class RangeCommitMiner(AbstractCommitMiner):
+class RangeCommitMiner(ReachableCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
-        self._release_history = {}
-        self._release_index = {}
         
     def mine_commits(self) -> ReleaseSet:
         releases = ReleaseSet()
-
-        for cur_release in reversed(self.releases):
-            self._release_index[cur_release.head.id] = cur_release
-
-        prev_release_commits = set()
         base_releases = []
+        prev_release_history = set()
         for cur_release in self.releases:
-            cur_release_history = self._track_commits(cur_release)
-            self._release_history[cur_release.name] = cur_release_history
-            cur_release_commits = cur_release_history - prev_release_commits
+            cur_release_history = self._track_commits(cur_release.head)
+            cur_release_commits = cur_release_history - prev_release_history
             releases.add(cur_release, cur_release_commits, base_releases)
-            prev_release_commits = cur_release_history
-            base_releases = [cur_release]
+            base_releases = [cur_release] # TODO calculate externally
+            prev_release_history = cur_release_history
         return releases
-
-    #TODO improve performance recording previous paths
-    def _track_commits(self, release: Release):
-        commit_index = {}
-        commit_stack = [ release.head ]
-        commits = set()
-        while len(commit_stack):
-            commit = commit_stack.pop()
-
-            cached = False
-            if commit != release.head and commit.id in self._release_index:
-                reachable_release = self._release_index[commit.id]
-                if reachable_release.name in self._release_history:
-                    reachable_commits = self._release_history[reachable_release.name]
-                    commits |= reachable_commits
-                    cached = True
-            
-            if not cached:
-                commits.add(commit)
-                commit_index[commit] = True
-
-                if commit.parents:
-                    for parent in commit.parents:
-                        if parent not in commit_index:
-                            commit_stack.append(parent)
-        return commits
-
 
 
