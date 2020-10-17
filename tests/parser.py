@@ -12,7 +12,7 @@ vcs = GitVcs("../../repos2/vuejs/vue")
 # vcs = GitVcs("../../repos2/symfony/symfony")
 # vcs = GitVcs("../../repos2/git/git")
 # vcs = GitVcs("../../repos2/git/git")
-# vcs = GitVcs("../../repos2/sinatra/sinatra")
+vcs = GitVcs("../../repos2/electron/electron")
 
 
 release_matcher = VersionReleaseMatcher()
