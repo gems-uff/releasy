@@ -51,6 +51,14 @@ class Release:
         self.time = time
         self.description = description
 
+    def __hash__(self):
+        return hash((self.name, self.head))
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return hash(self) == hash(other)
+        return False
+
     def __repr__(self):
         return repr(self.name)
 
@@ -96,6 +104,7 @@ class Commit:
     def __eq__(self, other):
         if isinstance(other, type(self)):
             return hash(self) == hash(other)
+        return False
 
     def has_release(self) -> bool:
         return self.release != None
@@ -196,6 +205,14 @@ class ReleaseData:
         else:
             raise AttributeError
 
+    def __hash__(self):
+        return hash(self.release)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return hash(self) == hash(other)
+        return False
+
     def __repr__(self):
         return repr(self.name)
 
@@ -229,6 +246,9 @@ class ReleaseName(str):
 
     def __new__(self, name, *args, **kwargs):
         return super().__new__(self, name)
+
+    def __hash__(self):
+        return hash(self.value)
     
 
 class Project:

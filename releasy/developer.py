@@ -23,6 +23,12 @@ class Developer:
     def __hash__(self):
         return hash(self.login)
 
+    def __eq__(self, obj):
+        if isinstance(obj, Developer):
+            if self.login == obj.login:
+                return True
+        return False
+
     def __repr__(self):
         return self.login
 
