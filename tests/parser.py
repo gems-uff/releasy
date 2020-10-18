@@ -2,7 +2,7 @@ import json
 import cProfile
 
 from releasy.miner_git import GitVcs
-from releasy.miner import TagReleaseMiner, TimeVersionReleaseSorter, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
+from releasy.miner import TagReleaseMiner, TimeNaiveCommitMiner, TimeVersionReleaseSorter, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
 vcs = GitVcs("../../repos2/vuejs/vue")
 #vcs = GitVcs("../../repos2/facebook/react")
@@ -27,10 +27,13 @@ releases_wbases = version_sorter.sort(releases)
 path_miner = PathCommitMiner(vcs, releases)
 range_miner = RangeCommitMiner(vcs, releases_wbases)
 time_miner = TimeCommitMiner(vcs, releases_wbases)
+time_naive_miner = TimeNaiveCommitMiner(vcs, releases_wbases)
 
+time_naive_release_set = time_naive_miner.mine_commits()
 path_release_set = path_miner.mine_commits()
 range_release_set = range_miner.mine_commits()
 time_release_set = time_miner.mine_commits()
+
 #time_naive_release_set = time_naive_miner.mine_commits()
 print(f" - parsing by path")
 #cProfile.run("path_miner.mine_commits()")

@@ -299,3 +299,20 @@ def test_count_merges():
     assert len(releases["v2.0.0"].merges) == 2
     assert len(releases["v2.0.1"].merges) == 0
     assert len(releases["v2.1.0"].merges) == 3
+
+def test_count_committer():
+    vcs = VcsMock()
+    release_matcher = VersionReleaseMatcher()
+    release_miner = TagReleaseMiner(vcs, release_matcher)
+    releases = release_miner.mine_releases()
+    commit_miner = PathCommitMiner(vcs, releases)
+    releases = commit_miner.mine_commits()
+    assert len(releases["v1.0.0"].committers) == 2
+    assert len(releases["v1.0.1"].committers) == 1
+    assert len(releases["v1.0.2"].committers) == 1
+    assert len(releases["v1.1.0"].committers) == 1
+    assert len(releases["v2.0.0-alpha1"].committers) == 3
+    assert len(releases["v2.0.0-beta1"].committers) == 2
+    assert len(releases["v2.0.0"].committers) == 1
+    assert len(releases["v2.0.1"].committers) == 0
+    assert len(releases["v2.1.0"].committers) == 1

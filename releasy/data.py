@@ -186,6 +186,10 @@ class ReleaseData:
     def merges(self):
         return set(commit for commit in self.commits if len(commit.parents) > 1)
 
+    @property
+    def committers(self):
+        return set(commit.committer for commit in self.commits)
+
     def __getattr__(self, name):
         if name in dir(self.release):
             return getattr(self.release, name)

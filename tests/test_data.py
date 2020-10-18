@@ -71,4 +71,3 @@ def test_frequency_set():
     assert fset.count("a") == 3
     assert fset.count("b") == 1
     assert fset.mode() == "a"
-

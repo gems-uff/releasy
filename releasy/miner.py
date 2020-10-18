@@ -214,9 +214,12 @@ class TimeVersionReleaseSorter(VersionReleaseSorter):
         for release in sorted_releases:
             if release.base_releases:
                 base_release = release.base_releases[0] #TODO consider multiple releases
-                while release.time < base_release.time:
+                while base_release and release.time < base_release.time:
                     release.base_releases = base_release.base_releases
-                    base_release = release.base_releases[0]
+                    if release.base_releases:
+                        base_release = release.base_releases[0]
+                    else:
+                        base_release = []
         return sorted_releases
 
 
@@ -302,18 +305,17 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
         releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time) # error on vuejs v2.1.1
         
-        base_releases = []
-        prev_release_time = commits[0].committer_time - timedelta(days=1)
+        prev_release_time = commits[0].committer_time - timedelta(1)
         for cur_release in self.releases:
-            cur_release_time = cur_release.time
-            cur_release_commits = []
-            for cur_commit in commits:
-                if cur_commit.committer_time > prev_release_time and cur_commit.committer_time <= cur_release_time:
-                    cur_release_commits.append(cur_commit)
+            if cur_release.base_releases:
+                base_release = cur_release.base_releases[0]
+                prev_release_time = base_release.time
 
-            releases.add(cur_release, cur_release_commits, base_releases)
-            prev_release_time = cur_release_time
-            base_releases = [cur_release]
+            cur_release_commits = set()
+            for cur_commit in commits:
+                if cur_commit.committer_time > prev_release_time and cur_commit.committer_time <= cur_release.time:
+                    cur_release_commits.add(cur_commit)
+            releases.add(cur_release, cur_release_commits, cur_release.base_releases)
         return releases
        
 
