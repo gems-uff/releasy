@@ -305,11 +305,12 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
         releases = ReleaseSet()
         commits = sorted(self.vcs.commits(), key=lambda commit: commit.committer_time) # error on vuejs v2.1.1
         
-        prev_release_time = commits[0].committer_time - timedelta(1)
         for cur_release in self.releases:
             if cur_release.base_releases:
                 base_release = cur_release.base_releases[0]
                 prev_release_time = base_release.time
+            else:
+                prev_release_time = commits[0].committer_time - timedelta(1)
 
             cur_release_commits = set()
             for cur_commit in commits:
