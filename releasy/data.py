@@ -112,6 +112,9 @@ class Commit:
     def __repr__(self):
         return str(self.hashcode)
 
+    def describe(self):
+        raise NotImplementedError()
+
 
 class Vcs:
     """

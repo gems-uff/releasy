@@ -24,8 +24,11 @@ class ReleaseMatcher:
         """
         raise NotImplementedError()
 
+class AbstractReleaseSorter:
+    def sort(self, releases: ReleaseSet):
+        raise NotImplementedError()
 
-class ReleaseSorter:
+class ReleaseSorter(AbstractReleaseSorter):
     """ Sort releases according to a criteria """
 
     def sort(self, releases: ReleaseSet):
@@ -135,6 +138,18 @@ class TimeReleaseSorter(ReleaseSorter):
     """ Sort releases using time """
     def _key(self, release: Release):
         return release.time
+
+class DescribeReleaseSorter(AbstractReleaseSorter):
+    """ Sort releases using git describe """
+    def sort(self, releases: ReleaseSet):
+        for release in releases:
+            head_commit = release.head
+            if head_commit.parents:
+                base_release_name = head_commit.parents[0].describe()
+                if base_release_name:
+                    release.base_releases = [releases[base_release_name]]
+                else:
+                    release.base_releases = []
 
 
 class VersionReleaseSorter(ReleaseSorter):

@@ -155,8 +155,10 @@ class GitCommit(Commit):
         stats.files_changed = diff.stats.files_changed
         return stats
 
-
-
-
-
-
+    def describe(self):
+        try:
+            tag_name = self._vcs._repo.describe(self._raw_commit,
+                    describe_strategy=pygit2.GIT_DESCRIBE_TAGS, abbreviated_size=0)
+            return tag_name
+        except KeyError:
+            return None
