@@ -4,8 +4,8 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import TagReleaseMiner, TimeNaiveCommitMiner, TimeVersionReleaseSorter, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
-vcs = GitVcs("../../repos2/d3/d3")
-#vcs = GitVcs("../../repos2/facebook/react")
+#vcs = GitVcs("../../repos2/d3/d3")
+vcs = GitVcs("../../repos2/ansible/ansible")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")
 #vcs = GitVcs("../../repos2/facebook\jest")
@@ -29,14 +29,14 @@ range_miner = RangeCommitMiner(vcs, releases_wbases)
 time_miner = TimeCommitMiner(vcs, releases_wbases)
 time_naive_miner = TimeNaiveCommitMiner(vcs, releases_wbases)
 
-path_release_set = path_miner.mine_commits()
+# path_release_set = path_miner.mine_commits()
 
-for release in path_release_set:
-    print(f"{release.name} + {len(release.committers)}")
+#for release in path_release_set:
+#    print(f"{release.name} + {len(release.committers)}")
 
-print(path_release_set['v1.5.0'].committers)
+# print(path_release_set['v1.5.0'].committers)
 
-time_naive_release_set = time_naive_miner.mine_commits()
+# time_naive_release_set = time_naive_miner.mine_commits()
 range_release_set = range_miner.mine_commits()
 time_release_set = time_miner.mine_commits()
 

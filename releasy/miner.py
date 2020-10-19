@@ -347,11 +347,12 @@ class TimeCommitMiner(ReachableCommitMiner):
     def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
         releases = ReleaseSet()
 
-        prev_release_time = None
         for cur_release in self.releases:
             if cur_release.base_releases:
                 base_release = cur_release.base_releases[0]
                 prev_release_time = base_release.time
+            else:
+                prev_release_time = None
 
             cur_release_commits = self._track_commits(cur_release.head, prev_release_time)
             releases.add(cur_release, cur_release_commits, cur_release.base_releases)
@@ -368,11 +369,12 @@ class RangeCommitMiner(ReachableCommitMiner):
     def mine_commits(self) -> ReleaseSet:
         releases = ReleaseSet()
 
-        prev_release_history = set()
         for cur_release in self.releases:
             if cur_release.base_releases:
                 base_release = cur_release.base_releases[0]
                 prev_release_history = self._track_commits(base_release.head)
+            else:
+                prev_release_history = set()
 
             cur_release_history = self._track_commits(cur_release.head)
             cur_release_commits = cur_release_history - prev_release_history
