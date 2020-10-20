@@ -14,7 +14,8 @@ from releasy.miner import DescribeReleaseSorter, TagReleaseMiner, TimeNaiveCommi
 # vcs = GitVcs("../../repos2/git/git")
 #vcs = GitVcs("../../repos2/electron/electron")
 #vcs = GitVcs("../../repos2/nodejs/node")
-vcs = GitVcs("../../repos2/briannesbitt/Carbon")
+#vcs = GitVcs("../../repos2/briannesbitt/Carbon")
+vcs = GitVcs("../../repos2/django/django")
 
 
 release_matcher = VersionReleaseMatcher()
@@ -22,7 +23,7 @@ release_miner = TagReleaseMiner(vcs, release_matcher)
 releases = release_miner.mine_releases()
 
 d_sorter = DescribeReleaseSorter()
-d_sorter.sort(releases)
+# releases_wbases = d_sorter.sort(releases)
 
 version_sorter = TimeVersionReleaseSorter()
 releases_wbases = version_sorter.sort(releases)

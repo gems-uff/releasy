@@ -150,7 +150,7 @@ class DescribeReleaseSorter(AbstractReleaseSorter):
                     release.base_releases = [releases[base_release_name]]
                 else:
                     release.base_releases = []
-
+        return releases
 
 class VersionReleaseSorter(ReleaseSorter):
     """ Sort release using its versions """
@@ -229,7 +229,7 @@ class TimeVersionReleaseSorter(VersionReleaseSorter):
         for release in sorted_releases:
             if release.base_releases:
                 base_release = release.base_releases[0] #TODO consider multiple releases
-                while base_release and release.time < base_release.time:
+                while base_release and release.head.committer_time < base_release.head.committer_time:
                     release.base_releases = base_release.base_releases
                     if release.base_releases:
                         base_release = release.base_releases[0]
