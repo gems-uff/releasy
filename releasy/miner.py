@@ -355,6 +355,7 @@ class ReachableCommitMiner(AbstractCommitMiner):
                 ctrl.add(commit)
         return commits
 
+
 class TimeCommitMiner(ReachableCommitMiner):
     """ Mine reachable commits until made after the previous release """
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
@@ -371,6 +372,28 @@ class TimeCommitMiner(ReachableCommitMiner):
                 prev_release_time = None
 
             cur_release_commits = self._track_commits(cur_release.head, prev_release_time)
+            releases.add(cur_release, cur_release_commits, cur_release.base_releases)
+        return releases
+
+
+class TimeExpertCommitMiner(TimeCommitMiner):
+    """ Mine reachable commits until the first commit """
+    def __init__(self, vcs: Vcs, releases: ReleaseSet, expert_release_set: ReleaseSet):
+        super().__init__(vcs, releases)
+        self.expert_release_set = expert_release_set
+
+    def mine_commits(self) -> ReleaseSet: #TODO handle order with release order
+        releases = ReleaseSet()
+
+        for cur_release in self.releases:
+            expert_cur_release = self.expert_release_set[cur_release.name]
+            if expert_cur_release.commits:
+                first_commit = min(expert_cur_release.commits, key=lambda commit: commit.committer_time)
+                first_commit_time = first_commit.committer_time
+            else:
+                first_commit_time = cur_release.head.committer_time
+            cur_release_commits = self._track_commits(cur_release.head, first_commit_time)
+            cur_release_commits.add(first_commit)
             releases.add(cur_release, cur_release_commits, cur_release.base_releases)
         return releases
 
