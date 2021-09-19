@@ -179,7 +179,7 @@ def test_time_naive_mine_strategy():
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 10
     assert len(releases[3].commits) == 0
-    assert len(releases[4].commits) == 5
+    assert len(releases[4].commits) == 2
     assert len(releases[5].commits) == 2
     assert len(releases[6].commits) == 4
     assert len(releases[7].commits) == 0
