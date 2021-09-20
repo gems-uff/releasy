@@ -339,7 +339,7 @@ class ReachableCommitMiner(AbstractCommitMiner):
     def __init__(self, vcs: Vcs, releases: ReleaseSet):
         super().__init__(vcs, releases)
 
-    def _track_commits(self, head: Commit, start_time = None):
+    def _track_commits(self, head: Commit, start_time = None, include_self: Boolean = False):
         """ return a list of all reachable commits from head made after start_time """
         ctrl = set()
         commits = set()
@@ -347,8 +347,12 @@ class ReachableCommitMiner(AbstractCommitMiner):
         while commit_stack:
             commit = commit_stack.pop()
             if commit not in ctrl:
-                if not start_time or commit.committer_time > start_time:
-                    commits.add(commit)
+                if include_self:
+                    if not start_time or commit.committer_time >= start_time:
+                        commits.add(commit)
+                else:
+                    if not start_time or commit.committer_time > start_time:
+                        commits.add(commit)
 
                 for parent in commit.parents:
                     commit_stack.append(parent)
@@ -390,8 +394,7 @@ class TimeExpertCommitMiner(TimeCommitMiner):
             if expert_cur_release.commits:
                 first_commit = min(expert_cur_release.commits, key=lambda commit: commit.committer_time)
                 first_commit_time = first_commit.committer_time
-                cur_release_commits = self._track_commits(cur_release.head, first_commit_time)
-                cur_release_commits.add(first_commit)
+                cur_release_commits = self._track_commits(cur_release.head, first_commit_time, True)
             else:
                 cur_release_commits = set()
             releases.add(cur_release, cur_release_commits, cur_release.base_releases)
