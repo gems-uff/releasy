@@ -390,10 +390,10 @@ class TimeExpertCommitMiner(TimeCommitMiner):
             if expert_cur_release.commits:
                 first_commit = min(expert_cur_release.commits, key=lambda commit: commit.committer_time)
                 first_commit_time = first_commit.committer_time
+                cur_release_commits = self._track_commits(cur_release.head, first_commit_time)
+                cur_release_commits.add(first_commit)
             else:
-                first_commit_time = cur_release.head.committer_time
-            cur_release_commits = self._track_commits(cur_release.head, first_commit_time)
-            cur_release_commits.add(first_commit)
+                cur_release_commits = set()
             releases.add(cur_release, cur_release_commits, cur_release.base_releases)
         return releases
 

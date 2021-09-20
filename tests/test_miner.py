@@ -206,7 +206,7 @@ def test_time_expert_mine_strategy():
     assert len(releases[4].commits) == 5
     assert len(releases[5].commits) == 2
     assert len(releases[6].commits) == 4
-    assert len(releases[7].commits) == 1
+    assert len(releases[7].commits) == 0
     assert len(releases[8].commits) == 6
 
 
