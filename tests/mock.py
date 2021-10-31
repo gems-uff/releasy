@@ -3,10 +3,20 @@ from datetime import datetime, timedelta
 from releasy.developer import Developer
 from releasy.data import Vcs, Commit, Tag
 
-from releasy.factory import MiningStrategy
+from releasy.factory import MiningStrategy, VcsFactory
+from releasy.miner import TimeVersionReleaseSorter, VersionReleaseMatcher
 
 class MockStrategy(MiningStrategy):
-    pass
+    def __init__(self) -> None:
+        self.vcs_factory = VcsMockFactory()
+        self.release_match_strategy = VersionReleaseMatcher()
+        self.release_sort_strategy = TimeVersionReleaseSorter()
+
+
+class VcsMockFactory(VcsFactory):
+    def create(self, params) -> Vcs:
+        return VcsMock()
+
 
 class VcsMock(Vcs):
     def __init__(self, path="./releasy"):
