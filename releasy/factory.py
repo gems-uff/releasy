@@ -4,7 +4,7 @@ from abc import ABCMeta
 
 from releasy.data import Vcs
 
-from .miner import AbstractReleaseMiner, ReleaseMatcher, TagReleaseMiner, TimeVersionReleaseSorter, VersionReleaseMatcher
+from .miner import AbstractReleaseMiner, PathCommitMiner, ReleaseMatcher, TagReleaseMiner, TimeVersionReleaseSorter, VersionReleaseMatcher
 from .metamodel import Project
 
 class ProjectFactory():
@@ -21,14 +21,26 @@ class ProjectFactory():
         vcs_factory_params = dict([(param,kwargs[param]) for param in kwargs])
         vcs = self.strategy.vcs_factory.create(vcs_factory_params)
 
+        project_src = dict(
+            vcs = vcs
+        )
+
         release_miner = TagReleaseMiner(
             vcs,
             self.strategy.release_match_strategy
         )
+
         releases = release_miner.mine_releases()
         releases_wbases = self.strategy.release_sort_strategy.sort(releases)
 
+        releases = release_miner.mine_releases()
+        commit_miner = PathCommitMiner(vcs, releases)
+        releases = commit_miner.mine_commits()
+
         project = Project()
+        project.releases = releases
+
+        return project
 
 
 class MiningStrategy():

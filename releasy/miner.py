@@ -247,8 +247,8 @@ class TagReleaseMiner(AbstractReleaseMiner):
 
     def mine_releases(self) -> ReleaseSet:
         """ Discover releases """
-        # Tags can reference any git object. For release detectioin purpouse, 
-        # we only need tags that reference commits
+        # Tags can reference any git object, but we just need the tags
+        # that reference commits for release detection. 
         tags = [tag for tag in self.vcs.tags() if tag.commit]
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
         releases = ReleaseSet()
