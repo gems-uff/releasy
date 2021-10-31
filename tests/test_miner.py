@@ -22,65 +22,64 @@ def test_release_sorter():
         release_sorter.sort(releases)
 
 def test_release_mine_stratety():
-    release_miner = AbstractReleaseMiner(None, None)
+    release_miner = AbstractReleaseMiner()
     with pytest.raises(NotImplementedError):
-        release_miner.mine_releases()
+        release_miner.mine_releases(None)
 
 
 def test_commit_mine_strategy():
-    commit_miner = AbstractCommitMiner(None, None)
+    commit_miner = AbstractCommitMiner()
     with pytest.raises(NotImplementedError):
-        commit_miner.mine_commits()
+        commit_miner.mine_commits(None)
 
 
 def test_true_release_matcher():
-    vcs = VcsMock()
-    release_matcher = TrueReleaseMatcher()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = TrueReleaseMatcher()
+    releases = release_miner.mine_releases(datasource)
     assert len(releases) == 10
 
 
 def test_version_release_matcher():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionReleaseMatcher()
+    releases = release_miner.mine_releases(datasource)
     assert len(releases) == 9
 
 
 def test_version_wo_pre_release_matcher():
-    vcs = VcsMock()
-    release_matcher = VersionWoPreReleaseMatcher()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionWoPreReleaseMatcher()
+    releases = release_miner.mine_releases(datasource)
     assert len(releases) == 7
 
 
 def test_version_wo_pre_release_matcher2():
-    vcs = VcsMock()
-    release_matcher = VersionWoPreReleaseMatcher(suffix_exception="-alpha1")
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionWoPreReleaseMatcher(suffix_exception="-alpha1")
+    releases = release_miner.mine_releases(datasource)
     assert len(releases) == 8
     assert releases["v2.0.0-alpha1"].name == "v2.0.0-alpha1"
 
 
 def test_version_release_exception():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher(release_exceptions=["v2.0.0-alpha1"])
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionReleaseMatcher(release_exceptions=["v2.0.0-alpha1"])
+    releases = release_miner.mine_releases(datasource)
     assert len(releases) == 8
 
 
 def test_time_release_sorter():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = TimeReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionReleaseMatcher()
+    release_miner.sorter = TimeReleaseSorter()
+    releases = release_miner.mine_releases(datasource)
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
     assert releases[2].name == 'v1.1.0'
@@ -103,12 +102,11 @@ def test_time_release_sorter2():
 
 
 def test_version_release_sorter():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
+    datasource = Datasource(vcs = VcsMock())
+    release_miner = TagReleaseMiner()
+    release_miner.matcher = VersionReleaseMatcher()
+    release_miner.sorter = VersionReleaseSorter()
+    releases = release_miner.mine_releases(datasource)
     assert releases[0].name == 'v1.0.0'
     assert releases[1].name == 'v1.0.1'
     assert releases[2].name == 'v1.0.2'
@@ -131,9 +129,9 @@ def test_version_release_sorter2():
 
 
 def test_history_mine_strategy():
-    mining_strategy = releasy.factory.MiningStrategy.default()
-    mining_strategy.vcs_factory = VcsMockFactory()
-    factory = releasy.Factory(strategy = mining_strategy)
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
     project = factory.create()
     releases = project.releases
     assert len(releases["v1.0.0"].commits) == 2
@@ -147,21 +145,15 @@ def test_history_mine_strategy():
     assert len(releases["v2.1.0"].commits) == 6
 
 
-def time_mine_strategy():
-    mining_strategy = releasy.factory.MiningStrategy.default()
-    mining_strategy.vcs_factory = VcsMockFactory()
-    mining_strategy.commit_assigment_strategy = None #TODO fix
-
-    factory = releasy.Factory(strategy = mining_strategy)
+def test_time_mine_strategy():
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = TimeCommitMiner()
+    factory = releasy.Factory(strategy)
     project = factory.create()
     releases = project.releases
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    commit_miner = TimeCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 1
@@ -174,14 +166,14 @@ def time_mine_strategy():
 
 
 def test_time_naive_mine_strategy():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
-    commit_miner = TimeNaiveCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = TimeNaiveCommitMiner()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
+
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 10
@@ -194,18 +186,20 @@ def test_time_naive_mine_strategy():
 
 
 def test_time_expert_mine_strategy():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    expert_releases = project.releases
 
-    expert_commit_miner = PathCommitMiner(vcs, releases)
-    expert_release_set = expert_commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = TimeExpertCommitMiner()
+    factory = releasy.Factory(strategy)
+    project = factory.create(expert_release_set = expert_releases)
+    releases = project.releases
 
-    commit_miner = TimeExpertCommitMiner(vcs, releases, expert_release_set)
-    releases = commit_miner.mine_commits()
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 1
@@ -218,14 +212,14 @@ def test_time_expert_mine_strategy():
 
 
 def test_range_mine_strategy():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
-    commit_miner = RangeCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = RangeCommitMiner()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
+    
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 1
@@ -237,15 +231,12 @@ def test_range_mine_strategy():
     assert len(releases[8].commits) == 6
 
 
-def test_path_mine_base_release():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
-    commit_miner = PathCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+def test_history_mine_base_release():
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
     assert not releases["v1.0.0"].base_releases
     assert len(releases["v1.0.1"].base_releases) == 1
     assert len(releases["v1.0.2"].base_releases) == 1
@@ -269,14 +260,14 @@ def test_path_mine_base_release():
 
 
 def test_time_mine_base_release():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
-    commit_miner = TimeCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = TimeCommitMiner()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
+
     assert not releases[0].base_releases
     assert releases[1].base_releases == [releases[0].release]
     assert releases[2].base_releases == [releases[1].release]
@@ -289,14 +280,14 @@ def test_time_mine_base_release():
 
 
 def test_range_mine_base_release():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    releases = release_sorter.sort(releases)
-    commit_miner = RangeCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    strategy.release_sort_strategy = VersionReleaseSorter()
+    strategy.commit_assigment_strategy = RangeCommitMiner()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
+
     assert not releases[0].base_releases
     assert releases[1].base_releases == [releases[0].release]
     assert releases[2].base_releases == [releases[1].release]
@@ -314,13 +305,12 @@ def test_count_repository_commits():
 
 
 def test_count_merges():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_sorter = VersionReleaseSorter()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    commit_miner = PathCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
+
     assert len(releases["v1.0.0"].merges) == 0
     assert len(releases["v1.0.1"].merges) == 0
     assert len(releases["v1.0.2"].merges) == 0
@@ -332,12 +322,11 @@ def test_count_merges():
     assert len(releases["v2.1.0"].merges) == 3
 
 def test_count_committer():
-    vcs = VcsMock()
-    release_matcher = VersionReleaseMatcher()
-    release_miner = TagReleaseMiner(vcs, release_matcher)
-    releases = release_miner.mine_releases()
-    commit_miner = PathCommitMiner(vcs, releases)
-    releases = commit_miner.mine_commits()
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
+    project = factory.create()
+    releases = project.releases
     assert len(releases["v1.0.0"].committers) == 2
     assert len(releases["v1.0.1"].committers) == 1
     assert len(releases["v1.0.2"].committers) == 1

@@ -4,7 +4,7 @@ from abc import ABCMeta
 
 from releasy.data import Vcs
 
-from .miner import AbstractReleaseMiner, PathCommitMiner, ReleaseMatcher, TagReleaseMiner, TimeVersionReleaseSorter, VersionReleaseMatcher
+from .miner import AbstractReleaseMiner, AbstractReleaseSorter, PathCommitMiner, Datasource, ReleaseMatcher, TagReleaseMiner, TimeReleaseSorter, TimeVersionReleaseSorter, VersionReleaseMatcher
 from .metamodel import Project
 
 class ProjectFactory():
@@ -18,27 +18,26 @@ class ProjectFactory():
     def create(self, **kwargs) -> Project:
         """Create the project with all the releases"""
         #vcs_params = [param for param in ]
+
+        params = kwargs
         vcs_factory_params = dict([(param,kwargs[param]) for param in kwargs])
         vcs = self.strategy.vcs_factory.create(vcs_factory_params)
 
-        project_src = dict(
+        datasource = Datasource(
             vcs = vcs
         )
 
-        release_miner = TagReleaseMiner(
-            vcs,
-            self.strategy.release_match_strategy
-        )
+        release_miner = self.strategy.release_mine_strategy
+        release_miner.matcher = self.strategy.release_match_strategy
+        release_miner.sorter = self.strategy.release_sort_strategy
 
-        releases = release_miner.mine_releases()
-        releases_wbases = self.strategy.release_sort_strategy.sort(releases)
+        datasource.releases = release_miner.mine_releases(datasource)
 
-        releases = release_miner.mine_releases()
-        commit_miner = PathCommitMiner(vcs, releases)
-        releases = commit_miner.mine_commits()
+        commit_miner = self.strategy.commit_assigment_strategy
+        datasource.releases = commit_miner.mine_commits(datasource, params)
 
         project = Project()
-        project.releases = releases
+        project.releases = datasource.releases
 
         return project
 
@@ -46,9 +45,9 @@ class ProjectFactory():
 class MiningStrategy():
     vcs_factory : VcsFactory = None                       # e.g., Git, Mock
     its_factory = None                                    # e.g., GitHub Issues
-    release_source_strategy : AbstractReleaseMiner = None # e.g., Tag
+    release_mine_strategy : AbstractReleaseMiner = None   # e.g., Tag
     release_match_strategy : ReleaseMatcher = None        # e.g., Version
-    release_sort_strategy = TimeVersionReleaseSorter()    # e.g., Time
+    release_sort_strategy: AbstractReleaseSorter = None   # e.g., Time
     commit_assigment_strategy = None                      # e.g., HistoryBased
     issue_assigment_strategy = None                       # e.g., Commit Id
 
@@ -57,9 +56,10 @@ class MiningStrategy():
         """ create default strategy """
         strategy = MiningStrategy()
         strategy.vcs_factory = GitVcsFactory()
-        # strategy.release_source_strategy = TagReleaseMiner()
+        strategy.release_mine_strategy = TagReleaseMiner()
         strategy.release_match_strategy = VersionReleaseMatcher()
-        strategy.release_sort_strategy = TimeVersionReleaseSorter()
+        strategy.release_sort_strategy = TimeReleaseSorter()
+        strategy.commit_assigment_strategy = PathCommitMiner()
         return strategy
 
 

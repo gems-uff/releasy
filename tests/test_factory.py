@@ -1,14 +1,17 @@
 import releasy
 
-from .mock import MockStrategy
+from .mock import VcsMockFactory
 
 def test_factory_wo_param():
-    factory = releasy.Factory(strategy = MockStrategy())
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
     factory.create()
 
 
 def test_factory_w_param():
-    factory = releasy.Factory(strategy = MockStrategy())
+    strategy = releasy.factory.MiningStrategy.default()
+    strategy.vcs_factory = VcsMockFactory()
+    factory = releasy.Factory(strategy)
     factory.create(vcs_path = "./")
-
 
