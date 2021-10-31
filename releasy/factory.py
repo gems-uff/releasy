@@ -1,16 +1,36 @@
+from __future__ import annotations
 
-from releasy.model import Project, DeveloperDB
-from releasy.model_git import GitVcs
-
+from abc import ABCMeta
 
 class ProjectFactory():
+    strategy = None
+
+    def __init__(self, strategy: MiningStrategy = None) -> None:
+        if strategy == None:
+            strategy = MiningStrategy.default()
+        self.strategy = strategy
+
+    def create(self, path: str) -> Project:
+        """Create the project with all the releases"""
+        project = Project()
+        project.path = path
+
+
+
+class MiningStrategy():
+    vcs = None             # e.g., Git, Mock
+    its = None             # e.g., GitHub Issues
+    commitAssigment = None # e.g., HistoryBased
+    issueAssigment = None
+    
     @staticmethod
-    def create(path, name=None, vcs=None, auto=True, **kwargs):
-        if not vcs:
-            vcs = GitVcs()
-        project = Project(name, path, **kwargs)
-        project.vcs = vcs
-        project.developer_db = DeveloperDB()
-        if auto:
-            project.load()
-        return project
+    def default():
+        """ create default strategy """
+        strategy = MiningStrategy()
+        return strategy
+
+
+class Project():
+    path : str = None
+    releases = None
+

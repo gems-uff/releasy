@@ -3,6 +3,10 @@ from datetime import datetime, timedelta
 from releasy.developer import Developer
 from releasy.data import Vcs, Commit, Tag
 
+from releasy.factory import MiningStrategy
+
+class MockStrategy(MiningStrategy):
+    pass
 
 class VcsMock(Vcs):
     def __init__(self, path="./releasy"):
