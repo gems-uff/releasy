@@ -76,7 +76,8 @@ class AbstractCommitMiner:
     """ Mine release commits based on a strategy. It assign commits to 
     releases """
 
-    def mine_commits(self, datasource: Datasource, params = None) -> ReleaseSet:
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params = None) -> ReleaseSet:
         raise NotImplementedError()
 
 
@@ -263,13 +264,10 @@ class HistoryCommitMiner(AbstractCommitMiner):
     the commit parents to retrieve the commit history and split them based on 
     the releases found in its history.  """ 
 
-    def mine_commits(self, datasource: Datasource, params):
-        releases = datasource.releases
-
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params = None):
+        """ Assign the commits and base releases to the releases """
         assigned_commits = {}
-
-        # for release in releases:
-        #     commit_index[release.head.id] = release
 
         for release in releases:
             commits, base_releases = self._track_commits(release, assigned_commits)
@@ -277,13 +275,16 @@ class HistoryCommitMiner(AbstractCommitMiner):
             release.base_releases = base_releases
         return releases
 
-    # TODO: Check whether the commit is tagged by a release. 
-    #       When a release has a wrong timestamp, it commit releases created
-    #       after the actual release
     def _track_commits(self, release: Release, assigned_commits) -> List[Commit]:
+        """ Mine the reachable commits not assigned to other releases """
+        # TODO: Check whether the commit is tagged by a release. 
+        #       When a release has a wrong timestamp, it commit releases created
+        #       after the actual release
+
         commits = set()
         base_releases = set()
         commits_to_track = [ release.head ]
+
         while commits_to_track:
             commit = commits_to_track.pop()
 
@@ -308,11 +309,12 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
-    def mine_commits(self, datasource: Datasource, params) -> ReleaseSet: #TODO handle order with release order
-        releases = datasource.releases
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params) -> ReleaseSet: 
+        #TODO handle order with release order
         commits = sorted(datasource.vcs.commits(), key=lambda commit: commit.committer_time) # error on vuejs v2.1.1
         
-        for cur_release in datasource.releases:
+        for cur_release in releases:
             if cur_release.base_releases:
                 base_release = cur_release.base_releases[0]
                 prev_release_time = base_release.time
@@ -353,10 +355,11 @@ class ReachableCommitMiner(AbstractCommitMiner):
 class TimeCommitMiner(ReachableCommitMiner):
     """ Mine reachable commits until made after the previous release """
 
-    def mine_commits(self, datasource: Datasource, params) -> ReleaseSet: #TODO handle order with release order
-        releases = datasource.releases
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params) -> ReleaseSet: 
+        #TODO handle order with release order
 
-        for cur_release in datasource.releases:
+        for cur_release in releases:
             if cur_release.base_releases:
                 base_release = cur_release.base_releases[0]
                 prev_release_time = base_release.time
@@ -371,10 +374,11 @@ class TimeCommitMiner(ReachableCommitMiner):
 class TimeExpertCommitMiner(TimeCommitMiner):
     """ Mine reachable commits until the first commit """
 
-    def mine_commits(self, datasource: Datasource, params) -> ReleaseSet: #TODO handle order with release order
-        releases = datasource.releases
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params) -> ReleaseSet: 
+        #TODO handle order with release order
 
-        for cur_release in datasource.releases:
+        for cur_release in releases:
             expert_cur_release = params["expert_release_set"][cur_release.name]
             if expert_cur_release.commits:
                 first_commit = min(expert_cur_release.commits, key=lambda commit: commit.committer_time)
@@ -391,8 +395,8 @@ class RangeCommitMiner(ReachableCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
-    def mine_commits(self, datasource: Datasource, params) -> ReleaseSet:
-        releases = datasource.releases
+    def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
+            params) -> ReleaseSet:
 
         for cur_release in releases:
             if cur_release.base_releases:

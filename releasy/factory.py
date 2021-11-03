@@ -29,13 +29,13 @@ class ProjectFactory():
         release_miner.matcher = self.strategy.release_match_strategy
         release_miner.sorter = self.strategy.release_sort_strategy
 
-        datasource.releases = release_miner.mine_releases(datasource)
+        releases = release_miner.mine_releases(datasource)
 
         commit_miner = self.strategy.commit_assigment_strategy
-        datasource.releases = commit_miner.mine_commits(datasource, params)
+        releases = commit_miner.mine_commits(datasource, releases, params)
 
         project = Project()
-        project.releases = datasource.releases
+        project.releases = releases
 
         return project
 

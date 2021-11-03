@@ -30,7 +30,7 @@ def test_release_mine_stratety():
 def test_commit_mine_strategy():
     commit_miner = AbstractCommitMiner()
     with pytest.raises(NotImplementedError):
-        commit_miner.mine_commits(None)
+        commit_miner.mine_commits(None, None)
 
 
 def test_true_release_matcher():
