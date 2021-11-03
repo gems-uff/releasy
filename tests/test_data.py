@@ -4,8 +4,8 @@ from releasy.metamodel import Release, ReleaseSet, ReleaseName, FrequencySet, Co
 
 def test_release_set():
     releases = ReleaseSet()
-    releases.add(Release("0", None, None, None), None)
-    releases.add(Release("1", None, None, None), None)
+    releases.add(Release("0", None, None, None))
+    releases.add(Release("1", None, None, None))
     assert releases[0].name == "0"
     assert releases[1].name == "1"
     assert releases["1"].name == "1"
@@ -15,8 +15,12 @@ def test_release_data():
     releases = ReleaseSet()
     c1 = Commit("a")
     c2 = Commit("b")
-    releases.add(Release("0", None, None, None), [c1])
-    releases.add(Release("1", None, None, None), [c2])
+    r1 = Release("0", None, None, None)
+    r1.commits = [c1]
+    r2 = Release("0", None, None, None)
+    r2.commits = [c2]
+    releases.add(r1)
+    releases.add(r2)
     assert c1 in releases[0].commits
     assert c2 in releases[1].commits
 
@@ -51,14 +55,14 @@ def test_release_wo_name():
 
 def test_prefixes():
     releases = ReleaseSet()
-    releases.add(Release(ReleaseName("v1.0.0", "v", "1.0.0", ""), None, None, None), None)
-    releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None), None)
+    releases.add(Release(ReleaseName("v1.0.0", "v", "1.0.0", ""), None, None, None))
+    releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None))
     assert len(releases.prefixes) == 2
 
 def test_suffixes():
     releases = ReleaseSet()
-    releases.add(Release(ReleaseName("v1.0.0a", "v", "1.0.0", "a"), None, None, None), None)
-    releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None), None)
+    releases.add(Release(ReleaseName("v1.0.0a", "v", "1.0.0", "a"), None, None, None))
+    releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None))
     assert len(releases.suffixes) == 2
 
 

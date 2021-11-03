@@ -16,7 +16,7 @@ def test_release_matcher():
 
 def test_release_sorter():
     releases = ReleaseSet()
-    releases.add(Release("A", None, None, None), None)
+    releases.add(Release("A", None, None, None))
     release_sorter = ReleaseSorter()
     with pytest.raises(NotImplementedError):
         release_sorter.sort(releases)
@@ -93,8 +93,8 @@ def test_time_release_sorter():
 
 def test_time_release_sorter2():
     releases = ReleaseSet()
-    releases.add(Release("1", None, datetime(2020, 1, 2, 12, 00), None), None)
-    releases.add(Release("0", None, datetime(2020, 1, 1, 12, 00), None), None)
+    releases.add(Release("1", None, datetime(2020, 1, 2, 12, 00), None))
+    releases.add(Release("0", None, datetime(2020, 1, 1, 12, 00), None))
     release_sorter = TimeReleaseSorter()
     sorted_releases = release_sorter.sort(releases)
     assert releases[0].name == "1"
@@ -120,8 +120,8 @@ def test_version_release_sorter():
 
 def test_version_release_sorter2():
     releases = ReleaseSet()
-    releases.add(Release(ReleaseName("v1.0.1","v","1.0.1",None), None, datetime(2020, 1, 2, 12, 00), None), None)
-    releases.add(Release(ReleaseName("1.0.1","","1.0.1",None), None, datetime(2020, 1, 1, 12, 00), None), None)
+    releases.add(Release(ReleaseName("v1.0.1","v","1.0.1",None), None, datetime(2020, 1, 2, 12, 00), None))
+    releases.add(Release(ReleaseName("1.0.1","","1.0.1",None), None, datetime(2020, 1, 1, 12, 00), None))
     release_sorter = VersionReleaseSorter()
     sorted_releases = release_sorter.sort(releases)
     assert releases[0].name == "v1.0.1"
@@ -269,14 +269,14 @@ def test_time_mine_base_release():
     releases = project.releases
 
     assert not releases[0].base_releases
-    assert releases[1].base_releases == [releases[0].release]
-    assert releases[2].base_releases == [releases[1].release]
-    assert releases[3].base_releases == [releases[2].release]
-    assert releases[4].base_releases == [releases[3].release]
-    assert releases[5].base_releases == [releases[4].release]
-    assert releases[6].base_releases == [releases[5].release]
-    assert releases[7].base_releases == [releases[6].release]
-    assert releases[8].base_releases == [releases[7].release]
+    assert releases[1].base_releases == [releases[0]]
+    assert releases[2].base_releases == [releases[1]]
+    assert releases[3].base_releases == [releases[2]]
+    assert releases[4].base_releases == [releases[3]]
+    assert releases[5].base_releases == [releases[4]]
+    assert releases[6].base_releases == [releases[5]]
+    assert releases[7].base_releases == [releases[6]]
+    assert releases[8].base_releases == [releases[7]]
 
 
 def test_range_mine_base_release():
@@ -289,14 +289,14 @@ def test_range_mine_base_release():
     releases = project.releases
 
     assert not releases[0].base_releases
-    assert releases[1].base_releases == [releases[0].release]
-    assert releases[2].base_releases == [releases[1].release]
-    assert releases[3].base_releases == [releases[2].release]
-    assert releases[4].base_releases == [releases[3].release]
-    assert releases[5].base_releases == [releases[4].release]
-    assert releases[6].base_releases == [releases[5].release]
-    assert releases[7].base_releases == [releases[6].release]
-    assert releases[8].base_releases == [releases[7].release]
+    assert releases[1].base_releases == [releases[0]]
+    assert releases[2].base_releases == [releases[1]]
+    assert releases[3].base_releases == [releases[2]]
+    assert releases[4].base_releases == [releases[3]]
+    assert releases[5].base_releases == [releases[4]]
+    assert releases[6].base_releases == [releases[5]]
+    assert releases[7].base_releases == [releases[6]]
+    assert releases[8].base_releases == [releases[7]]
 
 
 def test_count_repository_commits():

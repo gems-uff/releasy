@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Set
 
 import re
 
@@ -12,7 +12,7 @@ class ReleaseSet:
     its commits, and base releases"""
     def __init__(self):
         self.index = {}
-        self.releases : List[ReleaseData] = []
+        self.releases : List[Release] = []
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -22,14 +22,11 @@ class ReleaseSet:
         else: 
             raise TypeError()
 
-    def add(self, release: Release, commits: List[Commit], 
-            base_releases: List[ReleaseData] = None):
-
-        data = ReleaseData(release, commits, base_releases)
-        self.releases.append(data)
+    def add(self, release: Release):
+        self.releases.append(release)
         self.index[release.name] = len(self.releases)-1
 
-    def add_all(self, releases: List[ReleaseData]):
+    def add_all(self, releases: List[Release]):
         for release in releases:
             self.releases.append(release)
             self.index[release.name] = len(self.releases)-1
@@ -71,6 +68,8 @@ class Release:
         self.head = commit
         self.time = time
         self.description = description
+        self.commits: Set[Commit] = set([self.head])
+        self.base_releases: Set[Release] = set()
 
     def __hash__(self):
         return hash((self.name, self.head))
@@ -82,6 +81,14 @@ class Release:
 
     def __repr__(self):
         return repr(self.name)
+
+    @property
+    def merges(self):
+        return set(commit for commit in self.commits if len(commit.parents) > 1)
+
+    @property
+    def committers(self):
+        return set(commit.committer for commit in self.commits)
 
 
 class TagRelease(Release):
