@@ -36,6 +36,7 @@ class ProjectFactory():
 
         project = Project()
         project.releases = releases
+        project.datasource = datasource
 
         return project
 

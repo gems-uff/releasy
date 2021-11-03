@@ -4,7 +4,10 @@ from typing import List, Set
 import re
 
 class Project():
-    releases: ReleaseSet = None
+    
+    def __init__(self) -> None:
+        self.releases: ReleaseSet = None
+        self.datasource: Datasource = None
 
 
 class ReleaseSet:
@@ -56,12 +59,7 @@ class ReleaseSet:
 
 
 class Release:
-    """A single software release 
-    
-    :name: the release name
-    :time: the release date
-    :head: the last commit of the release
-    """
+    """A software release"""
 
     def __init__(self, name: ReleaseName, commit: Commit, time, description):
         self.name = name
@@ -70,6 +68,7 @@ class Release:
         self.description = description
         self.commits: Set[Commit] = set([self.head])
         self.base_releases: Set[Release] = set()
+        self.contributors : ContributorTracker = ContributorTracker()
 
     def __hash__(self):
         return hash((self.name, self.head))
@@ -85,10 +84,6 @@ class Release:
     @property
     def merges(self):
         return set(commit for commit in self.commits if len(commit.parents) > 1)
-
-    @property
-    def committers(self):
-        return set(commit.committer for commit in self.commits)
 
 
 class TagRelease(Release):
@@ -131,41 +126,6 @@ class ReleaseName(str):
 
     def __hash__(self):
         return hash(self.value)
-
-
-
-class ReleaseData:
-    """ Connect release and commits """
-    def __init__(self, release: Release = None, commits: List[Commit] = None, 
-                 base_releases: List[ReleaseData] = None):
-        self.release = release
-        self.commits = commits
-        self.base_releases = base_releases
-
-    @property
-    def merges(self):
-        return set(commit for commit in self.commits if len(commit.parents) > 1)
-
-    @property
-    def committers(self):
-        return set(commit.committer for commit in self.commits)
-
-    def __getattr__(self, name):
-        if name in dir(self.release):
-            return getattr(self.release, name)
-        else:
-            raise AttributeError
-
-    def __hash__(self):
-        return hash(self.release)
-
-    def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return hash(self) == hash(other)
-        return False
-
-    def __repr__(self):
-        return repr(self.name)
 
 
 class FrequencySet(set):
@@ -267,6 +227,18 @@ class Commit:
         raise NotImplementedError()
 
 
+class ContributorTracker():
+    """ Track developers' contributions to a release """
+    def __init__(self):
+        self.authors = set()
+        self.committers = set()
+        self.newcomers = set()
+
+    def track(self, commits: Set[Commit]):
+        self.committers = set(commit.committer for commit in commits)
+        self.authors = set(commit.author for commit in commits)
+
+
 class Vcs:
     """
     Version Control Repository
@@ -284,3 +256,14 @@ class Vcs:
 
     def commits(self) -> List[Commit]:
         pass
+
+
+class Datasource():
+    vcs: Vcs = None
+    releases: ReleaseSet = None
+
+    def __init__(self, **kwargs) -> None:
+        if 'vcs' in kwargs:
+            self.vcs = kwargs['vcs']
+
+

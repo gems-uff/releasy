@@ -63,13 +63,13 @@ class VcsMock(Vcs):
         tags = []
         for (index, parents_index, author, committer, increment_dt, offset, tagnames) in commit_data:
             parents = [commits[p_index] for p_index in parents_index]
-            commits[index] = Commit(hashcode=index,
-                                    parents=parents,
-                                    author=author, 
-                                    author_time=ref_dt,
-                                    committer=committer,
-                                    committer_time=ref_dt,
-                                    message="Commit %d" % index)
+            commits[index] = Commit(hashcode = index,
+                                    parents = parents,
+                                    author = author,
+                                    author_time = ref_dt,
+                                    committer = committer,
+                                    committer_time = ref_dt,
+                                    message = "Commit %d" % index)
             tag_offset = ref_dt
             for tagname in tagnames:
                 if offset:

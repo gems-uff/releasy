@@ -14,7 +14,7 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs
+from .metamodel import Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
 
 
 class ReleaseMatcher:
@@ -273,6 +273,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
             commits, base_releases = self._track_commits(release, assigned_commits)
             release.commits = commits
             release.base_releases = base_releases
+            release.contributors.track(commits)
         return releases
 
     def _track_commits(self, release: Release, assigned_commits) -> List[Commit]:
@@ -410,12 +411,4 @@ class RangeCommitMiner(ReachableCommitMiner):
             cur_release.commits = cur_release_commits
         return releases
 
-
-class Datasource():
-    vcs: Vcs = None
-    releases: ReleaseSet = None
-
-    def __init__(self, **kwargs) -> None:
-        if 'vcs' in kwargs:
-            self.vcs = kwargs['vcs']
 

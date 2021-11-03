@@ -321,18 +321,3 @@ def test_count_merges():
     assert len(releases["v2.0.1"].merges) == 0
     assert len(releases["v2.1.0"].merges) == 3
 
-def test_count_committer():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.vcs_factory = VcsMockFactory()
-    factory = releasy.Factory(strategy)
-    project = factory.create()
-    releases = project.releases
-    assert len(releases["v1.0.0"].committers) == 2
-    assert len(releases["v1.0.1"].committers) == 1
-    assert len(releases["v1.0.2"].committers) == 1
-    assert len(releases["v1.1.0"].committers) == 1
-    assert len(releases["v2.0.0-alpha1"].committers) == 3
-    assert len(releases["v2.0.0-beta1"].committers) == 2
-    assert len(releases["v2.0.0"].committers) == 1
-    assert len(releases["v2.0.1"].committers) == 0
-    assert len(releases["v2.1.0"].committers) == 1
