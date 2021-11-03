@@ -14,7 +14,7 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .data import Tag, Commit, Release, TagRelease, Vcs, ReleaseSet, ReleaseName
+from .metamodel import Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs
 
 
 class ReleaseMatcher:
@@ -258,7 +258,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
         return releases
 
 
-class PathCommitMiner(AbstractCommitMiner):
+class HistoryCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the commit history. It walk through the commit
     parents to retrieve the commit history and split them based on the 
     releases found in its history. """ 

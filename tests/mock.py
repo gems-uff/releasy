@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from releasy.developer import Developer
-from releasy.data import Vcs, Commit, Tag
+from releasy.metamodel import Vcs, Commit, Tag
 
 from releasy.factory import MiningStrategy, VcsFactory
 from releasy.miner import TimeVersionReleaseSorter, VersionReleaseMatcher

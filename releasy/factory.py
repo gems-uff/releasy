@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from abc import ABCMeta
 
-from releasy.data import Vcs
-
-from .miner import AbstractReleaseMiner, AbstractReleaseSorter, PathCommitMiner, Datasource, ReleaseMatcher, TagReleaseMiner, TimeReleaseSorter, TimeVersionReleaseSorter, VersionReleaseMatcher
-from .metamodel import Project
+from .miner import AbstractReleaseMiner, AbstractReleaseSorter, Datasource, HistoryCommitMiner, ReleaseMatcher, TagReleaseMiner, TimeReleaseSorter, TimeVersionReleaseSorter, VersionReleaseMatcher
+from .metamodel import Project, Vcs
 
 class ProjectFactory():
     strategy = None
@@ -59,7 +57,7 @@ class MiningStrategy():
         strategy.release_mine_strategy = TagReleaseMiner()
         strategy.release_match_strategy = VersionReleaseMatcher()
         strategy.release_sort_strategy = TimeReleaseSorter()
-        strategy.commit_assigment_strategy = PathCommitMiner()
+        strategy.commit_assigment_strategy = HistoryCommitMiner()
         return strategy
 
 
