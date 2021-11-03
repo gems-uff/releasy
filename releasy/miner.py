@@ -259,49 +259,48 @@ class TagReleaseMiner(AbstractReleaseMiner):
 
 
 class HistoryCommitMiner(AbstractCommitMiner):
-    """ Mine releases based on the commit history. It walks through the commit
-    parents to retrieve the commit history and split them based on the
-    releases found in its history. """ 
+    """ Mine releases considering the whole commit history. It walks through 
+    the commit parents to retrieve the commit history and split them based on 
+    the releases found in its history.  """ 
 
     def mine_commits(self, datasource: Datasource, params):
         releases = datasource.releases
 
-        release_index = {}
-        commit_index = {}
+        assigned_commits = {}
+
+        # for release in releases:
+        #     commit_index[release.head.id] = release
 
         for release in releases:
-            release_index[release.head.id] = release
-
-        for release in releases:
-            commits, base_releases = self._track_commits(release, 
-                    release_index, commit_index)
+            commits, base_releases = self._track_commits(release, assigned_commits)
             release.commits = commits
             release.base_releases = base_releases
         return releases
 
-    def _track_commits(self, release: Release, release_index,
-                       commit_index) -> List[Commit]:
-        commits = []
+    # TODO: Check whether the commit is tagged by a release. 
+    #       When a release has a wrong timestamp, it commit releases created
+    #       after the actual release
+    def _track_commits(self, release: Release, assigned_commits) -> List[Commit]:
+        commits = set()
         base_releases = set()
-        commit_stack = [ release.head ]
-        while commit_stack:
-            commit = commit_stack.pop()
-            if commit.id in commit_index:
-                if commit_index[commit.id] != release:
-                    base_releases.add(commit_index[commit.id])
-            elif commit.id in release_index and commit.id != release.head.id:
-                base_releases.add(release_index[commit.id])
-            else:
-                commits.append(commit)
-                commit_index[commit.id] = release
+        commits_to_track = [ release.head ]
+        while commits_to_track:
+            commit = commits_to_track.pop()
 
+            # reached a new commit
+            if commit.id not in assigned_commits:
+                commits.add(commit)
+                assigned_commits[commit.id] = release
                 if commit.parents:
-                    for parent in commit.parents:
-                        commit_stack.append(parent)
+                    for parent_commit in commit.parents:
+                        commits_to_track.append(parent_commit)
 
-        commits = sorted(commits, key=lambda commit: commit.committer_time, reverse=True)
-        if not base_releases:
-            base_releases = []
+            # reached an already assigned commit
+            else:
+                if assigned_commits[commit.id] != release:
+                    base_release = assigned_commits[commit.id]
+                    base_releases.add(base_release)
+
         return commits, base_releases
 
 
