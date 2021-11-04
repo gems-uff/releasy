@@ -1,12 +1,11 @@
 
 import releasy
-from .mock import DevMock, VcsMockFactory
+from releasy.metamodel import Datasource
+from .mock import DevMock, VcsMock
 
 def test_release_committers():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.vcs_factory = VcsMockFactory()
-    factory = releasy.Factory(strategy)
-    project = factory.create()
+    miner = releasy.Miner()
+    project = miner.mine(Datasource(vcs=VcsMock()))
     dev: DevMock = project.datasource.vcs.dev
 
     assert len(project.releases[0].contributors.committers) == 2
@@ -41,10 +40,8 @@ def test_release_committers():
 
 
 def test_release_authors():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.vcs_factory = VcsMockFactory()
-    factory = releasy.Factory(strategy)
-    project = factory.create()
+    miner = releasy.Miner()
+    project = miner.mine(Datasource(vcs=VcsMock()))
     assert len(project.releases[0].contributors.authors) == 1
     assert len(project.releases[1].contributors.authors) == 1
     assert len(project.releases[2].contributors.authors) == 1
@@ -57,10 +54,8 @@ def test_release_authors():
 
 
 def test_release_newcomers():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.vcs_factory = VcsMockFactory()
-    factory = releasy.Factory(strategy)
-    project = factory.create()
+    miner = releasy.Miner()
+    project = miner.mine(Datasource(vcs=VcsMock()))
     dev: DevMock = project.datasource.vcs.dev
     assert len(project.releases[0].contributors.newcomers) == 2
     assert dev.alice in project.releases[0].contributors.newcomers

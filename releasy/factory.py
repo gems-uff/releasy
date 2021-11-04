@@ -5,7 +5,7 @@ from abc import ABCMeta
 from .miner import AbstractReleaseMiner, AbstractReleaseSorter, Datasource, HistoryCommitMiner, ReleaseMatcher, TagReleaseMiner, TimeReleaseSorter, TimeVersionReleaseSorter, VersionReleaseMatcher
 from .metamodel import Project, Vcs
 
-class ProjectFactory():
+class ProjectMiner():
     strategy = None
 
     def __init__(self, strategy: MiningStrategy = None) -> None:
@@ -13,17 +13,11 @@ class ProjectFactory():
             strategy = MiningStrategy.default()
         self.strategy = strategy
 
-    def create(self, **kwargs) -> Project:
+    def mine(self, datasource: Datasource, **kwargs) -> Project:
         """Create the project with all the releases"""
         #vcs_params = [param for param in ]
 
         params = kwargs
-        vcs_factory_params = dict([(param,kwargs[param]) for param in kwargs])
-        vcs = self.strategy.vcs_factory.create(vcs_factory_params)
-
-        datasource = Datasource(
-            vcs = vcs
-        )
 
         release_miner = self.strategy.release_mine_strategy
         release_miner.matcher = self.strategy.release_match_strategy
