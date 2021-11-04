@@ -3,6 +3,8 @@ from typing import List, Set
 
 import re
 
+from releasy.developer import Developer
+
 class Project():
     
     def __init__(self) -> None:
@@ -229,14 +231,31 @@ class Commit:
 
 class ContributorTracker():
     """ Track developers' contributions to a release """
-    def __init__(self):
+    def __init__(self, contributors: Set[Developer] = None):
         self.authors = set()
         self.committers = set()
         self.newcomers = set()
+        if contributors:
+            self._contributors = set(contributors) #TODO change name
+        else: 
+            self._contributors = set()
 
-    def track(self, commits: Set[Commit]):
-        self.committers = set(commit.committer for commit in commits)
-        self.authors = set(commit.author for commit in commits)
+    def track(self, commit: Commit):
+        author = commit.author
+        committer = commit.committer
+        self.authors.add(author)
+        self.committers.add(committer)
+        if committer not in self._contributors:
+            self.newcomers.add(committer)
+            self._contributors.add(committer)
+        if author not in self._contributors:
+            self.newcomers.add(author)
+            self._contributors.add(author)
+
+    @property
+    def contributors(self):
+        contributors = self._contributors | self.committers | self.authors
+        return contributors
 
 
 class Vcs:

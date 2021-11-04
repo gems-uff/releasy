@@ -4,7 +4,9 @@
 #
 #
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Set
+
+from releasy.developer import Developer
 
 
 if TYPE_CHECKING:
@@ -14,7 +16,7 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
+from .metamodel import ContributorTracker, Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
 
 
 class ReleaseMatcher:
@@ -268,15 +270,22 @@ class HistoryCommitMiner(AbstractCommitMiner):
             params = None):
         """ Assign the commits and base releases to the releases """
         assigned_commits = {}
+        contributors = ContributorTracker()
 
         for release in releases:
-            commits, base_releases = self._track_commits(release, assigned_commits)
+            contributors = ContributorTracker(contributors.contributors)
+            commits, base_releases = self._track_commits(
+                release, 
+                assigned_commits, 
+                contributors
+            )
             release.commits = commits
             release.base_releases = base_releases
-            release.contributors.track(commits)
+            release.contributors = contributors
         return releases
 
-    def _track_commits(self, release: Release, assigned_commits) -> List[Commit]:
+    def _track_commits(self, release: Release, assigned_commits, 
+            contributors: Set[Developer]) -> List[Commit]:
         """ Mine the reachable commits not assigned to other releases """
         # TODO: Check whether the commit is tagged by a release. 
         #       When a release has a wrong timestamp, it commit releases created
@@ -293,6 +302,8 @@ class HistoryCommitMiner(AbstractCommitMiner):
             if commit.id not in assigned_commits:
                 commits.add(commit)
                 assigned_commits[commit.id] = release
+                contributors.track(commit)
+
                 if commit.parents:
                     for parent_commit in commit.parents:
                         commits_to_track.append(parent_commit)
