@@ -3,7 +3,6 @@ from typing import List, Set
 
 import re
 
-from releasy.developer import Developer
 
 class Project():
     
@@ -227,6 +226,34 @@ class Commit:
 
     def describe(self):
         raise NotImplementedError()
+
+
+class Developer:
+    """
+    Project Contributors
+
+    Attributes:
+        login: developer id
+        name: developer name
+        email: developer e-mail
+    """
+
+    def __init__(self, login, name, email):
+        self.login = login
+        self.name = name
+        self.email = email
+
+    def __hash__(self):
+        return hash(self.login)
+
+    def __eq__(self, obj):
+        if isinstance(obj, Developer):
+            if self.login == obj.login:
+                return True
+        return False
+
+    def __repr__(self):
+        return self.login
 
 
 class ContributorTracker():

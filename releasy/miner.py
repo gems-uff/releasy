@@ -6,9 +6,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Set
 
-from releasy.developer import Developer
-
-
 if TYPE_CHECKING:
     from typing import List
 
@@ -16,7 +13,7 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import ContributorTracker, Release, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
+from .metamodel import ContributorTracker, Release, Developer, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
 
 
 class ReleaseMatcher:
