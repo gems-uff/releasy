@@ -76,4 +76,3 @@ def test_release_newcomers():
     assert len(project.releases[6].contributors.newcomers) == 0
     assert len(project.releases[7].contributors.newcomers) == 0
     assert len(project.releases[8].contributors.newcomers) == 0
-

@@ -273,7 +273,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
         contributors = ContributorTracker()
 
         for release in releases:
-            contributors = ContributorTracker(contributors.contributors)
+            contributors = ContributorTracker(contributors)
             commits, base_releases = self._track_commits(
                 release, 
                 assigned_commits, 

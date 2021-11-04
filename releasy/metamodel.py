@@ -231,31 +231,25 @@ class Commit:
 
 class ContributorTracker():
     """ Track developers' contributions to a release """
-    def __init__(self, contributors: Set[Developer] = None):
+    def __init__(self, tracked_contributors: ContributorTracker = None):
         self.authors = set()
         self.committers = set()
         self.newcomers = set()
-        if contributors:
-            self._contributors = set(contributors) #TODO change name
-        else: 
-            self._contributors = set()
+        self.tracked_contributors = set()
+        if tracked_contributors:
+            self.tracked_contributors = tracked_contributors.tracked_contributors
 
     def track(self, commit: Commit):
         author = commit.author
         committer = commit.committer
         self.authors.add(author)
         self.committers.add(committer)
-        if committer not in self._contributors:
+        if committer not in self.tracked_contributors:
             self.newcomers.add(committer)
-            self._contributors.add(committer)
-        if author not in self._contributors:
+            self.tracked_contributors.add(committer)
+        if author not in self.tracked_contributors:
             self.newcomers.add(author)
-            self._contributors.add(author)
-
-    @property
-    def contributors(self):
-        contributors = self._contributors | self.committers | self.authors
-        return contributors
+            self.tracked_contributors.add(author)
 
 
 class Vcs:
