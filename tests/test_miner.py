@@ -144,10 +144,9 @@ def test_history_mine_strategy():
 
 
 def test_time_mine_strategy():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = TimeCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = TimeCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
 
@@ -163,10 +162,9 @@ def test_time_mine_strategy():
 
 
 def test_time_naive_mine_strategy():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = TimeNaiveCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = TimeNaiveCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
 
@@ -186,10 +184,9 @@ def test_time_expert_mine_strategy():
     project = miner.mine(Datasource(vcs=VcsMock()))
     expert_releases = project.releases
 
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = TimeExpertCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = TimeExpertCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()), 
                              expert_release_set = expert_releases)
     releases = project.releases
@@ -206,10 +203,9 @@ def test_time_expert_mine_strategy():
 
 
 def test_range_mine_strategy():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = RangeCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = RangeCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
     
@@ -251,10 +247,9 @@ def test_history_mine_base_release():
 
 
 def test_time_mine_base_release():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = TimeCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = TimeCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
 
@@ -270,10 +265,9 @@ def test_time_mine_base_release():
 
 
 def test_range_mine_base_release():
-    strategy = releasy.factory.MiningStrategy.default()
-    strategy.release_sort_strategy = VersionReleaseSorter()
-    strategy.commit_assigment_strategy = RangeCommitMiner()
-    miner = releasy.Miner(strategy)
+    miner = releasy.Miner()
+    miner.strategy.release_sort_strategy = VersionReleaseSorter()
+    miner.strategy.commit_assigment_strategy = RangeCommitMiner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
 
