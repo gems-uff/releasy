@@ -220,32 +220,6 @@ def test_range_mine_strategy():
     assert len(releases[8].commits) == 6
 
 
-def test_history_mine_base_release():
-    miner = releasy.Miner()
-    project = miner.mine(Datasource(vcs=VcsMock()))
-    releases = project.releases
-    assert not releases["v1.0.0"].base_releases
-    assert len(releases["v1.0.1"].base_releases) == 1
-    assert len(releases["v1.0.2"].base_releases) == 1
-    assert len(releases["v1.1.0"].base_releases) == 1
-    assert len(releases["v2.0.0-alpha1"].base_releases) == 2
-    assert len(releases["v2.0.0-beta1"].base_releases) == 1
-    assert len(releases["v2.0.0"].base_releases) == 3
-    assert len(releases["v2.0.1"].base_releases) == 1
-    assert len(releases["v2.1.0"].base_releases) == 2
-
-    # assert list(releases[1].base_releases)[0].release == releases[0].release
-    # assert list(releases[2].base_releases)[0].release == releases[1].release
-    # assert list(releases[3].base_releases)[0].release == releases[1].release
-    # assert list(releases[4].base_releases)[0].release == releases[1].release
-    # assert list(releases[4].base_releases)[1].release == releases[3].release
-    # assert list(releases[5].base_releases)[0].release == releases[4].release
-    # assert list(releases[6].base_releases)[0].release == releases[5].release
-    # assert list(releases[6].base_releases)[1].release == releases[1].release
-    # assert list(releases[7].base_releases)[0].release == releases[6].release
-    # assert list(releases[8].base_releases)[0].release == releases[7].release
-
-
 def test_time_mine_base_release():
     miner = releasy.Miner()
     miner.strategy.release_sort_strategy = VersionReleaseSorter()

@@ -4,16 +4,13 @@
 #
 #
 from __future__ import annotations
-from typing import TYPE_CHECKING, Set
-
-if TYPE_CHECKING:
-    from typing import List
+from typing import Set, List
 
 import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import ContributorTracker, Release, Developer, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
+from .metamodel import ContributorTracker, Release, Developer, ReleaseVersion, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
 
 
 class ReleaseMatcher:
@@ -105,7 +102,7 @@ class VersionReleaseMatcher(ReleaseMatcher):
             prefix = match.group("prefix")
             version = match.group("version")
             suffix = match.group("suffix")
-            return ReleaseName(name, prefix, version, suffix)
+            return ReleaseName(name, prefix, ReleaseVersion(version), suffix)
         else:
             return None
 
@@ -277,8 +274,8 @@ class HistoryCommitMiner(AbstractCommitMiner):
                 contributors
             )
             release.commits = commits
-            release.base_releases = base_releases
             release.contributors = contributors
+            release.base_releases = base_releases
         return releases
 
     def _track_commits(self, release: Release, assigned_commits, 

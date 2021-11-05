@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List, Set
 
 import re
-
+from functools import cmp_to_key
 
 class Project():
     
@@ -58,6 +58,9 @@ class ReleaseSet:
     def __len__(self):
       return len(self.releases)
 
+    def index_of(self, release: Release):
+        return self.index[release.name]
+
 
 class Release:
     """A software release"""
@@ -86,6 +89,15 @@ class Release:
     def merges(self):
         return set(commit for commit in self.commits if len(commit.parents) > 1)
 
+    @property
+    def main_base_release(self):
+        if not self.base_releases:
+            return None
+            
+        sorted_breleases = sorted(self.base_releases, 
+                                  key = lambda release : release.name.version)
+        return sorted_breleases[-1]
+
 
 class TagRelease(Release):
     """ A release represented by a tag """
@@ -97,7 +109,7 @@ class TagRelease(Release):
 
 class ReleaseName(str):
     """ Represent a release name, with prefix, version and suffix """
-    def __init__(self, name: str, prefix: str, version: str, suffix: str):
+    def __init__(self, name: str, prefix: str, version: ReleaseVersion, suffix: str):
         if not name:
             raise ValueError("release name must have a non empty name")
         self.value = name
@@ -127,6 +139,35 @@ class ReleaseName(str):
 
     def __hash__(self):
         return hash(self.value)
+
+
+class ReleaseVersion():
+    def __init__(self, version: str) -> None:
+        self.version = version
+        self.tokens = version.split(".")
+
+    def __lt__(self, other):
+        return self.__cmp(self, other) < 0
+    def __gt__(self, other):
+        return self.__cmp(self, other) > 0
+    def __eq__(self, other):
+        return self.__cmp(self, other) == 0
+    def __le__(self, other):
+        return self.__cmp(self, other) <= 0
+    def __ge__(self, other):
+        return self.__cmp(self, other) >= 0
+
+    def __cmp(self, version_a: ReleaseVersion, version_b: ReleaseVersion) -> int:
+        for token_a, token_b in zip(version_a.tokens, version_b.tokens):
+            if token_a > token_b:
+                return 1
+            if token_a < token_b:
+                return -1
+        return 0
+
+
+
+
 
 
 class FrequencySet(set):
