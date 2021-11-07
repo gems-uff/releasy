@@ -7,6 +7,7 @@ from releasy.release import (Release)
 from .mock import VcsMock
 from .test_release import (
     release_names,
+    release_times,
     releases
 )
 

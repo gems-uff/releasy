@@ -1,6 +1,7 @@
 from typing import List
 import pytest
 import random
+import datetime
 
 from releasy.factory import ProjectMiner as Miner
 from releasy.metamodel import Datasource
@@ -25,12 +26,28 @@ def release_names() -> List[str]:
     ]
 
 @pytest.fixture
+def release_times() -> List[datetime.datetime]:
+    reference = datetime.datetime(2020, 1, 1, 12, 00)
+    return [
+        reference + datetime.timedelta(days=2, hours=1), # "v1.0.0",
+        reference + datetime.timedelta(days=4, hours=1), # "v1.0.1",
+        reference + datetime.timedelta(days=14, hours=1), # "v1.0.2",
+        reference + datetime.timedelta(days=7, hours=1), # "1.1.0", 
+        reference + datetime.timedelta(days=9, hours=1), # "v2.0.0-alpha1",
+        reference + datetime.timedelta(days=11, hours=1), # "v2.0.0-beta1",
+        reference + datetime.timedelta(days=15, hours=1), # "v2.0.0", 
+        reference + datetime.timedelta(days=15, hours=2), # "v2.0.1",
+        reference + datetime.timedelta(days=21, hours=1), # "v2.1.0"
+    ]
+
+@pytest.fixture
 def release_versions(release_names: List[str]):
     return [ReleaseVersion(name) for name in release_names]
 
 @pytest.fixture
-def releases(release_names: List[str]):
-    releases: List[Release] = [Release(name) for name in release_names]
+def releases(release_names: List[str], release_times: List[datetime.datetime]):
+    releases: List[Release] = [Release(name, time=time) for name, time 
+                               in zip(release_names, release_times)]
 
     releases[1].add_base_release(releases[0])
     releases[2].add_base_release(releases[1])

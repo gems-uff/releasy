@@ -13,7 +13,7 @@ def test_release_set():
     assert releases[0].name == "0"
     assert releases[1].name == "1"
     assert releases["1"].name == "1"
-  
+
 
 def test_release_data():
     releases = ReleaseSet()
@@ -21,7 +21,7 @@ def test_release_data():
     c2 = Commit("b")
     r1 = Release("0", None, None, None)
     r1.commits = [c1]
-    r2 = Release("0", None, None, None)
+    r2 = Release("1", None, None, None)
     r2.commits = [c2]
     releases.add(r1)
     releases.add(r2)

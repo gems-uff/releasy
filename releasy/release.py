@@ -25,7 +25,8 @@ class ReleaseSet:
             raise TypeError()
 
     def add(self, release: Release):
-        self.releases.append(release)
+        if release.name not in self.index:
+            self.releases.append(release)
         self.index[release.name] = len(self.releases)-1
 
     def add_all(self, releases: List[Release]):
@@ -102,6 +103,10 @@ class Release:
     def add_base_release(self, release: Release):
         if release:
             self.base_releases[release.name] = release
+
+    @property
+    def delay(self):
+        """Time interval between the release and it main base release"""
 
 
 class TagRelease(Release):
