@@ -1,42 +1,39 @@
+from typing import List
+import pytest
 
 from releasy.project import (Project)
 from releasy.release import (Release)
 
 from .mock import VcsMock
+from .test_release import (
+    release_names,
+    releases
+)
+
+@pytest.fixture
+def project(releases: List[Release]):
+    project = Project()
+    for release in releases:
+        project.add_release(release)
+    return project
 
 def describe_project():
-    project = Project()
-    major_release = Release("1.0.0")
-    minor_release = Release("1.1.0")
-    patch = Release("1.1.1")
-    project.add_release(major_release)
-    project.add_release(minor_release)
-    project.add_release(patch)
+    def it_has_release(project: Project):
+        assert len(project.releases) == 9
 
-    def it_has_release():
-        assert len(project.releases) == 3
-        assert project.releases[0] == major_release
-        assert project.releases["1.0.0"] == major_release
-        assert project.releases["1.1.0"] == minor_release
-        assert project.releases["1.1.1"] == patch
+    def it_has_main_release(project: Project):
+        assert len(project.main_releases) == 4
 
-    def it_has_main_release():
-        assert len(project.main_releases) == 2
-        assert project.main_releases["1.0.0"] == major_release
-        assert project.main_releases["1.1.0"] == minor_release
+    def it_has_patches(project: Project):
+        assert len(project.patches) == 3
 
-    def it_has_patches():
-        assert len(project.patches) == 1
-        assert project.patches["1.1.1"] == patch
+    def it_has_pre_releases(project: Project):
+        assert len(project.pre_releases) == 2
 
-
-
-# def test_prefixes():
-#     releases = ReleaseSet()
-#     releases.add(Release(ReleaseName("v1.0.0", "v", "1.0.0", ""), None, None, None))
-#     releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None))
-#     assert len(releases.prefixes) == 2
-
+    def it_aggregate_the_release_prefixes(project: Project):
+        assert len(project.prefixes) == 2
+        assert "v" in project.prefixes
+        assert "" in project.prefixes
 
 # def test_suffixes():
 #     releases = ReleaseSet()

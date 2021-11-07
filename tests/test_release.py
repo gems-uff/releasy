@@ -16,7 +16,7 @@ def release_names() -> List[str]:
         "v1.0.0",
         "v1.0.1",
         "v1.0.2",
-        "v1.1.0", 
+        "1.1.0", 
         "v2.0.0-alpha1",
         "v2.0.0-beta1",
         "v2.0.0", 
@@ -52,7 +52,7 @@ def describe_release():
         assert releases[0].name == "v1.0.0"
         assert releases[1].name == "v1.0.1"
         assert releases[2].name == "v1.0.2"
-        assert releases[3].name == "v1.1.0"
+        assert releases[3].name == "1.1.0"
         assert releases[4].name == "v2.0.0-alpha1"
         assert releases[5].name == "v2.0.0-beta1"
         assert releases[6].name == "v2.0.0"
@@ -63,7 +63,7 @@ def describe_release():
         assert releases[0].version.full_name == "v1.0.0"
         assert releases[1].version.full_name == "v1.0.1"
         assert releases[2].version.full_name == "v1.0.2"
-        assert releases[3].version.full_name == "v1.1.0"
+        assert releases[3].version.full_name == "1.1.0"
         assert releases[4].version.full_name == "v2.0.0-alpha1"
         assert releases[5].version.full_name == "v2.0.0-beta1"
         assert releases[6].version.full_name == "v2.0.0"
@@ -75,7 +75,7 @@ def describe_release():
         assert "v1.0.0" in releases[1].base_releases
         assert "v1.0.1" in releases[2].base_releases
         assert "v1.0.1" in releases[3].base_releases
-        assert "v1.1.0" in releases[4].base_releases
+        assert "1.1.0" in releases[4].base_releases
         assert "v1.0.1" in releases[4].base_releases
         assert "v2.0.0-alpha1" in releases[5].base_releases
         assert "v1.0.1" in releases[6].base_releases
@@ -90,7 +90,7 @@ def describe_release():
         assert releases[1].main_base_release.name == "v1.0.0"
         assert releases[2].main_base_release.name == "v1.0.1"
         assert releases[3].main_base_release.name == "v1.0.1"
-        assert releases[4].main_base_release.name == "v1.1.0"
+        assert releases[4].main_base_release.name == "1.1.0"
         assert releases[5].main_base_release.name == "v2.0.0-alpha1"
         assert releases[6].main_base_release.name == "v2.0.0-beta1"
         assert releases[7].main_base_release.name == "v2.0.0"
@@ -112,7 +112,7 @@ def describe_release_version():
         assert release_versions[0].full_name == "v1.0.0"
         assert release_versions[1].full_name == "v1.0.1"
         assert release_versions[2].full_name == "v1.0.2"
-        assert release_versions[3].full_name == "v1.1.0"
+        assert release_versions[3].full_name == "1.1.0"
         assert release_versions[4].full_name == "v2.0.0-alpha1"
         assert release_versions[5].full_name == "v2.0.0-beta1"
         assert release_versions[6].full_name == "v2.0.0"
@@ -134,7 +134,8 @@ def describe_release_version():
         assert release_versions[0].prefix == "v"
         assert release_versions[1].prefix == "v"
         assert release_versions[2].prefix == "v"
-        assert release_versions[3].prefix == "v"
+        assert release_versions[3].prefix == ""
+        assert not release_versions[3].prefix
         assert release_versions[4].prefix == "v"
         assert release_versions[5].prefix == "v"
         assert release_versions[6].prefix == "v"
@@ -142,15 +143,16 @@ def describe_release_version():
         assert release_versions[8].prefix == "v"
 
     def it_may_have_a_suffix(release_versions: List[ReleaseVersion]):
-        assert release_versions[0].suffix == None
-        assert release_versions[1].suffix == None
-        assert release_versions[2].suffix == None
-        assert release_versions[3].suffix == None
+        assert not release_versions[0].suffix
+        assert release_versions[0].suffix == ""
+        assert release_versions[1].suffix == ""
+        assert release_versions[2].suffix == ""
+        assert release_versions[3].suffix == ""
         assert release_versions[4].suffix == "-alpha1"
         assert release_versions[5].suffix == "-beta1"
-        assert release_versions[6].suffix == None
-        assert release_versions[7].suffix == None
-        assert release_versions[8].suffix == None
+        assert release_versions[6].suffix == ""
+        assert release_versions[7].suffix == ""
+        assert release_versions[8].suffix == ""
 
     def it_has_version_numbers(release_versions: List[ReleaseVersion]):
         assert release_versions[0].numbers[0] == 1

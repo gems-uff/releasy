@@ -10,7 +10,6 @@ pyyaml = "*"
 
 [dev-packages]
 pylint = "*"
-#pytest = "==5.0.1"
 pytest = "*"
 pytest-cov = "*"
 pytest-profiling = "*"

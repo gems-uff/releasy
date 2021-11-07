@@ -121,8 +121,8 @@ class ReleaseVersion():
     def __init__(self, name: str, separator: re.Pattern = None,
                  version_separator: re.Pattern = None) -> None:
         self.full_name = name
-        self.prefix = None
-        self.suffix = None
+        self.prefix = ''
+        self.suffix = ''
         
         if not separator:
             separator = re.compile(
