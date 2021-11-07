@@ -85,10 +85,6 @@ class Release:
         return repr(self.name)
 
     @property
-    def type(self):
-        return self.version.type
-
-    @property
     def merges(self):
         return set(commit for commit in self.commits if len(commit.parents) > 1)
 
@@ -144,12 +140,35 @@ class ReleaseName(str):
         return hash(self.value)
 
 
+TYPE_MAJOR   = 0b1100
+TYPE_MINOR   = 0b0100
+TYPE_MAIN    = 0b0100
+TYPE_PATCH   = 0b0010
+TYPE_PRE     = 0b0001
 class ReleaseVersion():
-    def __init__(self, version: str) -> None:
-        self.name = version
-        if version:
-            #TODO convert to int
-            self.number = [number for number in version.split(".")]
+    def __init__(self, name: str, separator: re.Pattern = None,
+                 version_separator: re.Pattern = None) -> None:
+        self.full_name = name
+        self.prefix = None
+        self.suffix = None
+        
+        if not separator:
+            separator = re.compile(
+                r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
+            )
+        parts = separator.match(name)
+        if parts:
+            if parts.group('prefix'):
+                self.prefix = parts.group('prefix')
+            if parts.group('suffix'):
+                self.suffix = parts.group('suffix')
+            if parts.group('version'):
+                self.number = parts.group('version')
+
+        if not version_separator:
+            version_separator = re.compile(r'([0-9]+)')
+        version_parts = version_separator.findall(self.number)
+        self.numbers = [int(version_part) for version_part in version_parts]
 
     def __lt__(self, other):
         return self.__cmp(self, other) < 0
@@ -162,21 +181,31 @@ class ReleaseVersion():
     def __ge__(self, other):
         return self.__cmp(self, other) >= 0
 
-    @property
-    def type(self):
-        if int(self.number[2]) > 0:
-            return "PATCH"
-        elif int(self.number[1]) > 0:
-            return "MINOR"
-        elif int(self.number[0]) > 0:
-            return "MAJOR"
-        return "UNKNOWN"
-
     def __cmp(self, version_a: ReleaseVersion, version_b: ReleaseVersion) -> int:
-        for token_a, token_b in zip(version_a.number, version_b.number):
-            if token_a > token_b:
+        for vnumber_a, vnumber_b in zip(version_a.numbers, version_b.numbers):
+            if vnumber_a > vnumber_b:
                 return 1
-            if token_a < token_b:
+            if vnumber_a < vnumber_b:
                 return -1
+        if not version_a.suffix and version_b.suffix:
+            return 1
+        elif version_a.suffix and not version_b.suffix:
+            return -1
+        #TODO sort pre releases
         return 0
 
+    def type(self, mask: int):
+        type = 0b0
+        if self.suffix:
+            type |= TYPE_PRE
+        if int(self.numbers[2]) > 0:
+            type |= TYPE_PATCH
+        elif int(self.numbers[1]) > 0:
+            type |= TYPE_MINOR
+        elif int(self.numbers[0]) > 0:
+            type |= TYPE_MAJOR
+        
+        if type & mask == mask:
+            return True
+        else:
+            return False

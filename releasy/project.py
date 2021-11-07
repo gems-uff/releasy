@@ -5,6 +5,9 @@ from .metamodel import (
     Datasource
 )
 from .release import (
+    TYPE_MAIN,
+    TYPE_MAJOR,
+    TYPE_PATCH,
     Release,
     ReleaseSet
 )
@@ -22,9 +25,7 @@ class Project():
 
     def add_release(self, release: Release):
         self.releases.add(release)
-        switch = {
-            "MAJOR": lambda release: self.main_releases.add(release),
-            "MINOR": lambda release: self.main_releases.add(release),
-            "PATCH": lambda release: self.patches.add(release)
-        }
-        switch.get(release.type)(release)
+        if release.version.type(TYPE_MAIN):
+            self.main_releases.add(release)
+        if release.version.type(TYPE_PATCH):
+            self.patches.add(release)
