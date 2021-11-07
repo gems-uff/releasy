@@ -1,7 +1,7 @@
 """
 """
 from __future__ import annotations
-from typing import (List, Set)
+from typing import (Dict, List, Set)
 
 import re
 
@@ -70,7 +70,7 @@ class Release:
         self.time = time
         self.description = description
         self.commits: Set[Commit] = set([self.head])
-        self.base_releases: Set[Release] = set()
+        self.base_releases: Dict[str, Release] = {}
         self.contributors : ContributorTracker = ContributorTracker()
 
     def __hash__(self):
@@ -92,59 +92,31 @@ class Release:
     def main_base_release(self):
         if not self.base_releases:
             return None
-            
-        sorted_breleases = sorted(self.base_releases, 
-                                  key = lambda release : release.name.version)
-        return sorted_breleases[-1]
+        breleases = [value for key, value in self.base_releases.items()]
+        breleases.append(self)
+        sorted_breleases = sorted(breleases, 
+                                  key = lambda release : release.version)
+        self_release_index = sorted_breleases.index(self)
+        return sorted_breleases[self_release_index-1]
+
+    def add_base_release(self, release: Release):
+        if release:
+            self.base_releases[release.name] = release
 
 
 class TagRelease(Release):
     """ A release represented by a tag """
 
-    def __init__(self, tag: Tag, name: ReleaseName):
+    def __init__(self, tag: Tag, name: str):
         super().__init__(name, tag.commit, tag.time, None) #TODO add description
         self.tag = tag
 
 
-class ReleaseName(str):
-    """ Represent a release name, with prefix, version and suffix """
-    def __init__(self, name: str, prefix: str = None, version: ReleaseVersion = None, suffix: str = None):
-        if not name:
-            raise ValueError("release name must have a non empty name")
-        self.value = name
-        self.prefix = prefix or None
-        self.version = version or None
-        self.suffix = suffix or None
-
-    @property
-    def semantic_version(self):
-        """ Return 3 first version numbers separated by dot. Add 0 to missing 
-        version and remove version number beyond 3 """
-        
-        version_sep = re.compile(r"[\._]")
-
-        if not self.version:
-            return None
-        
-        version_part = version_sep.split(self.version)
-        version_part_cnt = len (version_part)
-
-        for i in range(3 - version_part_cnt):
-            version_part.append("0")
-        return f"{version_part[0]}.{version_part[1]}.{version_part[2]}"
-
-    def __new__(self, name, *args, **kwargs):
-        return super().__new__(self, name)
-
-    def __hash__(self):
-        return hash(self.value)
-
-
-TYPE_MAJOR   = 0b1100
-TYPE_MINOR   = 0b0100
-TYPE_MAIN    = 0b0100
-TYPE_PATCH   = 0b0010
-TYPE_PRE     = 0b0001
+TYPE_MAJOR   = 0b10000
+TYPE_MINOR   = 0b01000
+TYPE_MAIN    = 0b00100
+TYPE_PRE     = 0b00010
+TYPE_PATCH   = 0b00001
 class ReleaseVersion():
     def __init__(self, name: str, separator: re.Pattern = None,
                  version_separator: re.Pattern = None) -> None:
@@ -191,20 +163,29 @@ class ReleaseVersion():
             return 1
         elif version_a.suffix and not version_b.suffix:
             return -1
-        #TODO sort pre releases
+
+        if version_a.suffix and version_b.suffix:
+            if version_a.suffix > version_b.suffix:
+                return 1
+            elif version_a.suffix < version_b.suffix:
+                return -1
+
         return 0
 
     def type(self, mask: int):
         type = 0b0
-        if self.suffix:
-            type |= TYPE_PRE
         if int(self.numbers[2]) > 0:
             type |= TYPE_PATCH
         elif int(self.numbers[1]) > 0:
             type |= TYPE_MINOR
         elif int(self.numbers[0]) > 0:
             type |= TYPE_MAJOR
-        
+
+        if self.suffix:
+            type |= TYPE_PRE
+        elif not (type & TYPE_PATCH):
+            type |= TYPE_MAIN
+
         if type & mask == mask:
             return True
         else:

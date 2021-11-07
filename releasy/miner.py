@@ -16,7 +16,6 @@ from .release import (
     Release,
     TagRelease,
     ReleaseSet,
-    ReleaseName,
     ReleaseVersion
 )
 
@@ -109,7 +108,7 @@ class VersionReleaseMatcher(ReleaseMatcher):
             prefix = match.group("prefix")
             version = match.group("version")
             suffix = match.group("suffix")
-            return ReleaseName(name, prefix, ReleaseVersion(version), suffix)
+            return name
         else:
             return None
 
