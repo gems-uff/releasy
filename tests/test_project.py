@@ -6,6 +6,7 @@ from releasy.release import (Release)
 
 from .mock import VcsMock
 from .test_release import (
+    reference,
     release_names,
     release_times,
     releases
@@ -35,9 +36,3 @@ def describe_project():
         assert len(project.prefixes) == 2
         assert "v" in project.prefixes
         assert "" in project.prefixes
-
-# def test_suffixes():
-#     releases = ReleaseSet()
-#     releases.add(Release(ReleaseName("v1.0.0a", "v", "1.0.0", "a"), None, None, None))
-#     releases.add(Release(ReleaseName("1.0.1", "", "1.0.1", ""), None, None, None))
-#     assert len(releases.suffixes) == 2

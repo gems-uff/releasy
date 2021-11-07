@@ -26,8 +26,11 @@ def release_names() -> List[str]:
     ]
 
 @pytest.fixture
-def release_times() -> List[datetime.datetime]:
-    reference = datetime.datetime(2020, 1, 1, 12, 00)
+def reference():
+    return datetime.datetime(2020, 1, 1, 12, 00)
+
+@pytest.fixture
+def release_times(reference: datetime.datetime) -> List[datetime.datetime]:
     return [
         reference + datetime.timedelta(days=2, hours=1), # "v1.0.0",
         reference + datetime.timedelta(days=4, hours=1), # "v1.0.1",
@@ -123,6 +126,21 @@ def describe_release():
         assert "1.0.1" in release.base_releases
         assert release.main_base_release.name == "0.9.0"
         
+    def it_has_time(releases: List[Release], 
+                    release_times: List[datetime.datetime]):
+        for release, time in zip(releases, release_times):
+            assert release.time == time
+
+    def it_has_delay(releases: List[Release]):
+        assert releases[1].delay == datetime.timedelta(days=2)
+        assert releases[2].delay == datetime.timedelta(days=10)
+        assert releases[3].delay == datetime.timedelta(days=3)
+        assert releases[4].delay == datetime.timedelta(days=2)
+        assert releases[5].delay == datetime.timedelta(days=2)
+        assert releases[6].delay == datetime.timedelta(days=4)
+        assert releases[7].delay == datetime.timedelta(hours=1)
+        assert releases[8].delay == datetime.timedelta(days=6)
+
 
 def describe_release_version():
     def it_has_a_name(release_versions: List[ReleaseVersion]):
@@ -226,4 +244,3 @@ def describe_release_version():
         assert not release_versions[7].type(TYPE_MAIN)
         assert release_versions[8].type(TYPE_MINOR)
         assert release_versions[8].type(TYPE_MAIN)
-

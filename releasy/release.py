@@ -107,7 +107,8 @@ class Release:
     @property
     def delay(self):
         """Time interval between the release and it main base release"""
-
+        if self.main_base_release:
+            return self.time - self.main_base_release.time
 
 class TagRelease(Release):
     """ A release represented by a tag """
