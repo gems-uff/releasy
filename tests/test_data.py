@@ -1,5 +1,6 @@
 import pytest
-from releasy.metamodel import Release, ReleaseSet, ReleaseName, FrequencySet, Commit
+from releasy.metamodel import FrequencySet, Commit
+from releasy.release import (Release, ReleaseSet, ReleaseName)
 
 
 def test_release_set():

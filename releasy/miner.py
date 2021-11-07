@@ -10,8 +10,15 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import ContributorTracker, Release, Developer, ReleaseVersion, TagRelease, ReleaseSet, ReleaseName, Tag, Commit, Vcs, Datasource
+from .metamodel import ContributorTracker, Developer, Commit, Datasource
 
+from .release import (
+    Release,
+    TagRelease,
+    ReleaseSet,
+    ReleaseName,
+    ReleaseVersion
+)
 
 class ReleaseMatcher:
     """ Check if a name represent a release """
@@ -337,7 +344,7 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
 
 class ReachableCommitMiner(AbstractCommitMiner):
 
-    def _track_commits(self, head: Commit, start_time = None, include_self: Boolean = False):
+    def _track_commits(self, head: Commit, start_time = None, include_self = False):
         """ return a list of all reachable commits from head made after start_time """
         ctrl = set()
         commits = set()

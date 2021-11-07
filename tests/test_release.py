@@ -1,12 +1,30 @@
 
-import releasy
-from releasy.metamodel import Datasource, ReleaseVersion
+from releasy.factory import ProjectMiner as Miner
+from releasy.metamodel import Datasource
+from releasy.release import ReleaseVersion
 
+from releasy.release import Release
 from .mock import VcsMock
+
+def describe_release():
+    def it_has_name():
+        release = Release("1.0.0")
+        assert release.name == "1.0.0"
+
+    def it_has_version():
+        release = Release("1.0.0")
+        assert release.version.name == "1.0.0"
+
+    def version_can_be_different_from_name():
+        release = Release("v1.0.0")
+        assert release.name == "v1.0.0"
+        #TODO change to version.number
+        #TODO handle prefix / suffix
+        #assert release.version.name == "1.0.0"
 
 
 def test_base_releases():
-    miner = releasy.Miner()
+    miner = Miner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
     assert not releases["v1.0.0"].base_releases
@@ -21,7 +39,7 @@ def test_base_releases():
 
 
 def test_main_base_release():
-    miner = releasy.Miner()
+    miner = Miner()
     project = miner.mine(Datasource(vcs=VcsMock()))
     releases = project.releases
     assert not releases["v1.0.0"].main_base_release
@@ -38,10 +56,10 @@ def test_main_base_release():
 
 def test_release_version():
     version = ReleaseVersion("1.2.3")
-    assert version.version == "1.2.3"
-    assert version.tokens[0] == "1"
-    assert version.tokens[1] == "2"
-    assert version.tokens[2] == "3"
+    assert version.name == "1.2.3"
+    assert version.number[0] == "1"
+    assert version.number[1] == "2"
+    assert version.number[2] == "3"
 
 
 def test_release_version_comparator():

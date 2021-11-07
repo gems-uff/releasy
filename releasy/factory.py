@@ -1,9 +1,17 @@
 from __future__ import annotations
 
-from abc import ABCMeta
-
-from .miner import AbstractReleaseMiner, AbstractReleaseSorter, Datasource, HistoryCommitMiner, ReleaseMatcher, TagReleaseMiner, TimeReleaseSorter, TimeVersionReleaseSorter, VersionReleaseMatcher
-from .metamodel import Project, Vcs
+from .miner import (
+    AbstractReleaseMiner,
+    AbstractReleaseSorter,
+    Datasource,
+    HistoryCommitMiner,
+    ReleaseMatcher,
+    TagReleaseMiner,
+    TimeReleaseSorter,
+    VersionReleaseMatcher
+)
+from .metamodel import Vcs
+from .project import Project
 
 class ProjectMiner():
     strategy = None
