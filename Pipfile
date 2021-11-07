@@ -21,4 +21,4 @@ pytest-describe = "*"
 python_version = "3.8"
 
 [scripts]
-test = "pytest"
+test = "pytest --cov"
