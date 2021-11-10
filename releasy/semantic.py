@@ -5,6 +5,7 @@ Add semantic to releases, i.e.:
   - Patches
 """
 from __future__ import annotations
+import datetime
 from typing import Dict, List
 from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Release
 
@@ -34,6 +35,10 @@ class SemanticRelease:
         if self.name in base_main_releases:
             del base_main_releases[self.name]
         return base_main_releases
+
+    @property
+    def time(self):
+        return self.release.time
 
 
 class MainRelease(SemanticRelease):
@@ -98,6 +103,12 @@ class MainRelease(SemanticRelease):
             key = lambda main_release : main_release.release.version)
         self_release_index = sorted_base_main_releases.index(self)
         return sorted_base_main_releases[self_release_index-1]
+
+    @property
+    def delay(self) -> datetime.timedelta:
+        """Time interval between the release and it base main release"""
+        if self.base_main_release:
+            return self.time - self.base_main_release.time
 
 
 class Patch(SemanticRelease):

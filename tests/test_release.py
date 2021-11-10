@@ -132,6 +132,7 @@ def describe_release():
             assert release.time == time
 
     def it_has_delay(releases: List[Release]):
+        #TODO release[0].delay
         assert releases[1].delay == datetime.timedelta(days=2)
         assert releases[2].delay == datetime.timedelta(days=10)
         assert releases[3].delay == datetime.timedelta(days=3)

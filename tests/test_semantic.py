@@ -1,4 +1,5 @@
 
+import datetime
 import pytest
 
 from typing import List
@@ -98,6 +99,11 @@ def describe_main_release():
         assert main_releases[2].base_main_release.name == "1.1.0"
         assert main_releases[3].base_main_release.name == "2.0.0"
 
+    def it_has_delay(main_releases: List[MainRelease]):
+        #assert releases[0].delay == datetime.timedelta(days=2)
+        assert main_releases[1].delay == datetime.timedelta(days=5)
+        assert main_releases[2].delay == datetime.timedelta(days=8)
+        assert main_releases[3].delay == datetime.timedelta(days=6)
 
 def describe_patch():
     def it_has_a_name(patches: List[Patch]):
@@ -120,4 +126,3 @@ def describe_pre_release():
     def it_has_a_name(pre_releases: List[PreRelease]):
         assert pre_releases[0].name == "2.0.0-alpha1"
         assert pre_releases[1].name == "2.0.0-beta1"
-        
