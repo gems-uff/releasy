@@ -5,7 +5,7 @@ import datetime
 
 from releasy.factory import ProjectMiner as Miner
 from releasy.metamodel import Datasource
-from releasy.release import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseVersion
+from releasy.release import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseSet, ReleaseVersion
 
 from releasy.release import Release
 from .mock import VcsMock
@@ -49,8 +49,8 @@ def release_versions(release_names: List[str]):
 
 @pytest.fixture
 def releases(release_names: List[str], release_times: List[datetime.datetime]):
-    releases: List[Release] = [Release(name, time=time) for name, time 
-                               in zip(release_names, release_times)]
+    releases = ReleaseSet([Release(name, time=time) for name, time 
+                          in zip(release_names, release_times)])
 
     releases[1].add_base_release(releases[0])
     releases[2].add_base_release(releases[1])
@@ -245,3 +245,15 @@ def describe_release_version():
         assert not release_versions[7].type(TYPE_MAIN)
         assert release_versions[8].type(TYPE_MINOR)
         assert release_versions[8].type(TYPE_MAIN)
+
+
+def describe_release_set():
+    def it_contains_releases():
+        releases = ReleaseSet()
+        releases.add(Release("1.0.0"))
+        releases.add(Release("1.0.1"))
+        assert releases[0].name == "1.0.0"
+        assert releases[1].name == "1.0.1"
+        assert releases["1.0.0"].name == "1.0.0"
+        assert releases["1.0.1"].name == "1.0.1"
+        assert len(releases) == 2

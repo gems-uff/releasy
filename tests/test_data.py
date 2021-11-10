@@ -6,15 +6,6 @@ from releasy.release import (
 )
 
 
-def test_release_set():
-    releases = ReleaseSet()
-    releases.add(Release("0", None, None, None))
-    releases.add(Release("1", None, None, None))
-    assert releases[0].name == "0"
-    assert releases[1].name == "1"
-    assert releases["1"].name == "1"
-
-
 def test_release_data():
     releases = ReleaseSet()
     c1 = Commit("a")

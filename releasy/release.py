@@ -1,64 +1,12 @@
 """
 """
 from __future__ import annotations
-from typing import (Dict, List, Set)
+from typing import (Dict, Generic, List, Set, TypeVar)
 
 import re
 
 from .metamodel import ContributorTracker, FrequencySet, Tag
 from .metamodel import Commit
-
-
-class ReleaseSet:
-    """ An easy form to retrieve releases. It contains a set of releases, 
-    its commits, and base releases"""
-    def __init__(self):
-        self.index = {}
-        self.releases : List[Release] = []
-
-    def __getitem__(self, key):
-        if isinstance(key, int):
-            return self.releases[key]
-        elif isinstance(key, str):
-            return self.releases[self.index[key]]
-        else: 
-            raise TypeError()
-
-    def add(self, release: Release):
-        if release.name not in self.index:
-            self.releases.append(release)
-        self.index[release.name] = len(self.releases)-1
-
-    def add_all(self, releases: List[Release]):
-        for release in releases:
-            self.releases.append(release)
-            self.index[release.name] = len(self.releases)-1
-
-    def get_all(self):
-        return self.releases
-
-    @property
-    def prefixes(self):
-        """ return a set with all the release prefixes, including None if there
-        is at least one release withou prefix """
-        prefixes = FrequencySet()
-        for release in self.releases:
-            prefixes.add(release.name.prefix)
-        return prefixes
-
-    @property
-    def suffixes(self):
-        """ return a set with all the release suffixes """
-        suffixes = FrequencySet()
-        for release in self.releases:
-            suffixes.add(release.name.suffix)
-        return suffixes
-
-    def __len__(self):
-      return len(self.releases)
-
-    def index_of(self, release: Release):
-        return self.index[release.name]
 
 
 class Release:
@@ -197,3 +145,26 @@ class ReleaseVersion():
             return True
         else:
             return False
+
+class ReleaseSet():
+    def __init__(self, releases = None) -> None:
+        self.releases: Dict[str, Release] = {}
+        if releases: 
+            for release in releases:
+                self.add(release)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            release_name = list(self.releases.keys())[key]
+            return self.releases[release_name]
+        elif isinstance(key, str):
+            return self.releases[key]
+        else:
+            raise TypeError()
+
+    def add(self, release: Release):
+        if release:
+            self.releases[release.name] = release
+
+    def __len__(self):
+        return len(self.releases)

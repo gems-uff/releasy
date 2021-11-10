@@ -28,8 +28,6 @@ class Project():
             self.main_releases.add(release)
         if release.version.type(TYPE_PATCH):
             self.patches.add(release)
-        if release.version.type(TYPE_PATCH):
-            self.patches.add(release) 
         if release.version.type(TYPE_PRE):
             self.pre_releases.add(release) 
 

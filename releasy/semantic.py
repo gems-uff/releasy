@@ -7,7 +7,7 @@ Add semantic to releases, i.e.:
 from __future__ import annotations
 import datetime
 from typing import Dict, List
-from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Release
+from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Release, ReleaseVersion
 
 class SemanticRelease:
     """Add semantic to a release"""
@@ -37,7 +37,11 @@ class SemanticRelease:
         return base_main_releases
 
     @property
-    def time(self):
+    def version(self) -> ReleaseVersion:
+        return self.release.version
+
+    @property
+    def time(self) -> datetime.datetime:
         return self.release.time
 
 

@@ -36,13 +36,11 @@ class ReleaseSorter(AbstractReleaseSorter):
     """ Sort releases according to a criteria """
 
     def sort(self, releases: ReleaseSet):
-        internal_releases = releases.get_all()
         if self._key_compare():
-            sorted_internal_releases = sorted(internal_releases, key=self._key)
+            sorted_internal_releases = sorted(releases, key=self._key)
         else: 
-            sorted_internal_releases = sorted(internal_releases, key=cmp_to_key(self._cmp))
-        sorted_releases = ReleaseSet()
-        sorted_releases.add_all(sorted_internal_releases)
+            sorted_internal_releases = sorted(releases, key=cmp_to_key(self._cmp))
+        sorted_releases = ReleaseSet(sorted_internal_releases)
 
         prev_base_releases = []
         for release in sorted_releases:

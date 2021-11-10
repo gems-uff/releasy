@@ -73,6 +73,13 @@ def describe_main_release():
         assert main_releases[1].release.name == "1.1.0"
         assert main_releases[2].release.name == "v2.0.0"
         assert main_releases[3].release.name == "v2.1.0"
+    
+    def it_has_a_version(main_releases: List[MainRelease]):
+        assert len(main_releases) == 4
+        assert main_releases[0].version.number == "1.0.0"
+        assert main_releases[1].version.number == "1.1.0"
+        assert main_releases[2].version.number == "2.0.0"
+        assert main_releases[3].version.number == "2.1.0"
 
     def it_may_have_patches(main_releases: List[MainRelease]):
         assert len(main_releases[0].patches) == 2
