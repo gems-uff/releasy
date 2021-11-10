@@ -11,7 +11,8 @@ from releasy.release import (
 )
 from releasy.semantic import (
     MainRelease,
-    Patch
+    Patch,
+    PreRelease
 )
 
 from .test_project import project
@@ -30,10 +31,16 @@ def main_releases(releases: List[Release]) -> List[MainRelease]:
     patches = [Patch(release) for release in releases 
                               if release.version.type(TYPE_PATCH)
                               and not release.version.type(TYPE_PRE)]
-
-    for mrelease in main_releases:
+    for main_release in main_releases:
         for patch in patches:
-            mrelease.add_patch(patch)
+            main_release.add_patch(patch)
+
+    pre_releases = [PreRelease(release) for release in releases 
+                                        if release.version.type(TYPE_PRE)]
+    for main_release in main_releases:
+        for pre_release in pre_releases:
+            main_release.add_pre_release(pre_release)
+
     return main_releases
 
 @pytest.fixture
@@ -44,12 +51,20 @@ def patches(main_releases: List[MainRelease]) -> List[Patch]:
             patches.append(patch)
     return patches
 
+@pytest.fixture
+def pre_releases(main_releases: List[MainRelease]) -> List[Patch]:
+    pre_releases = []
+    for main_release in main_releases:
+        for pre_releases_version, pre_release in main_release.pre_releases.items():
+            pre_releases.append(pre_release)
+    return pre_releases
+
 def describe_main_release():
     def it_has_a_name(main_releases: List[MainRelease]):
-        assert main_releases[0].name == "1.x.x"
-        assert main_releases[1].name == "1.1.x"
-        assert main_releases[2].name == "2.x.x"
-        assert main_releases[3].name == "2.1.x"
+        assert main_releases[0].name == "1.0.0"
+        assert main_releases[1].name == "1.1.0"
+        assert main_releases[2].name == "2.0.0"
+        assert main_releases[3].name == "2.1.0"
 
     def it_has_a_release(main_releases: List[MainRelease]):
         assert len(main_releases) == 4
@@ -67,16 +82,21 @@ def describe_main_release():
         assert "2.0.1" in main_releases[2].patches
         assert len(main_releases[3].patches) == 0
 
-    #TODO FIX
-    # def it_may_have_base_main_releases(main_releases: List[MainRelease]):
-    #     assert not main_releases[0].base_main_releases
-    #     assert len(main_releases[1].base_main_releases) == 1 
-    #     assert "1.x.x" in main_releases[1].base_main_releases
-        # assert len(main_releases[2].base_main_releases) == 2
-        # assert "1.x.x" in main_releases[2].base_main_releases
-        # assert "1.1.x" in main_releases[2].base_main_releases
-        #assert len(main_releases[3].base_main_releases) == 1
-        # assert "2.x.x" in main_releases[3].base_main_releases
+    def it_have_base_main_releases(main_releases: List[MainRelease]):
+        assert not main_releases[0].base_main_releases
+        assert len(main_releases[1].base_main_releases) == 1 
+        assert "1.0.0" in main_releases[1].base_main_releases
+        assert len(main_releases[2].base_main_releases) == 2
+        assert "1.0.0" in main_releases[2].base_main_releases
+        assert "1.1.0" in main_releases[2].base_main_releases
+        assert len(main_releases[3].base_main_releases) == 1
+        assert "2.0.0" in main_releases[3].base_main_releases
+
+    def it_have_a_base_main_release(main_releases: List[MainRelease]):
+        assert not main_releases[0].base_main_release
+        assert main_releases[1].base_main_release.name == "1.0.0"
+        assert main_releases[2].base_main_release.name == "1.1.0"
+        assert main_releases[3].base_main_release.name == "2.0.0"
 
 
 def describe_patch():
@@ -91,15 +111,13 @@ def describe_patch():
         assert patches[2].release.name == "v2.0.1"
 
     def it_has_a_main_release(patches: List[Patch]):
-        assert patches[0].main_release.name == '1.x.x'
-        assert patches[1].main_release.name == '1.x.x'
-        assert patches[2].main_release.name == '2.x.x'
+        assert patches[0].main_release.name == '1.0.0'
+        assert patches[1].main_release.name == '1.0.0'
+        assert patches[2].main_release.name == '2.0.0'
 
-    def it_has_base_main_releases(patches: List[Patch]):
-        assert len(patches[0].base_main_releases) == 1
-        assert '1.x.x' in patches[0].base_main_releases
-        assert len(patches[1].base_main_releases) == 1
-        assert '1.x.x' in patches[1].base_main_releases
-        assert len(patches[2].base_main_releases) == 1
-        assert '2.x.x' in patches[2].base_main_releases
 
+def describe_pre_release():
+    def it_has_a_name(pre_releases: List[PreRelease]):
+        assert pre_releases[0].name == "2.0.0-alpha1"
+        assert pre_releases[1].name == "2.0.0-beta1"
+        

@@ -12,18 +12,46 @@ class SemanticRelease:
     """Add semantic to a release"""
     def __init__(self, release: Release) -> None:
         self.release: Release = release
-        release.semantic_reference = self
+        release.sm_release = self
+
+    def name(self) -> str:
+        pass
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    @property
+    def base_main_releases(self) -> Dict[str, MainRelease]:
+        base_main_releases = {}
+        for name, base_release in self.release.base_releases.items():
+            sm_base_release = base_release.sm_release
+            if isinstance(sm_base_release, MainRelease):
+                base_main_releases[sm_base_release.name] = sm_base_release
+            else: # Patches or Pre releases
+                base_main_releases[sm_base_release.main_release.name] \
+                                    = sm_base_release.main_release
+
+        if self.name in base_main_releases:
+            del base_main_releases[self.name]
+        return base_main_releases
+
 
 class MainRelease(SemanticRelease):
     """A feature release (major or minor)"""
     def __init__(self, release: Release) -> None:
         super().__init__(release)
         self.patches: Dict[str, Patch]= {} 
+        self.pre_releases: Dict[str, PreRelease]= {} 
 
     def add_patch(self, patch: Patch):
         if patch and self.is_patch_compatible(patch):
             self.patches[patch.name] = patch
             patch.main_release = self
+
+    def add_pre_release(self, pre_release: PreRelease):
+        if pre_release and self.is_pre_release_compatible(pre_release):
+            self.pre_releases[pre_release.name] = pre_release
+            pre_release.main_release = self
 
     def is_patch_compatible(self, patch: Patch):
         mrelease_version = self.release.version
@@ -33,26 +61,43 @@ class MainRelease(SemanticRelease):
             return True
         return False
 
+    def is_pre_release_compatible(self, pre_release: PreRelease):
+        if self.release.version.number == pre_release.release.version.number:
+            return True
+        return False
+
     @property
     def name(self) -> str:
         if self.release.version.type(TYPE_MAJOR):
-            return f"{self.release.version.numbers[0]}.x.x"
+            return f"{self.release.version.numbers[0]}.0.0"
         else:
-            return f"{self.release.version.numbers[0]}.{self.release.version.numbers[1]}.x"
+            return f"{self.release.version.numbers[0]}.{self.release.version.numbers[1]}.0"
+
+    def __str__(self) -> str:
+        return f"Main {self.name}"
 
     @property
-    def base_main_releases(self) -> List[MainRelease]:
-        base_releases = {}
-        for version, brelease in self.release.base_releases.items():
-            semantic_brelease = brelease.semantic_reference
-            if brelease.version.type(TYPE_MAIN) \
-                    and self.release.version != brelease.version:
-                base_releases[semantic_brelease.name] = semantic_brelease
-            elif brelease.version.type(TYPE_PATCH) \
-                    and self.release.version != semantic_brelease.main_release.release.version:
-                semantic_brelease = brelease.semantic_reference.main_release
-                base_releases[semantic_brelease.name] = semantic_brelease
-        return base_releases
+    def base_main_releases(self) -> Dict[str, MainRelease]:
+        base_main_releases = super().base_main_releases
+        for name, pre_release in self.pre_releases.items():
+            base_main_releases.update(pre_release.base_main_releases)
+        
+        if self.name in base_main_releases:
+            del base_main_releases[self.name]
+        return base_main_releases
+
+    @property
+    def base_main_release(self) -> MainRelease:
+        if not self.base_main_releases:
+            return None
+        base_main_releases = [value for key, value \
+                              in self.base_main_releases.items()]
+        base_main_releases.append(self)
+        sorted_base_main_releases = sorted(
+            base_main_releases, 
+            key = lambda main_release : main_release.release.version)
+        self_release_index = sorted_base_main_releases.index(self)
+        return sorted_base_main_releases[self_release_index-1]
 
 
 class Patch(SemanticRelease):
@@ -64,18 +109,17 @@ class Patch(SemanticRelease):
     def name(self) -> str:
         return self.release.version.number
 
-    @property
-    def base_main_releases(self) -> Dict[str, Release]:
-        base_releases = {}
-        for version, brelease in self.release.base_releases.items():
-            semantic_brelease = brelease.semantic_reference
-            if brelease.version.type(TYPE_MAIN) \
-                    and self.release.version != brelease.version:
-                base_releases[semantic_brelease.name] = semantic_brelease
-            elif brelease.version.type(TYPE_PATCH) \
-                    and self.release.version != semantic_brelease.main_release.release.version:
-                semantic_brelease = brelease.semantic_reference.main_release
-                base_releases[semantic_brelease.name] = semantic_brelease
-        return base_releases
+    def __str__(self) -> str:
+        return f"Patch {self.name}"
 
-        
+
+class PreRelease(SemanticRelease):
+    def __init__(self, release: Release) -> None:
+        super().__init__(release)
+
+    @property
+    def name(self) -> str:
+        return f'{self.release.version.number}{self.release.version.suffix}'
+
+    def __str__(self) -> str:
+        return f"Pre {self.name}"

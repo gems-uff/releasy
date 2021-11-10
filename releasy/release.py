@@ -73,6 +73,7 @@ class Release:
         self.commits: Set[Commit] = set([self.head])
         self.base_releases: Dict[str, Release] = {}
         self.contributors : ContributorTracker = ContributorTracker()
+        self.sm_release = None # TODO Add type
 
     def __hash__(self):
         return hash((self.name, self.head))
