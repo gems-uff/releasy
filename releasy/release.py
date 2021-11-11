@@ -148,23 +148,23 @@ class ReleaseVersion():
 
 class ReleaseSet():
     def __init__(self, releases = None) -> None:
-        self.releases: Dict[str, Release] = {}
+        self._releases: Dict[str, Release] = {}
         if releases: 
             for release in releases:
                 self.add(release)
 
     def __getitem__(self, key):
         if isinstance(key, int):
-            release_name = list(self.releases.keys())[key]
-            return self.releases[release_name]
+            release_name = list(self._releases.keys())[key]
+            return self._releases[release_name]
         elif isinstance(key, str):
-            return self.releases[key]
+            return self._releases[key]
         else:
             raise TypeError()
 
     def add(self, release: Release):
         if release:
-            self.releases[release.name] = release
+            self._releases[release.name] = release
 
     def __len__(self):
-        return len(self.releases)
+        return len(self._releases)

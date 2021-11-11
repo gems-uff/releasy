@@ -44,6 +44,11 @@ class SemanticRelease:
     def time(self) -> datetime.datetime:
         return self.release.time
 
+    @property
+    def commits(self):
+        """Main release commits"""
+        return self.release.commits
+
 
 class MainRelease(SemanticRelease):
     """A feature release (major or minor)"""
@@ -81,6 +86,17 @@ class MainRelease(SemanticRelease):
             return f"{self.release.version.numbers[0]}.0.0"
         else:
             return f"{self.release.version.numbers[0]}.{self.release.version.numbers[1]}.0"
+
+    @property
+    def commits(self):
+        """
+        Main release commits, which also include the commits from its pre
+        releases.
+        """
+        commits = super().commits
+        for pre_release in self.pre_releases:
+            commits.add(pre_release.commits)
+        return commits
 
     def __str__(self) -> str:
         return f"Main {self.name}"
