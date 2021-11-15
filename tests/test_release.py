@@ -91,7 +91,7 @@ def describe_release():
         assert releases[8].version.full_name == "v2.1.0"
 
     def it_has_base_releases(releases: List[Release]):
-        assert not releases[0].base_releases.values()
+        assert not releases[0].base_releases
         assert "v1.0.0" in releases[1].base_releases
         assert "v1.0.1" in releases[2].base_releases
         assert "v1.0.1" in releases[3].base_releases

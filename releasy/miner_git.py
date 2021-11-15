@@ -127,22 +127,6 @@ class GitCommit(Commit):
     def parents(self, parents):
         pass
 
-     #TODO We need to move this method for an util class
-    def diff_stats(self, commit=None):
-        """ Calculate diff stats from another commit. This method is useful to
-        calculate release churn """
-
-        stats = CommitStats()
-        if commit:
-            diff = self.__raw.tree.diff_to_tree(commit.__raw.tree)
-        else:
-            diff = self.__raw.tree.diff_to_tree()
-        # intentionaly inverted
-        stats.insertions = diff.stats.deletions
-        stats.deletions = diff.stats.insertions
-        stats.files_changed = diff.stats.files_changed
-        return stats
-
     def describe(self):
         try:
             tag_name = self._vcs._repo.describe(self._raw_commit,

@@ -48,7 +48,7 @@ def main_releases(releases: List[Release]) -> List[MainRelease]:
 def patches(main_releases: List[MainRelease]) -> List[Patch]:
     patches = []
     for main_release in main_releases:
-        for patch_version, patch in main_release.patches.items():
+        for patch in main_release.patches:
             patches.append(patch)
     return patches
 
@@ -56,7 +56,7 @@ def patches(main_releases: List[MainRelease]) -> List[Patch]:
 def pre_releases(main_releases: List[MainRelease]) -> List[Patch]:
     pre_releases = []
     for main_release in main_releases:
-        for pre_releases_version, pre_release in main_release.pre_releases.items():
+        for pre_release in main_release.pre_releases:
             pre_releases.append(pre_release)
     return pre_releases
 

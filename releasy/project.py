@@ -19,10 +19,19 @@ class Project():
 
     def __init__(self) -> None:
         self.datasource: Datasource = None
-        self.releases: ReleaseSet = ReleaseSet()
+        self._releases: ReleaseSet = ReleaseSet()
         self.main_releases = ReleaseSet()
         self.patches = ReleaseSet()
         self.pre_releases = ReleaseSet()
+
+    @property
+    def releases(self):
+        return self._releases
+
+    @releases.setter
+    def releases(self, releases):
+        for release in releases:
+            self.add_release(release)
 
     #TODO: it could be optimized in the future
     def add_release(self, release: Release):

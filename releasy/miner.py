@@ -290,7 +290,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
         #       after the actual release
 
         commits = set()
-        base_releases = set()
+        base_releases = ReleaseSet()
         commits_to_track = [ release.head ]
 
         while commits_to_track:

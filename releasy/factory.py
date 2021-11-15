@@ -22,18 +22,23 @@ class ProjectMiner():
             strategy = MiningStrategy.default()
         self.strategy = strategy
 
-    def mine(self, datasource: Datasource, **kwargs) -> Project:
+    def mine(self, *args, **kwargs) -> Project:
         """Create the project with all the releases"""
-        #vcs_params = [param for param in ]
-
         params = kwargs
+
+        if args: 
+            datasource = args[0]
+        elif 'datasource' in params:
+            datasource = params['datasource']
+        else:
+            datasource = Datasource()
+        
+        if 'vcs' not in params and 'path' in params:
+            datasource.vcs = GitVcs(params['path'])
 
         release_miner = self.strategy.release_mine_strategy
         release_miner.matcher = self.strategy.release_match_strategy
         release_miner.sorter = self.strategy.release_sort_strategy
-
-        if 'vcs' not in params and 'path' in params:
-            datasource.vcs = GitVcs(params['path'])
 
         releases = release_miner.mine_releases(datasource)
 

@@ -24,7 +24,7 @@ class SemanticRelease:
     @property
     def base_main_releases(self) -> Dict[str, MainRelease]:
         base_main_releases = {}
-        for name, base_release in self.release.base_releases.items():
+        for base_release in self.release.base_releases:
             sm_base_release = base_release.sm_release
             if isinstance(sm_base_release, MainRelease):
                 base_main_releases[sm_base_release.name] = sm_base_release
@@ -44,9 +44,10 @@ class SemanticRelease:
     def time(self) -> datetime.datetime:
         return self.release.time
 
+    #TODO: Add test to SM Release Commits
     @property
     def commits(self):
-        """Main release commits"""
+        """Release commits"""
         return self.release.commits
 
 
@@ -54,17 +55,17 @@ class MainRelease(SemanticRelease):
     """A feature release (major or minor)"""
     def __init__(self, release: Release) -> None:
         super().__init__(release)
-        self.patches: Dict[str, Patch]= {} 
-        self.pre_releases: Dict[str, PreRelease]= {} 
+        self.patches: SmReleaseSet = SmReleaseSet()
+        self.pre_releases: SmReleaseSet = SmReleaseSet()
 
     def add_patch(self, patch: Patch):
         if patch and self.is_patch_compatible(patch):
-            self.patches[patch.name] = patch
+            self.patches.add(patch)
             patch.main_release = self
 
     def add_pre_release(self, pre_release: PreRelease):
         if pre_release and self.is_pre_release_compatible(pre_release):
-            self.pre_releases[pre_release.name] = pre_release
+            self.pre_releases.add(pre_release)
             pre_release.main_release = self
 
     def is_patch_compatible(self, patch: Patch):
@@ -95,7 +96,7 @@ class MainRelease(SemanticRelease):
         """
         commits = super().commits
         for pre_release in self.pre_releases:
-            commits.add(pre_release.commits)
+            commits.update(pre_release.commits)
         return commits
 
     def __str__(self) -> str:
@@ -104,7 +105,7 @@ class MainRelease(SemanticRelease):
     @property
     def base_main_releases(self) -> Dict[str, MainRelease]:
         base_main_releases = super().base_main_releases
-        for name, pre_release in self.pre_releases.items():
+        for pre_release in self.pre_releases:
             base_main_releases.update(pre_release.base_main_releases)
         
         if self.name in base_main_releases:
@@ -154,3 +155,34 @@ class PreRelease(SemanticRelease):
 
     def __str__(self) -> str:
         return f"Pre {self.name}"
+
+
+# TODO: Merge with ReleaseSet
+class SmReleaseSet():
+    def __init__(self, releases = None) -> None:
+        self._releases: Dict[str, SemanticRelease] = {}
+        if releases: 
+            for release in releases:
+                self.add(release)
+
+    def __getitem__(self, key) -> SemanticRelease:
+        if isinstance(key, int):
+            release_name = list(self._releases.keys())[key]
+            return self._releases[release_name]
+        elif isinstance(key, str):
+            return self._releases[key]
+        else:
+            raise TypeError()
+
+    def __contains__(self, item):
+        if isinstance(item, str):
+            if item in self._releases:
+                return True
+            return False
+
+    def add(self, release: SemanticRelease):
+        if release:
+            self._releases[release.name] = release
+
+    def __len__(self):
+        return len(self._releases)

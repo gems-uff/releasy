@@ -28,7 +28,7 @@ class Release:
         self.time = time
         self.description = description
         self.commits: Set[Commit] = set([self.head])
-        self.base_releases: Dict[str, Release] = {}
+        self.base_releases: ReleaseSet = ReleaseSet()
         self.contributors : ContributorTracker = ContributorTracker()
         self.sm_release: SemanticRelease = None
 
@@ -51,7 +51,7 @@ class Release:
     def main_base_release(self):
         if not self.base_releases:
             return None
-        breleases = [value for key, value in self.base_releases.items()]
+        breleases = [base_release for base_release in self.base_releases]
         breleases.append(self)
         sorted_breleases = sorted(breleases, 
                                   key = lambda release : release.version)
@@ -60,7 +60,7 @@ class Release:
 
     def add_base_release(self, release: Release):
         if release:
-            self.base_releases[release.name] = release
+            self.base_releases.add(release)
 
     @property
     def delay(self):
@@ -155,7 +155,7 @@ class ReleaseVersion():
         else:
             return False
 
-#TODO: ReleaseSet must handle Releases and Semantic Releases. 
+# TODO: ReleaseSet must handle Releases and Semantic Releases. 
 # Currently, it works because of duck typing
 class ReleaseSet():
     def __init__(self, releases = None) -> None:
