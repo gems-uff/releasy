@@ -155,6 +155,8 @@ class ReleaseVersion():
         else:
             return False
 
+#TODO: ReleaseSet must handle Releases and Semantic Releases. 
+# Currently, it works because of duck typing
 class ReleaseSet():
     def __init__(self, releases = None) -> None:
         self._releases: Dict[str, Release] = {}
