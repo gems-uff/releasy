@@ -112,6 +112,13 @@ def describe_main_release():
         assert main_releases[2].delay == datetime.timedelta(days=8)
         assert main_releases[3].delay == datetime.timedelta(days=6)
 
+    def it_handle_unordered(reference: datetime.datetime):
+        r100 = Release("1.0.0", time=reference)
+        r110 = Release("1.1.0", time=reference+datetime.timedelta(days=2))
+        r200 = Release("2.0.0", time=reference+datetime.timedelta(days=1))
+        r200.add_base_release(r100)
+        r110.add_base_release(r100)
+
 def describe_patch():
     def it_has_a_name(patches: List[Patch]):
         assert patches[0].name == "1.0.1"

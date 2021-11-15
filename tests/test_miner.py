@@ -128,21 +128,6 @@ def test_version_release_sorter2():
     assert sorted_releases[0].name == "1.0.1"
 
 
-def test_history_mine_strategy():
-    miner = releasy.Miner()
-    project = miner.mine(Datasource(vcs=VcsMock()))
-    releases = project.releases
-    assert len(releases["v1.0.0"].commits) == 2
-    assert len(releases["v1.0.1"].commits) == 2
-    assert len(releases["v1.0.2"].commits) == 1
-    assert len(releases["v1.1.0"].commits) == 2
-    assert len(releases["v2.0.0-alpha1"].commits) == 3
-    assert len(releases["v2.0.0-beta1"].commits) == 2
-    assert len(releases["v2.0.0"].commits) == 3
-    assert len(releases["v2.0.1"].commits) == 0
-    assert len(releases["v2.1.0"].commits) == 6
-
-
 def test_time_mine_strategy():
     miner = releasy.Miner()
     miner.strategy.release_sort_strategy = VersionReleaseSorter()
@@ -305,3 +290,36 @@ def test_base_releases():
 #     assert releases["v2.0.0"].main_base_release == releases["v2.0.0-beta1"]
 #     assert releases["v2.0.1"].main_base_release == releases["v2.0.0"]
 #     assert releases["v2.1.0"].main_base_release == releases["v2.0.0"]
+
+def describe_history_miner():
+    def it_mine_commits():
+        miner = releasy.Miner()
+        project = miner.mine(Datasource(vcs=VcsMock()))
+        releases = project.releases
+        assert len(releases["v1.0.0"].commits) == 2
+        assert len(releases["v1.0.1"].commits) == 2
+        assert len(releases["v1.0.2"].commits) == 1
+        assert len(releases["v1.1.0"].commits) == 2
+        assert len(releases["v2.0.0-alpha1"].commits) == 3
+        assert len(releases["v2.0.0-beta1"].commits) == 2
+        assert len(releases["v2.0.0"].commits) == 3
+        assert len(releases["v2.0.1"].commits) == 0
+        assert len(releases["v2.1.0"].commits) == 6
+
+    def it_mine_base_releases():
+        miner = releasy.Miner()
+        project = miner.mine(Datasource(vcs=VcsMock()))
+        releases = project.releases
+        assert not releases['v1.0.0'].base_releases
+        assert "v1.0.0" in releases['v1.0.1'].base_releases
+        assert "v1.0.1" in releases['v1.0.2'].base_releases
+        assert "v1.0.1" in releases['v1.1.0'].base_releases
+        assert "v1.1.0" in releases['v2.0.0-alpha1'].base_releases
+        assert "v1.0.1" in releases['v2.0.0-alpha1'].base_releases
+        assert "v2.0.0-alpha1" in releases['v2.0.0-beta1'].base_releases
+        assert "v1.0.1" in releases['v2.0.0'].base_releases
+        assert "v1.0.2" in releases['v2.0.0'].base_releases
+        assert "v2.0.0-beta1" in releases['v2.0.0'].base_releases
+        assert "v2.0.0" in releases['v2.0.1'].base_releases
+        assert "v2.0.0-beta1" in releases['v2.1.0'].base_releases
+        assert "v2.0.0" in releases['v2.1.0'].base_releases

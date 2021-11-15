@@ -54,7 +54,7 @@ def releases(release_names: List[str], release_times: List[datetime.datetime]):
 
     releases[1].add_base_release(releases[0])
     releases[2].add_base_release(releases[1])
-    releases[3].add_base_release(releases[1])
+    releases[3].add_base_release(releases[0])
     releases[4].add_base_release(releases[1])
     releases[4].add_base_release(releases[3])
     releases[5].add_base_release(releases[4])
@@ -94,7 +94,7 @@ def describe_release():
         assert not releases[0].base_releases
         assert "v1.0.0" in releases[1].base_releases
         assert "v1.0.1" in releases[2].base_releases
-        assert "v1.0.1" in releases[3].base_releases
+        assert "v1.0.0" in releases[3].base_releases
         assert "1.1.0" in releases[4].base_releases
         assert "v1.0.1" in releases[4].base_releases
         assert "v2.0.0-alpha1" in releases[5].base_releases
@@ -109,7 +109,7 @@ def describe_release():
         assert not releases[0].main_base_release
         assert releases[1].main_base_release.name == "v1.0.0"
         assert releases[2].main_base_release.name == "v1.0.1"
-        assert releases[3].main_base_release.name == "v1.0.1"
+        assert releases[3].main_base_release.name == "v1.0.0"
         assert releases[4].main_base_release.name == "1.1.0"
         assert releases[5].main_base_release.name == "v2.0.0-alpha1"
         assert releases[6].main_base_release.name == "v2.0.0-beta1"
@@ -135,7 +135,7 @@ def describe_release():
         #TODO: release[0].delay
         assert releases[1].delay == datetime.timedelta(days=2)
         assert releases[2].delay == datetime.timedelta(days=10)
-        assert releases[3].delay == datetime.timedelta(days=3)
+        assert releases[3].delay == datetime.timedelta(days=5)
         assert releases[4].delay == datetime.timedelta(days=2)
         assert releases[5].delay == datetime.timedelta(days=2)
         assert releases[6].delay == datetime.timedelta(days=4)
