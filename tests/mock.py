@@ -2,10 +2,6 @@ from datetime import datetime, timedelta
 
 from releasy.metamodel import Vcs, Commit, Tag, Developer
 
-from releasy.factory import MiningStrategy, VcsFactory
-from releasy.miner import TimeVersionReleaseSorter, VersionReleaseMatcher
-
-
 class VcsMock(Vcs):
     def __init__(self, path="./releasy"):
         super().__init__(path)

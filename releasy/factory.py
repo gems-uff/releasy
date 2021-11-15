@@ -10,6 +10,7 @@ from .miner import (
     TimeReleaseSorter,
     VersionReleaseMatcher
 )
+from .miner_git import GitVcs
 from .metamodel import Vcs
 from .project import Project
 
@@ -31,6 +32,9 @@ class ProjectMiner():
         release_miner.matcher = self.strategy.release_match_strategy
         release_miner.sorter = self.strategy.release_sort_strategy
 
+        if 'vcs' not in params and 'path' in params:
+            datasource.vcs = GitVcs(params['path'])
+
         releases = release_miner.mine_releases(datasource)
 
         commit_miner = self.strategy.commit_assigment_strategy
@@ -44,8 +48,8 @@ class ProjectMiner():
 
 
 class MiningStrategy():
-    vcs_factory : VcsFactory = None                       # e.g., Git, Mock
-    its_factory = None                                    # e.g., GitHub Issues
+    vcs = None                                            # e.g., Git, Mock
+    its = None                                            # e.g., GitHub Issues
     release_mine_strategy : AbstractReleaseMiner = None   # e.g., Tag
     release_match_strategy : ReleaseMatcher = None        # e.g., Version
     release_sort_strategy: AbstractReleaseSorter = None   # e.g., Time
@@ -56,20 +60,8 @@ class MiningStrategy():
     def default():
         """ create default strategy """
         strategy = MiningStrategy()
-        strategy.vcs_factory = GitVcsFactory()
         strategy.release_mine_strategy = TagReleaseMiner()
         strategy.release_match_strategy = VersionReleaseMatcher()
         strategy.release_sort_strategy = TimeReleaseSorter()
         strategy.commit_assigment_strategy = HistoryCommitMiner()
         return strategy
-
-
-class VcsFactory():
-    def create(self, params) -> Vcs:
-        pass
-
-
-class GitVcsFactory(VcsFactory):
-    def create(self, params) -> Vcs:
-        pass
-

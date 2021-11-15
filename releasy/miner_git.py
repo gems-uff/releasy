@@ -4,10 +4,12 @@ from datetime import datetime, timezone, timedelta
 import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
-from .model import CommitStats
-from .data import Project, Tag, Commit
-from .developer import Developer
-from .miner import Vcs
+from .metamodel import (
+    Vcs,
+    Developer,
+    Tag,
+    Commit
+)
 
 class GitVcs(Vcs):
     """ Encapsulate Git Version Control System using pygit2 lib """
@@ -125,21 +127,7 @@ class GitCommit(Commit):
     def parents(self, parents):
         pass
 
-    @property
-    def stats(self) -> CommitStats:
-        if not self._stats:
-            self._stats = CommitStats()
-            if self.__raw.parents:
-                for raw_parent in self.__raw.parents:
-                    diff = self.__raw.tree.diff_to_tree(raw_parent.tree)
-                    self._stats += diff.stats
-            else:
-                diff = self.__raw.tree.diff_to_tree()
-                self._stats += diff.stats
-        return self._stats
-
-    #todo this method is not in the best place
-    #     consider change it to some util class
+     #TODO We need to move this method for an util class
     def diff_stats(self, commit=None):
         """ Calculate diff stats from another commit. This method is useful to
         calculate release churn """
