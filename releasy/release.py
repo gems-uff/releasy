@@ -171,6 +171,12 @@ class ReleaseSet():
         else:
             raise TypeError()
 
+    def __contains__(self, item):
+        if isinstance(item, str):
+            if item in self._releases:
+                return True
+            return False
+
     def add(self, release: Release):
         if release:
             self._releases[release.name] = release
