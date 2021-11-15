@@ -17,7 +17,7 @@
 #     miner = Miner(vcs=MisplacedTimeVcsMock([4]))
 #     project = miner.mine_commits()
 #     assert project.releases[0].length == timedelta(days=3)
-#     #TODO correct implement this test 
+#     #TODO: correct implement this test 
 #     #assert project.releases[1].length == timedelta(days=3)
 #     assert project.releases[2].length == timedelta(days=3)
 
@@ -27,6 +27,6 @@
 #     # releases are sorted by time, so 1.1.1 comes first
 #     with pytest.raises(MisplacedTimeException):
 #          project.releases[0].length
-#     #TODO release 1 was with 0 commits
+#     #TODO: release 1 was with 0 commits
 #     # assert project.releases[1].length == timedelta(days=3)
 #     assert project.releases[2].length == timedelta(days=3)

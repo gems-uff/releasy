@@ -1,9 +1,18 @@
 """
 """
 from __future__ import annotations
-from typing import (Dict, Generic, List, Set, TypeVar)
+from typing import (
+    Dict,
+    Generic,
+    List,
+    Set,
+    TypeVar,
+    TYPE_CHECKING)
 
 import re
+
+if TYPE_CHECKING:
+    from .semantic import SemanticRelease
 
 from .metamodel import ContributorTracker, FrequencySet, Tag
 from .metamodel import Commit
@@ -21,7 +30,7 @@ class Release:
         self.commits: Set[Commit] = set([self.head])
         self.base_releases: Dict[str, Release] = {}
         self.contributors : ContributorTracker = ContributorTracker()
-        self.sm_release = None # TODO Add type
+        self.sm_release: SemanticRelease = None
 
     def __hash__(self):
         return hash((self.name, self.head))
@@ -63,7 +72,7 @@ class TagRelease(Release):
     """ A release represented by a tag """
 
     def __init__(self, tag: Tag, name: str):
-        super().__init__(name, tag.commit, tag.time, None) #TODO add description
+        super().__init__(name, tag.commit, tag.time, None) #TODO: add description
         self.tag = tag
 
 

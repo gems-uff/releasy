@@ -13,7 +13,7 @@ def test_release_matcher():
     with pytest.raises(NotImplementedError):
         release_matcher.parse(None)
 
-#TODO FIX
+#FIXME:
 # def test_release_sorter():
 #     releases = ReleaseSet()
 #     releases.add(Release("A", None, None, None))
@@ -32,7 +32,7 @@ def test_commit_mine_strategy():
     with pytest.raises(NotImplementedError):
         commit_miner.mine_commits(None, None)
 
-#TODO FIX
+#FIXME:
 # def test_true_release_matcher():
 #     datasource = Datasource(vcs = VcsMock())
 #     release_miner = TagReleaseMiner()
@@ -48,7 +48,7 @@ def test_version_release_matcher():
     releases = release_miner.mine_releases(datasource)
     assert len(releases) == 9
 
-#TODO FIX
+#FIXME
 # def test_version_wo_pre_release_matcher():
 #     datasource = Datasource(vcs = VcsMock())
 #     release_miner = TagReleaseMiner()
@@ -56,7 +56,7 @@ def test_version_release_matcher():
 #     releases = release_miner.mine_releases(datasource)
 #     assert len(releases) == 7
 
-#TODO FIX
+#FIXME
 # def test_version_wo_pre_release_matcher2():
 #     datasource = Datasource(vcs = VcsMock())
 #     release_miner = TagReleaseMiner()
@@ -291,7 +291,7 @@ def test_base_releases():
     assert len(releases["v2.0.1"].base_releases) == 1
     assert len(releases["v2.1.0"].base_releases) == 2
 
-#TODO FIX
+#FIXME
 # def test_main_base_release():
 #     miner = releasy.Miner()
 #     project = miner.mine(Datasource(vcs=VcsMock()))

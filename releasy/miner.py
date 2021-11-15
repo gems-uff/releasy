@@ -91,7 +91,7 @@ class TrueReleaseMatcher(ReleaseMatcher):
 class VersionReleaseMatcher(ReleaseMatcher):
     """ Matcher that consider tags with version number as releases """
     def __init__(self, release_exceptions: List[str] = None):
-        # TODO define in a single object - repeated in VersionReleaseSorter
+        # TODO: define in a single object - repeated in VersionReleaseSorter
         self.version_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
@@ -152,7 +152,7 @@ class DescribeReleaseSorter(AbstractReleaseSorter):
 class VersionReleaseSorter(ReleaseSorter):
     """ Sort release using its versions """
     def __init__(self):
-        # TODO define in a single object - repeated in VersionReleaseMatcher
+        #TODO: define in a single object - repeated in VersionReleaseMatcher
         self.version_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
@@ -225,7 +225,7 @@ class TimeVersionReleaseSorter(VersionReleaseSorter):
         sorted_releases = super().sort(releases)
         for release in sorted_releases:
             if release.base_releases:
-                base_release = release.base_releases[0] #TODO consider multiple releases
+                base_release = release.base_releases[0] #TODO: consider multiple releases
                 while base_release and release.time < base_release.time:
                     release.base_releases = base_release.base_releases
                     if release.base_releases:
@@ -235,7 +235,7 @@ class TimeVersionReleaseSorter(VersionReleaseSorter):
         return sorted_releases
 
 
-# TODO Return set of releases instead of ReleaseData
+# TODO: Return set of releases instead of ReleaseData
 class TagReleaseMiner(AbstractReleaseMiner):
     """ Mine tags for releases """
 
@@ -245,7 +245,7 @@ class TagReleaseMiner(AbstractReleaseMiner):
         # that reference commits for release detection. 
         tags = [tag for tag in datasource.vcs.tags() if tag.commit]
         #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
-        # TODO sort releases
+        # TODO: sort releases
         releases = ReleaseSet()
         for tag in tags:
             release_name = self.matcher.parse(tag.name)
@@ -321,7 +321,7 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
 
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params) -> ReleaseSet: 
-        #TODO handle order with release order
+        #TODO: handle order with release order
         commits = sorted(datasource.vcs.commits(), key=lambda commit: commit.committer_time) # error on vuejs v2.1.1
         
         for cur_release in releases:
@@ -367,7 +367,7 @@ class TimeCommitMiner(ReachableCommitMiner):
 
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params) -> ReleaseSet: 
-        #TODO handle order with release order
+        #TODO: handle order with release order
 
         for cur_release in releases:
             if cur_release.base_releases:
@@ -386,7 +386,7 @@ class TimeExpertCommitMiner(TimeCommitMiner):
 
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params) -> ReleaseSet: 
-        #TODO handle order with release order
+        #TODO: handle order with release order
 
         for cur_release in releases:
             expert_cur_release = params["expert_release_set"][cur_release.name]

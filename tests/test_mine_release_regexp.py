@@ -24,7 +24,7 @@
 #     assert "" in project.release_prefixes
 
 
-# def test_mine_release_suffixes(): #TODO ignored suffix should affect only pre_releases
+# def test_mine_release_suffixes(): #TODO: ignored suffix should affect only pre_releases
 #     miner = Miner(vcs=DifferentReleaseNameVcsMock(), release_prefixes=["v",""], ignored_suffixes=["Final"])
 #     project = miner.mine_releases()
 #     assert not project.releases[0].suffix

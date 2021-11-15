@@ -40,7 +40,7 @@ class GitVcs(Vcs):
             self._commit_cache[hashcode] = commit
         return self._commit_cache[hashcode]
 
-    def commits(self): # TODO optimize to visit commits single time
+    def commits(self): #TODO: optimize to visit commits single time
         refs = list(self._repo.references)
         commit_ref = {}
         commits = []
@@ -101,7 +101,7 @@ class GitCommit(Commit):
         committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
         committer_time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
 
-        try: #TODO fix problem with encodes
+        try: #TODO: fix problem with encodes
             message = raw_commit.message
         except:
             message = ""
