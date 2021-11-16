@@ -269,49 +269,55 @@ class HistoryCommitMiner(AbstractCommitMiner):
         """ Assign the commits and base releases to the releases """
         assigned_commits = {}
         contributors = ContributorTracker()
+        tagged_commits = {}
+        for release in releases:
+            if release.head.id not in tagged_commits:
+                tagged_commits[release.head.id] = release
 
         for release in releases:
             contributors = ContributorTracker(contributors)
             commits, base_releases = self._track_commits(
                 release, 
                 assigned_commits, 
-                contributors
+                contributors,
+                tagged_commits
             )
             release.commits = commits
             release.contributors = contributors
             release.base_releases = base_releases
         return releases
 
-    def _track_commits(self, release: Release, assigned_commits, 
-            contributors: Set[Developer]) -> List[Commit]:
+    def _track_commits(self, release: Release, 
+            assigned_commits, 
+            contributors: ContributorTracker, 
+            tagged_commits) -> List[Commit]:
         """ Mine the reachable commits not assigned to other releases """
         # TODO: Check whether the commit is tagged by a release. 
         #       When a release has a wrong timestamp, it commit releases created
         #       after the actual release
-
         commits = set()
         base_releases = ReleaseSet()
         commits_to_track = [ release.head ]
-
         while commits_to_track:
             commit = commits_to_track.pop()
-
-            # reached a new commit
+            
             if commit.id not in assigned_commits:
+                # reached a new commit
                 commits.add(commit)
                 assigned_commits[commit.id] = release
                 contributors.track(commit)
-
                 if commit.parents:
                     for parent_commit in commit.parents:
                         commits_to_track.append(parent_commit)
-
-            # reached an already assigned commit
-            else:
-                if assigned_commits[commit.id] != release:
-                    base_release = assigned_commits[commit.id]
+            else: 
+                # reached an already assigned commit
+                if commit.id in tagged_commits:
+                    base_release = tagged_commits[commit.id]
                     base_releases.add(base_release)
-
+                elif commit.parents:
+                    for parent_commit in commit.parents:
+                        if parent_commit not in commits:
+                            commits_to_track.append(parent_commit)
         return commits, base_releases
 
 

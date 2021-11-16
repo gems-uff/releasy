@@ -313,11 +313,11 @@ def describe_history_miner():
         assert not releases['v1.0.0'].base_releases
         assert "v1.0.0" in releases['v1.0.1'].base_releases
         assert "v1.0.1" in releases['v1.0.2'].base_releases
-        assert "v1.0.1" in releases['v1.1.0'].base_releases
+        assert "v1.0.0" in releases['v1.1.0'].base_releases
         assert "v1.1.0" in releases['v2.0.0-alpha1'].base_releases
         assert "v1.0.1" in releases['v2.0.0-alpha1'].base_releases
         assert "v2.0.0-alpha1" in releases['v2.0.0-beta1'].base_releases
-        assert "v1.0.1" in releases['v2.0.0'].base_releases
+        assert "v1.0.0" in releases['v2.0.0'].base_releases
         assert "v1.0.2" in releases['v2.0.0'].base_releases
         assert "v2.0.0-beta1" in releases['v2.0.0'].base_releases
         assert "v2.0.0" in releases['v2.0.1'].base_releases
