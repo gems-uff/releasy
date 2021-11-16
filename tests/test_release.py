@@ -246,6 +246,16 @@ def describe_release_version():
         assert release_versions[8].type(TYPE_MINOR)
         assert release_versions[8].type(TYPE_MAIN)
 
+    def it_handle_incomplete_versions():
+        v1 = ReleaseVersion("1")
+        assert v1.numbers[0] == 1
+        assert v1.numbers[1] == 0
+        assert v1.numbers[2] == 0
+        v11 = ReleaseVersion("1.1")
+        assert v11.numbers[0] == 1
+        assert v11.numbers[1] == 1
+        assert v11.numbers[2] == 0
+
 
 def describe_release_set():
     def it_contains_releases():

@@ -296,11 +296,13 @@ class HistoryCommitMiner(AbstractCommitMiner):
         #       When a release has a wrong timestamp, it commit releases created
         #       after the actual release
         commits = set()
+        commit_loop = set()
         base_releases = ReleaseSet()
         commits_to_track = [ release.head ]
         while commits_to_track:
             commit = commits_to_track.pop()
-            
+            commit_loop.add(commit)
+
             if commit.id not in assigned_commits:
                 # reached a new commit
                 commits.add(commit)
@@ -316,7 +318,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
                     base_releases.add(base_release)
                 elif commit.parents:
                     for parent_commit in commit.parents:
-                        if parent_commit not in commits:
+                        if parent_commit not in commit_loop:
                             commits_to_track.append(parent_commit)
         return commits, base_releases
 

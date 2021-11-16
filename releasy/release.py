@@ -105,6 +105,10 @@ class ReleaseVersion():
             version_separator = re.compile(r'([0-9]+)')
         version_parts = version_separator.findall(self.number)
         self.numbers = [int(version_part) for version_part in version_parts]
+        if len(self.numbers) == 1:
+            self.numbers.append(0)
+        if len(self.numbers) == 2:
+            self.numbers.append(0)
 
     def __lt__(self, other):
         return self.__cmp(self, other) < 0

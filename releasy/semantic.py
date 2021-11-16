@@ -29,8 +29,10 @@ class SemanticRelease:
             if isinstance(sm_base_release, MainRelease):
                 base_main_releases[sm_base_release.name] = sm_base_release
             else: # Patches or Pre releases
+                # if not hasattr(sm_base_release, 'main_release'):
+                #     print(sm_base_release.name)
                 base_main_releases[sm_base_release.main_release.name] \
-                                    = sm_base_release.main_release
+                                   = sm_base_release.main_release
 
         if self.name in base_main_releases:
             del base_main_releases[self.name]
