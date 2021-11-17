@@ -258,7 +258,7 @@ def test_count_merges():
     assert len(releases["v2.0.0-alpha1"].merges) == 1
     assert len(releases["v2.0.0-beta1"].merges) == 0
     assert len(releases["v2.0.0"].merges) == 2
-    assert len(releases["v2.0.1"].merges) == 0
+    assert len(releases["v2.0.1"].merges) == 2
     assert len(releases["v2.1.0"].merges) == 3
 
 
@@ -273,7 +273,7 @@ def test_base_releases():
     assert len(releases["v2.0.0-alpha1"].base_releases) == 2
     assert len(releases["v2.0.0-beta1"].base_releases) == 1
     assert len(releases["v2.0.0"].base_releases) == 3
-    assert len(releases["v2.0.1"].base_releases) == 1
+    assert len(releases["v2.0.1"].base_releases) == 3
     assert len(releases["v2.1.0"].base_releases) == 2
 
 #FIXME
