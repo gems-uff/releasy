@@ -285,6 +285,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
             release.commits = commits
             release.contributors = contributors
             release.base_releases = base_releases
+            self._prune_commits(release)
         return releases
 
     def _track_commits(self, release: Release, 
@@ -308,11 +309,16 @@ class HistoryCommitMiner(AbstractCommitMiner):
             commit_loop.add(commit)
 
             if commit not in commits:
-                #TODO: releases_commits
+                #TODO: released_commits
                 if commit.id in tagged_commits:
                     base_release = tagged_commits[commit.id]
                     base_releases.add(base_release)
                 else:
+                    if commit.releases:
+                        for r in commit.releases:
+                            r.shared_commits.add(commit)
+                        release.shared_commits.add(commit)
+                    commit.releases.add(release)
                     commits.add(commit)
                     contributors.track(commit)
                     if commit.parents:
@@ -321,6 +327,19 @@ class HistoryCommitMiner(AbstractCommitMiner):
 
         return commits, base_releases
 
+    def _prune_commits(self, release: Release):
+        base_release_to_track = [base_release 
+                                 for base_release in release.base_releases]
+        base_releases = set()
+        while base_release_to_track:
+            cbase_release = base_release_to_track.pop()
+            base_releases.add(cbase_release)
+            for base_release in cbase_release.base_releases:
+                if base_release not in base_releases:
+                    base_release_to_track.append(base_release)
+
+        for base_release in base_releases:
+            release.commits -= base_release.commits
 
 class TimeNaiveCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 

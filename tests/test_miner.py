@@ -179,11 +179,11 @@ def test_time_expert_mine_strategy():
     assert len(releases[0].commits) == 2
     assert len(releases[1].commits) == 2
     assert len(releases[2].commits) == 1
-    assert len(releases[3].commits) == 2
+    assert len(releases[3].commits) == 3
     assert len(releases[4].commits) == 5
     assert len(releases[5].commits) == 2
     assert len(releases[6].commits) == 4
-    assert len(releases[7].commits) == 0
+    assert len(releases[7].commits) == 4
     assert len(releases[8].commits) == 6
 
 
@@ -299,11 +299,11 @@ def describe_history_miner():
         assert len(releases["v1.0.0"].commits) == 2
         assert len(releases["v1.0.1"].commits) == 2
         assert len(releases["v1.0.2"].commits) == 1
-        assert len(releases["v1.1.0"].commits) == 2
+        assert len(releases["v1.1.0"].commits) == 3
         assert len(releases["v2.0.0-alpha1"].commits) == 3
         assert len(releases["v2.0.0-beta1"].commits) == 2
         assert len(releases["v2.0.0"].commits) == 3
-        assert len(releases["v2.0.1"].commits) == 0
+        assert len(releases["v2.0.1"].commits) == 3
         assert len(releases["v2.1.0"].commits) == 6
 
     def it_mine_base_releases():
@@ -320,6 +320,8 @@ def describe_history_miner():
         assert "v1.0.0" in releases['v2.0.0'].base_releases
         assert "v1.0.2" in releases['v2.0.0'].base_releases
         assert "v2.0.0-beta1" in releases['v2.0.0'].base_releases
-        assert "v2.0.0" in releases['v2.0.1'].base_releases
+        assert "v1.0.0" in releases['v2.0.1'].base_releases
+        assert "v1.0.2" in releases['v2.0.1'].base_releases
+        assert "v2.0.0-beta1" in releases['v2.0.1'].base_releases
         assert "v2.0.0-beta1" in releases['v2.1.0'].base_releases
         assert "v2.0.0" in releases['v2.1.0'].base_releases

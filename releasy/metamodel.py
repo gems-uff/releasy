@@ -5,11 +5,6 @@ import re
 from functools import cmp_to_key
 
 
-
-
-
-
-
 class FrequencySet(set):
     def __init__(self):
         self._count = {}
@@ -89,7 +84,7 @@ class Commit:
         self.author_time = author_time
         self.committer = committer
         self.committer_time = committer_time
-        self.release = None
+        self.releases = set()
 
     def __hash__(self):
         return hash(self.id)

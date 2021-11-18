@@ -27,10 +27,11 @@ class Release:
         self.head = commit
         self.time = time
         self.description = description
-        self.commits: Set[Commit] = set([self.head])
+        self.commits: Set[Commit] = set()
         self.base_releases: ReleaseSet = ReleaseSet()
         self.contributors : ContributorTracker = ContributorTracker()
         self.sm_release: SemanticRelease = None
+        self.shared_commits: Set[Commit] = set()
 
     def __hash__(self):
         return hash((self.name, self.head))
