@@ -11,7 +11,7 @@ from .miner import (
     VersionReleaseMatcher
 )
 from .miner_git import GitVcs
-from .metamodel import Vcs
+from .release import Vcs
 from .project import Project
 
 class ProjectMiner():

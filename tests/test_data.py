@@ -1,5 +1,5 @@
 import pytest
-from releasy.metamodel import FrequencySet, Commit
+from releasy.release import FrequencySet, Commit
 from releasy.release import (
     Release, 
     ReleaseSet

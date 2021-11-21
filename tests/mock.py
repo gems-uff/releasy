@@ -1,6 +1,60 @@
+import pytest
+
 from datetime import datetime, timedelta
 
-from releasy.metamodel import Vcs, Commit, Tag, Developer
+from releasy.release import Vcs, Commit, Tag, Developer
+
+
+def vcs_data():
+    dev = DevMock()
+    alice = dev.alice
+    bob = dev.bob
+    charlie = dev.charlie
+    one_day = timedelta(days=1)
+    one_hour = timedelta(hours=1)
+    return [  
+        (0 ,[]     ,alice  ,alice  ,one_day,None    ,[]),
+        (1 ,[0]    ,alice  ,bob    ,one_day,one_hour,["v1.0.0"]),          #r0
+        (2 ,[1]    ,bob    ,bob    ,one_day,None    ,[]),
+        (3 ,[2]    ,bob    ,bob    ,one_day,one_hour,["v1.0.1"]),          #r1
+        (4 ,[3]    ,alice  ,alice  ,one_day,None    ,["non-release"]),
+        (5 ,[2]    ,alice  ,alice  ,one_day,None    ,[]),
+        (6 ,[5]    ,alice  ,alice  ,one_day,None    ,["v1.1.0"]),          #r2
+        (7 ,[4,6]  ,charlie,bob    ,one_day,None    ,[]),
+        (8 ,[7]    ,charlie,charlie,one_day,None    ,["v2.0.0-alpha1"]),   #r3
+        (9 ,[8]    ,alice  ,bob    ,one_day,None    ,[]),
+        (10,[9]    ,alice  ,alice  ,one_day,None    ,["v2.0.0-beta1"]),    #r4
+        (11,[2]    ,alice  ,alice  ,one_day,None    ,[]),
+        (12,[10,11],alice  ,alice  ,one_day,None    ,[]),
+        (13,[3]    ,alice  ,alice  ,one_day,None    ,["v1.0.2"]),
+        (14,[13,12],alice  ,alice  ,one_day,one_hour,["v2.0.0", "v2.0.1"]),#r5,6
+        (15,[14]   ,alice  ,alice  ,one_day,None    ,[]),
+        (16,[15]   ,alice  ,alice  ,one_day,None    ,[]),
+        (17,[14]   ,alice  ,alice  ,one_day,None    ,[]),
+        (18,[16,10],alice  ,alice  ,one_day,None    ,[]),
+        (19,[16,17],alice  ,alice  ,one_day,None    ,[]),
+        (20,[18,19],alice  ,alice  ,one_day,None    ,["v2.1.0"]),         #r7
+        (21,[20]   ,alice  ,alice  ,one_day,None    ,[]),
+    ]
+
+
+@pytest.fixture
+def commits():
+    ref_dt = datetime(2020, 1, 1, 12, 00)        
+    commit_data = vcs_data()
+    commits = [] 
+    for (index, parents_index, author, committer, increment_dt, offset, tagnames) in commit_data:
+        parents = [commits[p_index] for p_index in parents_index]
+        commits.append(Commit(hashcode = index,
+                              parents = parents,
+                              author = author,
+                              author_time = ref_dt,
+                              committer = committer,
+                              committer_time = ref_dt,
+                              message = "Commit %d" % index))
+        ref_dt += increment_dt
+    return commits
+
 
 class VcsMock(Vcs):
     def __init__(self, path="./releasy"):

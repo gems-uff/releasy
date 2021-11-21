@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
-from .metamodel import (
+from .release import (
     Vcs,
     Developer,
     Tag,

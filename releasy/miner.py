@@ -6,11 +6,13 @@
 from __future__ import annotations
 from typing import Set, List
 
+from abc import ABC, abstractmethod
+
 import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from .metamodel import ContributorTracker, Developer, Commit, Datasource
+from .release import ContributorTracker, Developer, Commit, Datasource
 
 from .release import (
     Release,
@@ -18,6 +20,30 @@ from .release import (
     ReleaseSet,
     ReleaseVersion
 )
+
+
+class ReleaseMiner(ABC):
+    def __init__(self) -> None:
+        self.releases = None        
+
+    def config(self) -> None:
+        self.releases = ReleaseSet()
+
+    @abstractmethod
+    def mine_release(self) -> None:
+        pass
+
+    @abstractmethod
+    def mine_commits(self) -> None:
+        pass
+
+    @abstractmethod
+    def mine_contributtors(self) -> None:
+        pass
+
+    def pack(self) -> ReleaseSet:
+        return self.releases
+
 
 class ReleaseMatcher:
     """ Check if a name represent a release """
@@ -343,6 +369,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
 
         for base_release in base_releases:
             release.commits -= base_release.commits
+
 
 class TimeNaiveCommitMiner(AbstractCommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 

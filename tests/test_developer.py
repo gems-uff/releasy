@@ -1,7 +1,7 @@
 
 import pytest
 import releasy
-from releasy.metamodel import Datasource
+from releasy.release import Datasource
 from .mock import DevMock, VcsMock
 
 
