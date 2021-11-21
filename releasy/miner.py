@@ -285,6 +285,8 @@ class HistoryCommitMiner(AbstractCommitMiner):
             release.commits = commits
             release.contributors = contributors
             release.base_releases = base_releases
+
+        for release in releases:    
             self._prune_commits(release)
         return releases
 
@@ -328,15 +330,16 @@ class HistoryCommitMiner(AbstractCommitMiner):
         return commits, base_releases
 
     def _prune_commits(self, release: Release):
-        base_release_to_track = [base_release 
-                                 for base_release in release.base_releases]
-        base_releases = set()
-        while base_release_to_track:
-            cbase_release = base_release_to_track.pop()
-            base_releases.add(cbase_release)
-            for base_release in cbase_release.base_releases:
-                if base_release not in base_releases:
-                    base_release_to_track.append(base_release)
+        base_releases = set(release.base_releases)
+
+        if release.shared_commits:
+            releases_to_track = list(base_releases)
+            while releases_to_track:
+                cur_release = releases_to_track.pop()
+                base_releases.add(cur_release)
+                for base_release in cur_release.base_releases:
+                    if base_release not in base_releases:
+                        releases_to_track.append(base_release)
 
         for base_release in base_releases:
             release.commits -= base_release.commits
