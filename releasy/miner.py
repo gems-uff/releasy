@@ -22,29 +22,6 @@ from .release import (
 )
 
 
-class ReleaseMiner(ABC):
-    def __init__(self) -> None:
-        self.releases = None        
-
-    def config(self) -> None:
-        self.releases = ReleaseSet()
-
-    @abstractmethod
-    def mine_release(self) -> None:
-        pass
-
-    @abstractmethod
-    def mine_commits(self) -> None:
-        pass
-
-    @abstractmethod
-    def mine_contributtors(self) -> None:
-        pass
-
-    def pack(self) -> ReleaseSet:
-        return self.releases
-
-
 class ReleaseMatcher:
     """ Check if a name represent a release """
 

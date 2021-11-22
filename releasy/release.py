@@ -228,6 +228,7 @@ class Commit:
         self.committer = committer
         self.committer_time = committer_time
         self.releases = set()
+        self.tags = set()
 
     def __hash__(self):
         return hash(self.id)
@@ -281,6 +282,27 @@ class Commit:
                     commits_to_track.append(parent_commit)
         return commits
 
+    def release_history(self, include_self: bool = False):
+        commits: Set(Commit) = set()
+        if include_self:
+            commits.add(self)
+        
+        base_commits = set()
+        commits_to_track = [parent_commit for parent_commit in self.parents]
+        while commits_to_track:
+            commit = commits_to_track.pop()
+            if commit not in commits:
+                if commit.releases:
+                    base_commits.add(base_commits)
+                else:
+                    commits.add(commit)
+                    for parent_commit in commit.parents:
+                        commits_to_track.append(parent_commit)
+
+        for commit in base_commits:
+            commits -= commit.history()
+
+        return commits, base_commits
 
 
 class FrequencySet(set):
@@ -320,6 +342,7 @@ class Tag:
     def __init__(self, name, commit, time=None, message=None):
         self.name = name
         self.commit = commit
+        commit.tags.add(self)
         self.release = None
         self.time = None
         self.message = None

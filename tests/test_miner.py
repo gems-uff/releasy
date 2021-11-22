@@ -7,14 +7,6 @@ import releasy
 from releasy.miner import *
 from .mock import VcsMock
 
-def describe_release_miner():
-    def it_is_abstract():
-        with pytest.raises(TypeError):
-            ReleaseMiner()
-
-def describe_release_builder():
-    pass
-
 def test_release_matcher():
     release_matcher = ReleaseMatcher()
     with pytest.raises(NotImplementedError):

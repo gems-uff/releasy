@@ -1,3 +1,4 @@
+from typing import List
 import pytest
 
 from datetime import datetime, timedelta
@@ -38,10 +39,37 @@ def vcs_data():
     ]
 
 
-@pytest.fixture
-def commits():
+# def c():
+#     commit_data = [  
+#         (0 ,[]),
+#         (1 ,[0]),
+#         (2 ,[1]),
+#         (3 ,[2]),
+#         (4 ,[3]),
+#         (5 ,[2]),
+#         (6 ,[5]),
+#         (7 ,[4,6]),
+#         (8 ,[7]),
+#         (9 ,[8]),
+#         (10,[9]),
+#         (11,[2]),
+#         (12,[10,11]),
+#         (13,[3]),
+#         (14,[13,12]),
+#         (15,[14]),
+#         (16,[15]),
+#         (17,[14]),
+#         (18,[16,10]),
+#         (19,[16,17]),
+#         (20,[18,19]),
+#         (21,[20])
+#     ]
+#     for commit in commit_data:
+
+
+def retrieve_commits(vcs_data) -> List[Commit]:
     ref_dt = datetime(2020, 1, 1, 12, 00)        
-    commit_data = vcs_data()
+    commit_data = vcs_data
     commits = [] 
     for (index, parents_index, author, committer, increment_dt, offset, tagnames) in commit_data:
         parents = [commits[p_index] for p_index in parents_index]
@@ -54,6 +82,38 @@ def commits():
                               message = "Commit %d" % index))
         ref_dt += increment_dt
     return commits
+
+
+def assign_tags_to_commits(commits):
+    tag_to_commit_map = {
+        'v1.0.0': 1,
+        'v1.0.1': 3,
+        'non-release': 4,
+        '1.1.0': 6,
+        'v2.0.0-alpha1': 8,
+        'v2.0.0-beta1': 10,
+        'v1.0.2': 13,
+        'v2.0.0': 14,
+        'v2.0.1': 14,
+        'v2.1.0': 14
+    }
+    for tag_name, commit_index in tag_to_commit_map.items():
+        tag = Tag(
+            name=tag_name,
+            commit=commits[commit_index])
+
+
+def assign_releases_to_tags():
+    tags = []
+    for tag in tags:
+        if tag.name != 'non-release':
+            pass
+
+
+@pytest.fixture
+def commits():
+    mock = VcsMock()
+    return mock.commits()
 
 
 class VcsMock(Vcs):
@@ -130,7 +190,7 @@ class VcsMock(Vcs):
         return self._tags
     
     def commits(self):
-        return self._commits.values()
+        return list(self._commits.values())
 
 class DifferentReleaseNameVcsMock(Vcs):
     def __init__(self):

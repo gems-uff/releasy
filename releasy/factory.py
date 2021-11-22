@@ -70,3 +70,33 @@ class MiningStrategy():
         strategy.release_sort_strategy = TimeReleaseSorter()
         strategy.commit_assigment_strategy = HistoryCommitMiner()
         return strategy
+
+
+class ProjectBuilder():
+    def config(strategy: MiningStrategy = None):
+        self.strategy = MiningStrategy.default()
+
+    def src(self, datasource: Datasource) -> None:
+        self.datasource = datasource
+        self.project = Project()
+
+    def mine_releases(self, release_miner: AbstractReleaseMiner) -> ProjectBuilder:
+        releases = release_miner.mine_releases(self.datasource)
+        self.project.releases = releases
+        return self
+
+    def mine_commits(self) -> ProjectBuilder:
+        commit_miner = self.strategy.commit_assigment_strategy
+        releases = commit_miner.mine_commits(datasource, releases, params)
+
+        project = Project()
+        project.releases = releases
+        project.datasource = datasource
+        pass
+        pass
+
+    def mine_contributtors(self) -> None:
+        pass
+
+    def create(self) -> Project:
+        return self.releases
