@@ -143,7 +143,7 @@ class VcsMock(Vcs):
             (3 ,[2]    ,bob    ,bob    ,one_day,one_hour,["v1.0.1"]),          #r1
             (4 ,[3]    ,alice  ,alice  ,one_day,None    ,["non-release"]),
             (5 ,[2]    ,alice  ,alice  ,one_day,None    ,[]),
-            (6 ,[5]    ,alice  ,alice  ,one_day,None    ,["v1.1.0"]),          #r2
+            (6 ,[5]    ,alice  ,alice  ,one_day,None    ,["1.1.0"]),          #r2
             (7 ,[4,6]  ,charlie,bob    ,one_day,None    ,[]),
             (8 ,[7]    ,charlie,charlie,one_day,None    ,["v2.0.0-alpha1"]),   #r3
             (9 ,[8]    ,alice  ,bob    ,one_day,None    ,[]),

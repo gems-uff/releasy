@@ -239,18 +239,12 @@ class TagReleaseMiner(AbstractReleaseMiner):
         # Tags can reference any git object, but we just need the tags
         # that reference commits for release detection. 
         tags = [tag for tag in datasource.vcs.tags() if tag.commit]
-        #tags = sorted(tags, key=lambda tag: tag.time, reverse=True)
-        # TODO: sort releases
         releases = ReleaseSet()
         for tag in tags:
             release_name = self.matcher.parse(tag.name)
             if release_name:
                 release = TagRelease(tag, release_name)
                 releases.add(release)
-
-        if self.sorter:
-            releases = self.sorter.sort(releases)
-
         return releases
 
 

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Set
 from datetime import timedelta
 
 from .source import Datasource
@@ -17,6 +17,7 @@ class CommitMiner(ABC):
     @abstractmethod
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params = None) -> ReleaseSet:
+        """ Assign the commits and base releases to the releases """
         raise NotImplementedError()
 
 
@@ -31,83 +32,46 @@ class HistoryCommitMiner(CommitMiner):
 
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params = None):
-        """ Assign the commits and base releases to the releases """
-        assigned_commits = {}
-        contributors = ContributorTracker()
-        tagged_commits = {}
         for release in releases:
-            if release.head.id not in tagged_commits:
-                tagged_commits[release.head.id] = release
-
-        for release in releases:
-            contributors = ContributorTracker(contributors)
-            commits, base_releases = self._track_commits(
-                release, 
-                assigned_commits, 
-                contributors,
-                tagged_commits
-            )
-            release.commits = commits
-            release.contributors = contributors
-            release.base_releases = base_releases
+            self._mine_release_history(release)
 
         for release in releases:    
             self._prune_commits(release)
         return releases
 
-    def _track_commits(self, release: Release, 
-            assigned_commits, 
-            contributors: ContributorTracker, 
-            tagged_commits) -> List[Commit]:
-        """ Mine the reachable commits not assigned to other releases """
-        # TODO: Check whether the commit is tagged by a release. 
-        #       When a release has a wrong timestamp, it commit releases created
-        #       after the actual release
-        commit_loop = set()
-        base_releases = ReleaseSet()
-        
-        commits = set()
-        commits.add(release.head)
-        commits_to_track = [parent_commit 
-                            for parent_commit in release.head.parents]
-
+    def _mine_release_history(self, release: Release):
+        commits_to_track: List[Commit] = [parent_commit for parent_commit 
+                                                        in release.head.parents]
         while commits_to_track:
             commit = commits_to_track.pop()
-            commit_loop.add(commit)
-
-            if commit not in commits:
-                #TODO: released_commits
-                if commit.id in tagged_commits:
-                    base_release = tagged_commits[commit.id]
-                    base_releases.add(base_release)
-                else:
-                    if commit.releases:
-                        for r in commit.releases:
-                            r.shared_commits.add(commit)
-                        release.shared_commits.add(commit)
-                    commit.releases.add(release)
-                    commits.add(commit)
-                    contributors.track(commit)
+            if commit not in release.commits:
+                if not commit.head_releases:
+                    release.add_commit(commit)
                     if commit.parents:
-                        for parent_commit in commit.parents:
-                            commits_to_track.append(parent_commit)
-
-        return commits, base_releases
+                        commits_to_track.extend(commit.parents)
+                else:
+                    release.base_releases.update(commit.head_releases)
 
     def _prune_commits(self, release: Release):
-        base_releases = set(release.base_releases)
-
-        if release.shared_commits:
-            releases_to_track = list(base_releases)
-            while releases_to_track:
-                cur_release = releases_to_track.pop()
-                base_releases.add(cur_release)
-                for base_release in cur_release.base_releases:
-                    if base_release not in base_releases:
-                        releases_to_track.append(base_release)
-
+        """Remove commits reachable by base releases"""
+        #TODO unset has_shared_commits
+        base_releases: Set[Release] = set()
+        if release.has_shared_commits and release.base_releases:
+            base_releases_to_track = list(release.base_releases)
+            while base_releases_to_track:
+                base_release = base_releases_to_track.pop()
+                if base_release not in base_releases:
+                    base_releases.add(base_release)
+                    if base_release.base_releases:
+                        base_releases_to_track.extend(base_release.base_releases)
+            
         for base_release in base_releases:
-            release.commits -= base_release.commits
+            commits_to_remove = release.commits & base_release.commits
+            if commits_to_remove:
+                for base_base_release in base_release.base_releases:
+                    release.remove_base_release(base_base_release)
+                for commit in commits_to_remove:
+                    release.remove_commit(commit)
 
 
 class TimeNaiveCommitMiner(CommitMiner):

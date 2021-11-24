@@ -29,6 +29,7 @@ class Commit:
         self.author_time = author_time
         self.committer = committer
         self.committer_time = committer_time
+        self.head_releases: Set[Release] = set()
         self.releases: Set[Release] = set()
         self.tags: Set[Tag] = set()
 
@@ -86,28 +87,6 @@ class Commit:
                 for parent_commit in commit.parents:
                     commits_to_track.append(parent_commit)
         return commits
-
-    def release_history(self, include_self: bool = False):
-        commits: Set(Commit) = set()
-        if include_self:
-            commits.add(self)
-        
-        base_commits = set()
-        commits_to_track = [parent_commit for parent_commit in self.parents]
-        while commits_to_track:
-            commit = commits_to_track.pop()
-            if commit not in commits:
-                if commit.releases:
-                    base_commits.add(base_commits)
-                else:
-                    commits.add(commit)
-                    for parent_commit in commit.parents:
-                        commits_to_track.append(parent_commit)
-
-        for commit in base_commits:
-            commits -= commit.history()
-
-        return commits, base_commits
 
 
 class Tag:

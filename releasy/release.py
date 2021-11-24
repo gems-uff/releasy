@@ -29,10 +29,12 @@ class Release:
         self.time = time
         self.description = description
         self.commits: Set[Commit] = set()
-        self.base_releases: ReleaseSet = ReleaseSet()
+        self.base_releases: Set[Release] = set()
         self.contributors : ContributorTracker = ContributorTracker()
         self.sm_release: SemanticRelease = None
-        self.shared_commits: Set[Commit] = set()
+        self.has_shared_commits: bool = False
+        self.add_commit(commit)
+        commit.head_releases.add(self)
 
     def __hash__(self):
         return hash((self.name, self.head))
@@ -44,6 +46,26 @@ class Release:
 
     def __repr__(self):
         return repr(self.name)
+
+    def add_commit(self, commit: Commit):
+        """Add a commit to the release"""
+        self._check_sharred_commmits(commit)
+        self.commits.add(commit)
+        commit.releases.add(self)
+
+    def remove_commit(self, commit: Commit):
+        self.commits.remove(commit)
+        commit.releases.remove(self)
+
+    def remove_base_release(self, release: Release):
+        if release in self.base_releases:
+            self.base_releases.remove(release)
+
+    def _check_sharred_commmits(self, commit: Commit):
+        if commit.releases:
+            self.has_shared_commits = True
+            for shared_release in commit.releases:
+                shared_release.has_shared_commits = True
 
     @property
     def merges(self):
@@ -170,7 +192,7 @@ class ReleaseSet():
             for release in releases:
                 self.add(release)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> Release:
         if isinstance(key, int):
             release_name = list(self._releases.keys())[key]
             return self._releases[release_name]
@@ -179,15 +201,19 @@ class ReleaseSet():
         else:
             raise TypeError()
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         if isinstance(item, str):
             if item in self._releases:
                 return True
-            return False
+        return False
 
     def add(self, release: Release):
         if release:
             self._releases[release.name] = release
+
+    def update(self, iterable):
+        for item in iterable:
+            self.add(item)
 
     def __len__(self):
         return len(self._releases)
