@@ -3,12 +3,12 @@ import datetime
 import pytest
 
 from typing import List
-from releasy.project import Project
+
 from releasy.release import (
     TYPE_MAIN,
     TYPE_PATCH,
     TYPE_PRE,
-     Release
+    Release
 )
 from releasy.semantic import (
     MainRelease,

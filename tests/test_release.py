@@ -3,8 +3,8 @@ import pytest
 import random
 import datetime
 
-from releasy.factory import ProjectMiner as Miner
-from releasy.release import Datasource
+from releasy.miner.factory import ProjectMiner as Miner
+from releasy.miner.source import Datasource
 from releasy.release import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseSet, ReleaseVersion
 
 from releasy.release import Release

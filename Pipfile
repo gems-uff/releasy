@@ -20,4 +20,5 @@ pytest-describe = "*"
 python_version = "3.8"
 
 [scripts]
-test = "pytest --cov=releasy"
+test="pytest --cov=releasy"
+test-cov="pytest --cov  --cov-report=html"

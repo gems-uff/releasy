@@ -1,7 +1,7 @@
 
 import pytest
 import releasy
-from releasy.release import Datasource
+from releasy.miner.source import Datasource
 from .mock import DevMock, VcsMock
 
 

@@ -4,12 +4,13 @@ from datetime import datetime, timezone, timedelta
 import pygit2
 # from pygit2 import Repository, Reference, GIT_OBJ_TAG
 
-from .release import (
-    Vcs,
-    Developer,
-    Tag,
-    Commit
-)
+
+from .miner.source import Vcs
+from .release import Developer
+from .commit import (
+    Commit,
+    Tag)
+
 
 class GitVcs(Vcs):
     """ Encapsulate Git Version Control System using pygit2 lib """

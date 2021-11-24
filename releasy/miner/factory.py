@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from .miner import (
+from .release_miner import (
     AbstractReleaseMiner,
     AbstractReleaseSorter,
     Datasource,
-    HistoryCommitMiner,
     ReleaseMatcher,
     TagReleaseMiner,
     TimeReleaseSorter,
     VersionReleaseMatcher
 )
-from .miner_git import GitVcs
-from .release import Vcs
-from .project import Project
+from .commit_miner import HistoryCommitMiner
+
+from ..miner_git import GitVcs
+from .source import Vcs
+from ..project import Project
 
 class ProjectMiner():
     strategy = None
@@ -60,15 +61,18 @@ class Miner:
     def config(self, strategy: MiningStrategy):
         self.strategy = strategy
 
-    def src(self, datasource: Datasource) -> None:
+    def src(self, datasource: Datasource) -> Miner:
         self.datasource = datasource
         self.project = Project()
+        return self
 
     def config_params(self, params):
         self.params = params
 
     def mine_releases(self) -> Miner:
         release_miner = self.strategy.release_mine_strategy
+        release_miner.matcher = self.strategy.release_match_strategy
+        release_miner.sorter = self.strategy.release_sort_strategy
         releases = release_miner.mine_releases(self.datasource)
         self.project.releases = releases
         return self

@@ -3,7 +3,7 @@
 from typing import List
 
 from .semantic import MainRelease, Patch, PreRelease
-from .release import Datasource
+from .miner.source import Datasource
 from .release import (
     TYPE_MAIN,
     TYPE_PATCH,

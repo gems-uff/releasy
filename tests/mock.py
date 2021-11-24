@@ -3,7 +3,11 @@ import pytest
 
 from datetime import datetime, timedelta
 
-from releasy.release import Vcs, Commit, Tag, Developer
+from releasy.release import Developer
+from releasy.commit import (
+    Commit, 
+    Tag)
+from releasy.miner.source import Vcs
 
 
 def vcs_data():
