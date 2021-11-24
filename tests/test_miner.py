@@ -13,7 +13,7 @@ from releasy.miner.release_miner import (
     TimeReleaseSorter,
     ReleaseMatcher)
 from releasy.miner.commit_miner import (
-    AbstractCommitMiner,
+    CommitMiner,
     TimeCommitMiner,
     RangeCommitMiner,
     TimeExpertCommitMiner,
@@ -42,11 +42,6 @@ def test_release_mine_stratety():
     with pytest.raises(NotImplementedError):
         release_miner.mine_releases(None)
 
-
-def test_commit_mine_strategy():
-    commit_miner = AbstractCommitMiner()
-    with pytest.raises(NotImplementedError):
-        commit_miner.mine_commits(None, None)
 
 #FIXME:
 # def test_true_release_matcher():

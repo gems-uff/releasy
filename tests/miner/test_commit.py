@@ -1,8 +1,11 @@
 import pytest
 
 from releasy.miner.factory import Miner
+from releasy.miner.commit_miner import (
+    CommitMiner)
 from releasy.miner.source import (
-    Datasource, Vcs)
+    Datasource, 
+    Vcs)
 from ..mock import VcsMock
 
 @pytest.fixture
@@ -13,6 +16,11 @@ def releases():
     miner.mine_commits()
     project = miner.create()
     return project.releases
+
+def describe_commit_miner():
+    def it_is_abstract():
+        with pytest.raises(TypeError):
+            CommitMiner()
 
 def describe_history_miner():
     def it_mine_commits(releases):

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import List
 from datetime import timedelta
 
@@ -9,16 +10,17 @@ from ..commit import Commit
 from ..release import ContributorTracker
 
 
-class AbstractCommitMiner:
+class CommitMiner(ABC):
     """ Mine release commits based on a strategy. It assign commits to 
     releases """
 
+    @abstractmethod
     def mine_commits(self, datasource: Datasource, releases: ReleaseSet,
             params = None) -> ReleaseSet:
         raise NotImplementedError()
 
 
-class HistoryCommitMiner(AbstractCommitMiner):
+class HistoryCommitMiner(CommitMiner):
     """
     Implements the history-based strategy.
 
@@ -108,7 +110,7 @@ class HistoryCommitMiner(AbstractCommitMiner):
             release.commits -= base_release.commits
 
 
-class TimeNaiveCommitMiner(AbstractCommitMiner):
+class TimeNaiveCommitMiner(CommitMiner):
     """ Mine releases based on the tag time. It sorts the commits in reverse 
     cronological order and split them based on the release date. """ 
 
@@ -132,7 +134,7 @@ class TimeNaiveCommitMiner(AbstractCommitMiner):
         return releases
        
 
-class ReachableCommitMiner(AbstractCommitMiner):
+class ReachableCommitMiner(CommitMiner):
 
     def _track_commits(self, head: Commit, start_time = None, include_self = False):
         """ return a list of all reachable commits from head made after start_time """
