@@ -21,7 +21,6 @@ from .release import (
     ReleaseVersion
 )
 
-
 class ReleaseMatcher:
     """ Check if a name represent a release """
 

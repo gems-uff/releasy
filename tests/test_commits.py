@@ -1,7 +1,7 @@
 
 
 from typing import List
-from releasy.release import (
+from releasy.commit import (
     Commit
 )
 
