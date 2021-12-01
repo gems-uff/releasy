@@ -25,8 +25,8 @@ class Release:
     def __init__(self, name: str, commit: Commit = None, time = None, description = None):
         self.name = name
         self.version = ReleaseVersion(name)
-        self.head = commit
         self.time = time
+        self.head = None
         self.description = description
         self.commits: Set[Commit] = set()
         self.base_releases: Set[Release] = set()
@@ -34,7 +34,6 @@ class Release:
         self.sm_release: SemanticRelease = None
         self.has_shared_commits: bool = False
         self.add_commit(commit)
-        commit.head_releases.add(self)
 
     def __hash__(self):
         return hash((self.name, self.head))
@@ -49,9 +48,13 @@ class Release:
 
     def add_commit(self, commit: Commit):
         """Add a commit to the release"""
-        self._check_sharred_commmits(commit)
-        self.commits.add(commit)
-        commit.releases.add(self)
+        if commit:
+            if not self.head:
+                self.head = commit
+                commit.head_releases.add(self)
+            self._check_shared_commits(commit)
+            self.commits.add(commit)
+            commit.releases.add(self)
 
     def remove_commit(self, commit: Commit):
         self.commits.remove(commit)
@@ -61,8 +64,8 @@ class Release:
         if release in self.base_releases:
             self.base_releases.remove(release)
 
-    def _check_sharred_commmits(self, commit: Commit):
-        if commit.releases:
+    def _check_shared_commits(self, commit: Commit):
+        if commit and commit.releases:
             self.has_shared_commits = True
             for shared_release in commit.releases:
                 shared_release.has_shared_commits = True

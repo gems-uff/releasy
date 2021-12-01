@@ -91,19 +91,25 @@ def describe_release():
         assert releases[8].version.full_name == "v2.1.0"
 
     def it_has_base_releases(releases: List[Release]):
-        assert not releases[0].base_releases
-        assert "v1.0.0" in releases[1].base_releases
-        assert "v1.0.1" in releases[2].base_releases
-        assert "v1.0.0" in releases[3].base_releases
-        assert "1.1.0" in releases[4].base_releases
-        assert "v1.0.1" in releases[4].base_releases
-        assert "v2.0.0-alpha1" in releases[5].base_releases
-        assert "v1.0.1" in releases[6].base_releases
-        assert "v1.0.2" in releases[6].base_releases
-        assert "v2.0.0-beta1" in releases[6].base_releases
-        assert "v2.0.0" in releases[7].base_releases
-        assert "v2.0.0-beta1" in releases[8].base_releases
-        assert "v2.0.0" in releases[8].base_releases
+        assert not releases['v1.0.0'].base_releases
+        assert len(releases['v1.0.1'].base_releases) == 1
+        assert releases["v1.0.0"] in releases['v1.0.1'].base_releases
+        assert len(releases['v1.0.2'].base_releases) == 1
+        assert releases["v1.0.1"] in releases['v1.0.2'].base_releases
+        assert len(releases['1.1.0'].base_releases) == 1
+        assert releases["v1.0.0"] in releases['1.1.0'].base_releases
+        assert len(releases['v2.0.0-alpha1'].base_releases) == 2
+        assert releases["1.1.0"] in releases['v2.0.0-alpha1'].base_releases
+        assert releases["v1.0.1"] in releases['v2.0.0-alpha1'].base_releases
+        assert len(releases['v2.0.0-beta1'].base_releases) == 1
+        assert releases["v2.0.0-alpha1"] in releases['v2.0.0-beta1'].base_releases
+        assert len(releases['v2.0.0'].base_releases) == 2
+        assert releases["v1.0.2"] in releases['v2.0.0'].base_releases
+        assert releases["v2.0.0-beta1"] in releases['v2.0.0'].base_releases
+        assert releases['v2.0.1'].base_releases == releases['v2.0.0'].base_releases
+        assert len(releases['v2.1.0'].base_releases) == 2
+        assert releases["v2.0.0"] in releases[8].base_releases
+        assert releases["v2.0.1"] in releases[8].base_releases
 
     def it_has_a_main_base_release(releases: List[Release]):
         assert not releases[0].main_base_release
