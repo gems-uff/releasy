@@ -1,8 +1,12 @@
 """
 """
-from typing import List
+from typing import List, Set
 
-from .semantic import MainRelease, Patch, PreRelease
+from .semantic import (
+    MainRelease,
+    Patch,
+    PreRelease,
+    SmReleaseSet)
 from .miner.source import Datasource
 from .release import (
     TYPE_MAIN,
@@ -20,9 +24,9 @@ class Project():
     def __init__(self) -> None:
         self.datasource: Datasource = None
         self._releases: ReleaseSet = ReleaseSet()
-        self.main_releases = ReleaseSet()
-        self.patches = ReleaseSet()
-        self.pre_releases = ReleaseSet()
+        self.main_releases = SmReleaseSet()
+        self.patches = SmReleaseSet()
+        self.pre_releases = SmReleaseSet()
 
     @property
     def releases(self):
@@ -55,6 +59,6 @@ class Project():
                 main_release.add_pre_release(pre_release)
 
     @property
-    def prefixes(self) -> List[str]:
-        prefixes = list(set(release.version.prefix for release in self.releases))
+    def prefixes(self) -> Set[str]:
+        prefixes = set(release.version.prefix for release in self.releases)
         return prefixes

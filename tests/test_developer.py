@@ -5,7 +5,7 @@ from releasy.miner.source import Datasource
 from .mock import DevMock, VcsMock
 
 
-@pytest.mark.skip('') #FIXME
+@pytest.mark.skip('')
 def test_release_committers():
     miner = releasy.Miner()
     project = miner.mine(Datasource(vcs=VcsMock()))

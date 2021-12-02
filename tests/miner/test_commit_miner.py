@@ -86,4 +86,14 @@ def describe_history_miner():
         assert releases["v2.1.0"].base_releases \
                == set([releases['v2.0.0'], releases['v2.0.1'], releases['v2.0.0-beta1']])
 
+    # def it_has_delay(releases: List[Release]):
+    #     #TODO: release[0].delay
+    #     assert releases[1].delay == datetime.timedelta(days=2)
+    #     assert releases[2].delay == datetime.timedelta(days=10)
+    #     assert releases[3].delay == datetime.timedelta(days=5)
+    #     assert releases[4].delay == datetime.timedelta(days=2)
+    #     assert releases[5].delay == datetime.timedelta(days=2)
+    #     assert releases[6].delay == datetime.timedelta(days=4)
+    #     assert releases[7].delay == datetime.timedelta(hours=1)
+    #     assert releases[8].delay == datetime.timedelta(days=6)
        

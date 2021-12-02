@@ -25,7 +25,10 @@ class Release:
     def __init__(self, name: str, commit: Commit = None, time = None, description = None):
         self.name = name
         self.version = ReleaseVersion(name)
-        self.time = time
+        if time:
+            self.time = time
+        elif commit:
+            self.time = commit.committer_time
         self.head = None
         self.description = description
         self.commits: Set[Commit] = set()
@@ -40,7 +43,8 @@ class Release:
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return hash(self) == hash(other)
+            if self.name == other.name and self.head == other.head:
+                return True
         return False
 
     def __repr__(self):

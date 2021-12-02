@@ -5,19 +5,33 @@ Add semantic to releases, i.e.:
   - Patches
 """
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import datetime
 from typing import Dict, List
 from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Release, ReleaseVersion
 
-class SemanticRelease:
+
+class SemanticRelease(ABC):
     """Add semantic to a release"""
     def __init__(self, release: Release) -> None:
         self.release: Release = release
         release.sm_release = self
 
-    def name(self) -> str:
+    @abstractmethod
+    def semantic_name(self) -> str:
         pass
 
+    @property
+    def name(self) -> str:
+        return self.release.name
+
+    def __hash__(self) -> int:
+        return self.release.__hash__()
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, type(self)):
+            return self.release.__eq__(other.release)
+        
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -84,7 +98,7 @@ class MainRelease(SemanticRelease):
         return False
 
     @property
-    def name(self) -> str:
+    def semantic_name(self) -> str:
         if self.release.version.type(TYPE_MAJOR):
             return f"{self.release.version.numbers[0]}.0.0"
         else:
@@ -140,7 +154,7 @@ class Patch(SemanticRelease):
         self.main_release: MainRelease = None
 
     @property
-    def name(self) -> str:
+    def semantic_name(self) -> str:
         return self.release.version.number
 
     def __str__(self) -> str:
@@ -152,7 +166,7 @@ class PreRelease(SemanticRelease):
         super().__init__(release)
 
     @property
-    def name(self) -> str:
+    def semantic_name(self) -> str:
         return f'{self.release.version.number}{self.release.version.suffix}'
 
     def __str__(self) -> str:
@@ -160,7 +174,7 @@ class PreRelease(SemanticRelease):
 
 
 # TODO: Merge with ReleaseSet
-class SmReleaseSet():
+class  SmReleaseSet():
     def __init__(self, releases = None) -> None:
         self._releases: Dict[str, SemanticRelease] = {}
         if releases: 

@@ -2,6 +2,7 @@ from typing import List
 import pytest
 import random
 import datetime
+from releasy.commit import Commit
 
 from releasy.miner.factory import ProjectMiner as Miner
 from releasy.miner.source import Datasource
@@ -11,256 +12,103 @@ from releasy.release import Release
 from .mock import VcsMock
 
 
-@pytest.fixture
-def release_names() -> List[str]:
-    return [
-        "v1.0.0",
-        "v1.0.1",
-        "v1.0.2",
-        "1.1.0", 
-        "v2.0.0-alpha1",
-        "v2.0.0-beta1",
-        "v2.0.0", 
-        "v2.0.1",
-        "v2.1.0"
-    ]
-
-@pytest.fixture
-def reference():
-    return datetime.datetime(2020, 1, 1, 12, 00)
-
-@pytest.fixture
-def release_times(reference: datetime.datetime) -> List[datetime.datetime]:
-    return [
-        reference + datetime.timedelta(days=2, hours=1), # "v1.0.0",
-        reference + datetime.timedelta(days=4, hours=1), # "v1.0.1",
-        reference + datetime.timedelta(days=14, hours=1), # "v1.0.2",
-        reference + datetime.timedelta(days=7, hours=1), # "1.1.0", 
-        reference + datetime.timedelta(days=9, hours=1), # "v2.0.0-alpha1",
-        reference + datetime.timedelta(days=11, hours=1), # "v2.0.0-beta1",
-        reference + datetime.timedelta(days=15, hours=1), # "v2.0.0", 
-        reference + datetime.timedelta(days=15, hours=2), # "v2.0.1",
-        reference + datetime.timedelta(days=21, hours=1), # "v2.1.0"
-    ]
-
-@pytest.fixture
-def release_versions(release_names: List[str]):
-    return [ReleaseVersion(name) for name in release_names]
-
-@pytest.fixture
-def releases(release_names: List[str], release_times: List[datetime.datetime]):
-    releases = ReleaseSet([Release(name, time=time) for name, time 
-                          in zip(release_names, release_times)])
-
-    releases[1].add_base_release(releases[0])
-    releases[2].add_base_release(releases[1])
-    releases[3].add_base_release(releases[0])
-    releases[4].add_base_release(releases[1])
-    releases[4].add_base_release(releases[3])
-    releases[5].add_base_release(releases[4])
-    releases[6].add_base_release(releases[1])
-    releases[6].add_base_release(releases[2])
-    releases[6].add_base_release(releases[5])
-    releases[7].add_base_release(releases[6])
-    releases[8].add_base_release(releases[5])
-    releases[8].add_base_release(releases[6])
-    return releases
-
-
 def describe_release():
-    def it_has_a_name(releases: List[Release]):
+    dt_reference = datetime.datetime(2020, 1, 1, 12, 00)
+    dt_delay = datetime.timedelta(days=1)
+
+    @pytest.fixture
+    def releases():
+        releases = ReleaseSet()
+        releases.add(Release('v1.0.0', Commit('1', committer_time=dt_reference)))
+        releases.add(Release('v1.0.1', time=dt_reference+dt_delay))
+        releases.add(Release('v2.0.0'))
+        releases['v1.0.1'].add_base_release(releases['v1.0.0'])
+        releases['v2.0.0'].add_base_release(releases['v1.0.0'])
+        releases['v2.0.0'].add_base_release(releases['v1.0.1'])
+        return releases
+
+    def it_has_name(releases: ReleaseSet):
         assert releases[0].name == "v1.0.0"
-        assert releases[1].name == "v1.0.1"
-        assert releases[2].name == "v1.0.2"
-        assert releases[3].name == "1.1.0"
-        assert releases[4].name == "v2.0.0-alpha1"
-        assert releases[5].name == "v2.0.0-beta1"
-        assert releases[6].name == "v2.0.0"
-        assert releases[7].name == "v2.0.1"
-        assert releases[8].name == "v2.1.0"
 
-    def it_has_a_version(releases: List[Release]):
-        assert releases[0].version.full_name == "v1.0.0"
-        assert releases[1].version.full_name == "v1.0.1"
-        assert releases[2].version.full_name == "v1.0.2"
-        assert releases[3].version.full_name == "1.1.0"
-        assert releases[4].version.full_name == "v2.0.0-alpha1"
-        assert releases[5].version.full_name == "v2.0.0-beta1"
-        assert releases[6].version.full_name == "v2.0.0"
-        assert releases[7].version.full_name == "v2.0.1"
-        assert releases[8].version.full_name == "v2.1.0"
+    def it_has_version(releases: ReleaseSet):
+        assert releases['v1.0.0'].version == ReleaseVersion('v1.0.0')
 
-    def it_has_base_releases(releases: List[Release]):
-        assert not releases['v1.0.0'].base_releases
-        assert len(releases['v1.0.1'].base_releases) == 1
-        assert releases["v1.0.0"] in releases['v1.0.1'].base_releases
-        assert len(releases['v1.0.2'].base_releases) == 1
-        assert releases["v1.0.1"] in releases['v1.0.2'].base_releases
-        assert len(releases['1.1.0'].base_releases) == 1
-        assert releases["v1.0.0"] in releases['1.1.0'].base_releases
-        assert len(releases['v2.0.0-alpha1'].base_releases) == 2
-        assert releases["1.1.0"] in releases['v2.0.0-alpha1'].base_releases
-        assert releases["v1.0.1"] in releases['v2.0.0-alpha1'].base_releases
-        assert len(releases['v2.0.0-beta1'].base_releases) == 1
-        assert releases["v2.0.0-alpha1"] in releases['v2.0.0-beta1'].base_releases
-        assert len(releases['v2.0.0'].base_releases) == 2
-        assert releases["v1.0.2"] in releases['v2.0.0'].base_releases
-        assert releases["v2.0.0-beta1"] in releases['v2.0.0'].base_releases
-        assert releases['v2.0.1'].base_releases == releases['v2.0.0'].base_releases
-        assert len(releases['v2.1.0'].base_releases) == 2
-        assert releases["v2.0.0"] in releases[8].base_releases
-        assert releases["v2.0.1"] in releases[8].base_releases
+    def it_has_base_releases(releases: ReleaseSet):
+        assert releases['v2.0.0'].base_releases \
+            == set([releases['v1.0.0'], releases['v1.0.1']])
 
-    def it_has_a_main_base_release(releases: List[Release]):
-        assert not releases[0].main_base_release
-        assert releases[1].main_base_release.name == "v1.0.0"
-        assert releases[2].main_base_release.name == "v1.0.1"
-        assert releases[3].main_base_release.name == "v1.0.0"
-        assert releases[4].main_base_release.name == "1.1.0"
-        assert releases[5].main_base_release.name == "v2.0.0-alpha1"
-        assert releases[6].main_base_release.name == "v2.0.0-beta1"
-        assert releases[7].main_base_release.name == "v2.0.0"
-        assert releases[8].main_base_release.name == "v2.0.0"
+    def it_has_main_base_release(releases: ReleaseSet):
+        assert releases['v2.0.0'].main_base_release == releases['v1.0.1']
 
-    def it_handle_unusual_base_releases() -> Release:
-        release = Release("1.0.0")
-        release.add_base_release(Release("1.0.1"))
-        release.add_base_release(Release("0.9.0"))
-        release.add_base_release(Release("0.0.1"))
-        assert "0.0.1" in release.base_releases
-        assert "0.9.0" in release.base_releases
-        assert "1.0.1" in release.base_releases
-        assert release.main_base_release.name == "0.9.0"
-        
-    def it_has_time(releases: List[Release], 
-                    release_times: List[datetime.datetime]):
-        for release, time in zip(releases, release_times):
-            assert release.time == time
+    def it_handles_unusual_base_releases(releases: ReleaseSet) -> Release:
+        releases['v2.0.0'].add_base_release(Release('v2.0.1'))
+        assert releases['v2.0.0'].main_base_release == releases['v1.0.1']
+    
+    def it_has_time(releases: ReleaseSet):
+        assert releases['v1.0.0'].time == dt_reference
+        assert releases['v1.0.1'].time == dt_reference+dt_delay
 
-    def it_has_delay(releases: List[Release]):
-        #TODO: release[0].delay
-        assert releases[1].delay == datetime.timedelta(days=2)
-        assert releases[2].delay == datetime.timedelta(days=10)
-        assert releases[3].delay == datetime.timedelta(days=5)
-        assert releases[4].delay == datetime.timedelta(days=2)
-        assert releases[5].delay == datetime.timedelta(days=2)
-        assert releases[6].delay == datetime.timedelta(days=4)
-        assert releases[7].delay == datetime.timedelta(hours=1)
-        assert releases[8].delay == datetime.timedelta(days=6)
-
+    def it_has_delay(releases: ReleaseSet):
+        assert releases['v1.0.1'].delay == dt_delay
+    
 
 def describe_release_version():
-    def it_has_a_name(release_versions: List[ReleaseVersion]):
+
+    @pytest.fixture
+    def release_versions() -> List[ReleaseVersion]:
+        return [
+            ReleaseVersion('v1.0.0'),
+            ReleaseVersion('1.0.1'),
+            ReleaseVersion('2.0.0beta'),
+            ReleaseVersion('2.0.0'),
+            ReleaseVersion('2.1.0')]
+        
+    def it_has_name(release_versions: List[ReleaseVersion]):
         assert release_versions[0].full_name == "v1.0.0"
-        assert release_versions[1].full_name == "v1.0.1"
-        assert release_versions[2].full_name == "v1.0.2"
-        assert release_versions[3].full_name == "1.1.0"
-        assert release_versions[4].full_name == "v2.0.0-alpha1"
-        assert release_versions[5].full_name == "v2.0.0-beta1"
-        assert release_versions[6].full_name == "v2.0.0"
-        assert release_versions[7].full_name == "v2.0.1"
-        assert release_versions[8].full_name == "v2.1.0"
 
-    def it_has_a_number(release_versions: List[ReleaseVersion]):
+    def it_has_number(release_versions: List[ReleaseVersion]):
         assert release_versions[0].number == "1.0.0"
-        assert release_versions[1].number == "1.0.1"
-        assert release_versions[2].number == "1.0.2"
-        assert release_versions[3].number == "1.1.0"
-        assert release_versions[4].number == "2.0.0"
-        assert release_versions[5].number == "2.0.0"
-        assert release_versions[6].number == "2.0.0"
-        assert release_versions[7].number == "2.0.1"
-        assert release_versions[8].number == "2.1.0"
 
-    def it_may_have_a_prefix(release_versions: List[ReleaseVersion]):
+    def it_has_prefix(release_versions: List[ReleaseVersion]):
         assert release_versions[0].prefix == "v"
-        assert release_versions[1].prefix == "v"
-        assert release_versions[2].prefix == "v"
-        assert release_versions[3].prefix == ""
-        assert not release_versions[3].prefix
-        assert release_versions[4].prefix == "v"
-        assert release_versions[5].prefix == "v"
-        assert release_versions[6].prefix == "v"
-        assert release_versions[7].prefix == "v"
-        assert release_versions[8].prefix == "v"
+        assert release_versions[1].prefix == ""
+        assert release_versions[2].prefix == ""
 
-    def it_may_have_a_suffix(release_versions: List[ReleaseVersion]):
-        assert not release_versions[0].suffix
+    def it_has_suffix(release_versions: List[ReleaseVersion]):
         assert release_versions[0].suffix == ""
         assert release_versions[1].suffix == ""
-        assert release_versions[2].suffix == ""
-        assert release_versions[3].suffix == ""
-        assert release_versions[4].suffix == "-alpha1"
-        assert release_versions[5].suffix == "-beta1"
-        assert release_versions[6].suffix == ""
-        assert release_versions[7].suffix == ""
-        assert release_versions[8].suffix == ""
+        assert release_versions[2].suffix == "beta"
 
     def it_has_version_numbers(release_versions: List[ReleaseVersion]):
-        assert release_versions[0].numbers[0] == 1
-        assert release_versions[0].numbers[1] == 0
-        assert release_versions[0].numbers[2] == 0
-        assert release_versions[1].numbers[0] == 1
-        assert release_versions[1].numbers[1] == 0
-        assert release_versions[1].numbers[2] == 1
-        assert release_versions[2].numbers[0] == 1
-        assert release_versions[2].numbers[1] == 0
-        assert release_versions[2].numbers[2] == 2
-        assert release_versions[3].numbers[0] == 1
-        assert release_versions[3].numbers[1] == 1
-        assert release_versions[3].numbers[2] == 0
-        assert release_versions[4].numbers[0] == 2
-        assert release_versions[4].numbers[1] == 0
-        assert release_versions[4].numbers[2] == 0
-        assert release_versions[5].numbers[0] == 2
-        assert release_versions[5].numbers[1] == 0
-        assert release_versions[5].numbers[2] == 0
-        assert release_versions[6].numbers[0]== 2
-        assert release_versions[6].numbers[1] == 0
-        assert release_versions[6].numbers[2] == 0
-        assert release_versions[7].numbers[0] == 2
-        assert release_versions[7].numbers[1] == 0
-        assert release_versions[7].numbers[2] == 1
-        assert release_versions[8].numbers[0] == 2
-        assert release_versions[8].numbers[1] == 1
-        assert release_versions[8].numbers[2] == 0
+        assert release_versions[0].numbers == [1, 0, 0]
+        assert release_versions[1].numbers == [1, 0, 1]
+        assert release_versions[2].numbers == [2, 0, 0]
 
     def it_has_order(release_versions: List[ReleaseVersion]):
         shuffled_versions = list(release_versions)
         random.shuffle(shuffled_versions)
-        ordered_versions = sorted(shuffled_versions)
-        for index in range(len(release_versions)):
-            assert ordered_versions[index] == release_versions[index]
+        ordered_versions:  List[ReleaseVersion] = sorted(shuffled_versions)
+        assert ordered_versions[0].full_name == "v1.0.0"
+        assert ordered_versions[1].full_name == "1.0.1"
+        assert ordered_versions[2].full_name == "2.0.0beta"
+        assert ordered_versions[3].full_name == "2.0.0"
 
     def it_has_type(release_versions: List[ReleaseVersion]):
         assert release_versions[0].type(TYPE_MAJOR)
         assert release_versions[0].type(TYPE_MAIN)
         assert release_versions[1].type(TYPE_PATCH)
-        assert not release_versions[1].type(TYPE_MAIN)
-        assert release_versions[2].type(TYPE_PATCH)
-        assert not release_versions[2].type(TYPE_MAIN)
-        assert release_versions[3].type(TYPE_MINOR)
+        assert release_versions[2].type(TYPE_MAJOR)
+        assert release_versions[2].type(TYPE_PRE)
+        assert release_versions[3].type(TYPE_MAJOR)
         assert release_versions[3].type(TYPE_MAIN)
-        assert release_versions[4].type(TYPE_MAJOR)
-        assert release_versions[4].type(TYPE_PRE)
-        assert release_versions[5].type(TYPE_MAJOR)
-        assert release_versions[5].type(TYPE_PRE)
-        assert release_versions[6].type(TYPE_MAJOR)
-        assert release_versions[6].type(TYPE_MAIN)
-        assert release_versions[7].type(TYPE_PATCH)
-        assert not release_versions[7].type(TYPE_MAIN)
-        assert release_versions[8].type(TYPE_MINOR)
-        assert release_versions[8].type(TYPE_MAIN)
+        assert release_versions[4].type(TYPE_MINOR)
+        assert release_versions[4].type(TYPE_MAIN)
 
     def it_handle_incomplete_versions():
         v1 = ReleaseVersion("1")
-        assert v1.numbers[0] == 1
-        assert v1.numbers[1] == 0
-        assert v1.numbers[2] == 0
+        assert v1.numbers == [1, 0, 0]
         v11 = ReleaseVersion("1.1")
-        assert v11.numbers[0] == 1
-        assert v11.numbers[1] == 1
-        assert v11.numbers[2] == 0
+        assert v11.numbers == [1, 1, 0]
 
 
 def describe_release_set():
@@ -273,3 +121,4 @@ def describe_release_set():
         assert releases["1.0.0"].name == "1.0.0"
         assert releases["1.0.1"].name == "1.0.1"
         assert len(releases) == 2
+
