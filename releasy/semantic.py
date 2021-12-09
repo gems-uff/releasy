@@ -132,13 +132,16 @@ class MainRelease(SemanticRelease):
 
     @property
     def base_main_releases(self) -> SmReleaseSet:
-        base_main_releases = super().base_main_releases
+        if self._base_main_releases:
+            return self._base_main_releases
+
+        self._base_main_releases = super().base_main_releases
         for pre_release in self.pre_releases:
-            base_main_releases.update(pre_release.base_main_releases)
+            self._base_main_releases.update(pre_release.base_main_releases)
         
-        if self.name in base_main_releases:
-            base_main_releases.remove(self.name)
-        return base_main_releases
+        if self.name in self._base_main_releases:
+            self._base_main_releases.remove(self.name)
+        return self._base_main_releases
 
     @property
     def base_main_release(self) -> MainRelease:
