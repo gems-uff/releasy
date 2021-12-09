@@ -16,6 +16,7 @@ class SemanticRelease(ABC):
     def __init__(self, release: Release) -> None:
         self.release: Release = release
         release.sm_release = self
+        self._base_main_releases = SmReleaseSet()
 
     @abstractmethod
     def semantic_name(self) -> str:
@@ -36,21 +37,31 @@ class SemanticRelease(ABC):
         return self.__str__()
 
     @property
-    def base_main_releases(self) -> Dict[str, MainRelease]:
-        base_main_releases = {}
-        for base_release in self.release.base_releases:
-            sm_base_release = base_release.sm_release
-            if isinstance(sm_base_release, MainRelease):
-                base_main_releases[sm_base_release.name] = sm_base_release
-            else: # Patches or Pre releases
-                # if not hasattr(sm_base_release, 'main_release'):
-                #     print(sm_base_release.name)
-                base_main_releases[sm_base_release.main_release.name] \
-                                   = sm_base_release.main_release
+    def base_main_releases(self) -> SmReleaseSet:
+        if self._base_main_releases:
+            return self._base_main_releases
 
-        if self.name in base_main_releases:
-            del base_main_releases[self.name]
-        return base_main_releases
+        for b_release in self.release.base_releases:
+            b_srelease = b_release.sm_release
+            if isinstance(b_srelease, MainRelease):
+                self._base_main_releases.add(b_srelease)
+            else:
+                # Patches or Pre releases
+                self._base_main_releases.add(b_srelease.main_release)
+
+        b_srelease_to_remove = []
+        b_sreleases_to_track = [b_srelease for b_srelease in self._base_main_releases]
+        while b_sreleases_to_track:
+            b_release = b_sreleases_to_track.pop()
+            for bb_release in b_release.base_main_releases:
+                if bb_release not in b_srelease_to_remove:
+                    b_sreleases_to_track.append(bb_release)
+                    b_srelease_to_remove.append(bb_release)
+
+        for b_release in b_srelease_to_remove:
+            self._base_main_releases.remove(b_release.name)
+
+        return self._base_main_releases
 
     @property
     def version(self) -> ReleaseVersion:
@@ -119,25 +130,27 @@ class MainRelease(SemanticRelease):
         return f"Main {self.name}"
 
     @property
-    def base_main_releases(self) -> Dict[str, MainRelease]:
+    def base_main_releases(self) -> SmReleaseSet:
         base_main_releases = super().base_main_releases
         for pre_release in self.pre_releases:
             base_main_releases.update(pre_release.base_main_releases)
         
         if self.name in base_main_releases:
-            del base_main_releases[self.name]
+            base_main_releases.remove(self.name)
         return base_main_releases
 
     @property
     def base_main_release(self) -> MainRelease:
         if not self.base_main_releases:
             return None
-        base_main_releases = [value for key, value \
-                              in self.base_main_releases.items()]
-        base_main_releases.append(self)
+
+    
+        b_sreleases = [b_srelease \
+                              for b_srelease in self.base_main_releases]
+        b_sreleases.append(self)
         sorted_base_main_releases = sorted(
-            base_main_releases, 
-            key = lambda main_release : main_release.release.version)
+            b_sreleases, 
+            key = lambda srelease : srelease.release.version)
         self_release_index = sorted_base_main_releases.index(self)
         return sorted_base_main_releases[self_release_index-1]
 
@@ -177,7 +190,7 @@ class PreRelease(SemanticRelease):
 class  SmReleaseSet():
     def __init__(self, releases = None) -> None:
         self._releases: Dict[str, SemanticRelease] = {}
-        if releases: 
+        if releases:
             for release in releases:
                 self.add(release)
 
@@ -196,9 +209,28 @@ class  SmReleaseSet():
                 return True
             return False
 
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, SmReleaseSet):
+            if self._releases == __o._releases:
+                return True
+        return False
+
     def add(self, release: SemanticRelease):
         if release:
             self._releases[release.name] = release
 
+    def update(self, releases: List):
+        for release in releases:
+            self.add(release)
+
+    def remove(self, name) -> None:
+        if name in self._releases:
+            del self._releases[name]
+
     def __len__(self):
         return len(self._releases)
+
+    def __repr__(self) -> str:
+        return '[' \
+             + ', '.join([release.name for release in self._releases.values()]) \
+             + ']'

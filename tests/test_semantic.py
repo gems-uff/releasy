@@ -76,23 +76,12 @@ def describe_main_release():
 
     def it_have_base_main_releases(main_releases: SmReleaseSet):
         assert not main_releases['v1.0.0'].base_main_releases
-        r = list(main_releases['1.1.0'].base_main_releases)[0]
-        r2 = main_releases['v1.0.0']
-        assert r == r2
-        # assert set(main_releases['1.1.0'].base_main_releases) \
-        #     == set([main_releases['v1.0.0']])
-        # # assert set(main_releases['v2.0.0'].base_main_releases) \
-        # #     == set([main_releases['v2.0.0']])
-        # assert set(main_releases['v2.1.0'].base_main_releases) \
-        #     == set([main_releases['v2.0.0']])
-        
-        # assert len(main_releases[1].base_main_releases) == 1 
-        # assert "1.0.0" in main_releases[1].base_main_releases
-        # assert len(main_releases[2].base_main_releases) == 2
-        # assert "1.0.0" in main_releases[2].base_main_releases
-        # assert "1.1.0" in main_releases[2].base_main_releases
-        # assert len(main_releases[3].base_main_releases) == 1
-        # assert "2.0.0" in main_releases[3].base_main_releases
+        assert main_releases['1.1.0'].base_main_releases \
+            == SmReleaseSet([main_releases['v1.0.0']])
+        assert main_releases['v2.0.0'].base_main_releases \
+            == SmReleaseSet([main_releases['1.1.0']])
+        assert main_releases['v2.1.0'].base_main_releases \
+            == SmReleaseSet([main_releases['v2.0.0']])
 
     def it_have_base_main_release(main_releases: SmReleaseSet):
         assert not main_releases['v1.0.0'].base_main_release
@@ -102,9 +91,9 @@ def describe_main_release():
 
     def it_has_delay(main_releases: SmReleaseSet):
         #assert main_releases['1.0.0'].delay == datetime.timedelta(days=5) #FIXME
-        assert main_releases['1.1.0'].delay == datetime.timedelta(days=5)
-        assert main_releases['v2.0.0'].delay == datetime.timedelta(days=8)
-        assert main_releases['v2.1.0'].delay == datetime.timedelta(days=6)
+        assert main_releases['1.1.0'].delay == datetime.timedelta(days=4, hours=23)
+        assert main_releases['v2.0.0'].delay == datetime.timedelta(days=8, hours=1)
+        assert main_releases['v2.1.0'].delay == datetime.timedelta(days=5, hours=23)
 
     def it_handle_unordered(): #TODO
         reference = datetime.datetime(2020, 1, 1, 12, 00)        
