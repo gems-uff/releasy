@@ -57,13 +57,25 @@ class Miner:
     def __init__(self) -> None:
         self.strategy = MiningStrategy.default()
         self.params = {}
+        self.datasource = None
+        self.project = None
+        self.init()
 
     def config(self, strategy: MiningStrategy):
         self.strategy = strategy
 
+    def init(self) -> Miner:
+        self.project = Project()
+        self.datasource = Datasource()
+        self.params = {}
+        return self
+
+    def vcs(self, path: str) -> Miner:
+        self.datasource.vcs = GitVcs(path)
+        return self
+
     def src(self, datasource: Datasource) -> Miner:
         self.datasource = datasource
-        self.project = Project()
         return self
 
     def config_params(self, params):
