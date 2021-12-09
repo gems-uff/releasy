@@ -27,8 +27,8 @@ def describe_tag_release_miner():
         assert len(releases) == 9
 
     def it_assign_the_head_commit(releases: ReleaseSet, commits: List[Commit]):
-        assert releases['v1.0.0'].head == commits[1]
-        assert releases['v1.0.1'].head == commits[3]
+        assert releases['v0.9.0'].head == commits[1]
+        assert releases['v1.0.0'].head == commits[3]
         assert releases['v1.0.2'].head == commits[13]
         assert releases['1.1.0'].head == commits[6]
         assert releases['v2.0.0'].head == commits[14]

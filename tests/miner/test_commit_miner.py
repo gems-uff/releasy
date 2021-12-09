@@ -35,9 +35,9 @@ def describe_commit_miner():
 
 def describe_history_miner():
     def it_mine_commits(releases: ReleaseSet, commits: List[Commit]):
-        assert releases["v1.0.0"].commits \
+        assert releases["v0.9.0"].commits \
                == set([commits[1], commits[0]])
-        assert releases["v1.0.1"].commits \
+        assert releases["v1.0.0"].commits \
                == set([commits[3], commits[2]])
         assert releases["v1.0.2"].commits \
                == set([commits[13]])
@@ -55,8 +55,8 @@ def describe_history_miner():
                        commits[16], commits[15]])
 
     def it_identify_shared_commits(releases: ReleaseSet, commits: List[Commit]):
-        assert not releases['v1.0.0'].has_shared_commits
-        assert releases['v1.0.1'].has_shared_commits
+        assert not releases['v0.9.0'].has_shared_commits
+        assert releases['v1.0.0'].has_shared_commits
         assert not releases['v1.0.2'].has_shared_commits
         assert releases['1.1.0'].has_shared_commits
         assert not releases['v2.0.0-alpha1'].has_shared_commits
@@ -68,15 +68,15 @@ def describe_history_miner():
         assert len(commits[2].releases) == 2
 
     def it_mine_base_releases(releases):
-        assert not releases['v1.0.0'].base_releases
-        assert releases["v1.0.1"].base_releases \
-               == set([releases['v1.0.0']])
+        assert not releases['v0.9.0'].base_releases
+        assert releases["v1.0.0"].base_releases \
+               == set([releases['v0.9.0']])
         assert releases["v1.0.2"].base_releases \
-               == set([releases['v1.0.1']])
-        assert releases["1.1.0"].base_releases \
                == set([releases['v1.0.0']])
+        assert releases["1.1.0"].base_releases \
+               == set([releases['v0.9.0']])
         assert releases["v2.0.0-alpha1"].base_releases \
-               == set([releases['v1.0.1'], releases['1.1.0']])
+               == set([releases['v1.0.0'], releases['1.1.0']])
         assert releases["v2.0.0-beta1"].base_releases \
                == set([releases['v2.0.0-alpha1']])
         assert releases["v2.0.0"].base_releases \

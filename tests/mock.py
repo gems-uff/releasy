@@ -138,9 +138,9 @@ class VcsMock(Vcs):
         # id, parents, author, committer, time increment, tag, tag time increment
         commit_data = [  
             (0 ,[]     ,alice  ,alice  ,one_day,None    ,[]),
-            (1 ,[0]    ,alice  ,bob    ,one_day,one_hour,["v1.0.0"]),          #r0
+            (1 ,[0]    ,alice  ,bob    ,one_day,one_hour,["v0.9.0"]),          #r0
             (2 ,[1]    ,bob    ,bob    ,one_day,None    ,[]),
-            (3 ,[2]    ,bob    ,bob    ,one_day,one_hour,["v1.0.1"]),          #r1
+            (3 ,[2]    ,bob    ,bob    ,one_day,one_hour,["v1.0.0"]),          #r1
             (4 ,[3]    ,alice  ,alice  ,one_day,None    ,["non-release"]),
             (5 ,[2]    ,alice  ,alice  ,one_day,None    ,[]),
             (6 ,[5]    ,alice  ,alice  ,one_day,None    ,["1.1.0"]),          #r2
