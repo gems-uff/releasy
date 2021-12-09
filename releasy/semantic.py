@@ -47,7 +47,8 @@ class SemanticRelease(ABC):
                 self._base_main_releases.add(b_srelease)
             else:
                 # Patches or Pre releases
-                self._base_main_releases.add(b_srelease.main_release)
+                if hasattr(b_srelease, 'main_release'): #FIXME releases without main
+                    self._base_main_releases.add(b_srelease.main_release)
 
         b_srelease_to_remove = []
         b_sreleases_to_track = [b_srelease for b_srelease in self._base_main_releases]
@@ -143,7 +144,6 @@ class MainRelease(SemanticRelease):
     def base_main_release(self) -> MainRelease:
         if not self.base_main_releases:
             return None
-
     
         b_sreleases = [b_srelease \
                               for b_srelease in self.base_main_releases]
