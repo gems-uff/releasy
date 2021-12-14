@@ -2,9 +2,9 @@
 import datetime
 import releasy
 
-#path = "/mnt/d/repos/research/release/repos/facebook/react"
+path = "/mnt/d/repos/research/release/repos/facebook/react"
 #path = "/mnt/d/repos/research/release/repos/ionic-team/ionic-framework"
-path = "/mnt/d/repos/research/release/repos/Wordpress/Wordpress"
+# path = "/mnt/d/repos/research/release/repos/Wordpress/Wordpress"
 miner = releasy.Miner()
 miner.init()
 miner.vcs(path)

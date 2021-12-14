@@ -17,15 +17,16 @@ class SemanticRelease(ABC):
     """Add semantic to a release"""
     def __init__(self, release: Release) -> None:
         self.release: Release = release
-        release.sm_release = self
+        self.main_srelease: MainRelease = None
+        release.semantic = self #FIXME What is the purpose???
         self._base_main_releases = SmReleaseSet()
-
-    @abstractmethod
-    def semantic_name(self) -> str:
-        pass
 
     @property
     def name(self) -> str:
+        return self.release.version.number
+
+    @property
+    def fullname(self) -> str:
         return self.release.name
 
     def __hash__(self) -> int:
@@ -44,13 +45,13 @@ class SemanticRelease(ABC):
             return self._base_main_releases
 
         for b_release in self.release.base_releases:
-            b_srelease = b_release.sm_release
+            b_srelease = b_release.semantic
             if isinstance(b_srelease, MainRelease):
                 self._base_main_releases.add(b_srelease)
             else:
                 # Patches or Pre releases
-                if hasattr(b_srelease, 'main_release'): #FIXME releases without main
-                    self._base_main_releases.add(b_srelease.main_release)
+                if hasattr(b_srelease, 'main_srelease'): #FIXME releases without main
+                    self._base_main_releases.add(b_srelease.main_srelease)
 
         b_srelease_to_remove = []
         b_sreleases_to_track = [b_srelease for b_srelease in self._base_main_releases]
@@ -85,6 +86,16 @@ class SemanticRelease(ABC):
         """Release commits"""
         return self.release.newcomers
 
+    def is_main_release(self) -> bool:
+        return False
+
+    def is_patch(self) -> bool:
+        return False
+
+    def is_pre_release(self) -> bool:
+        return False
+
+
 
 class MainRelease(SemanticRelease):
     """A feature release (major or minor)"""
@@ -92,16 +103,17 @@ class MainRelease(SemanticRelease):
         super().__init__(release)
         self.patches: SmReleaseSet = SmReleaseSet()
         self.pre_releases: SmReleaseSet = SmReleaseSet()
+        self.main_srelease = self
 
     def add_patch(self, patch: Patch):
         if patch and self.is_patch_compatible(patch):
             self.patches.add(patch)
-            patch.main_release = self
+            patch.main_srelease = self
 
     def add_pre_release(self, pre_release: PreRelease):
         if pre_release and self.is_pre_release_compatible(pre_release):
             self.pre_releases.add(pre_release)
-            pre_release.main_release = self
+            pre_release.main_srelease = self
 
     def is_patch_compatible(self, patch: Patch):
         mrelease_version = self.release.version
@@ -117,8 +129,8 @@ class MainRelease(SemanticRelease):
         return False
 
     @property
-    def semantic_name(self) -> str:
-        if self.release.version.type(TYPE_MAJOR):
+    def name(self) -> str:
+        if self.release.version.is_major():
             return f"{self.release.version.numbers[0]}.0.0"
         else:
             return f"{self.release.version.numbers[0]}.{self.release.version.numbers[1]}.0"
@@ -177,18 +189,19 @@ class MainRelease(SemanticRelease):
         if self.base_main_release:
             return self.time - self.base_main_release.time
 
+    def is_main_release(self) -> bool:
+        return True
+
 
 class Patch(SemanticRelease):
     def __init__(self, release: Release) -> None:
         super().__init__(release)
-        self.main_release: MainRelease = None
-
-    @property
-    def semantic_name(self) -> str:
-        return self.release.version.number
 
     def __str__(self) -> str:
         return f"Patch {self.name}"
+
+    def is_patch(self) -> bool:
+        return True
 
 
 class PreRelease(SemanticRelease):
@@ -196,11 +209,14 @@ class PreRelease(SemanticRelease):
         super().__init__(release)
 
     @property
-    def semantic_name(self) -> str:
+    def name(self) -> str:
         return f'{self.release.version.number}{self.release.version.suffix}'
 
     def __str__(self) -> str:
         return f"Pre {self.name}"
+
+    def is_pre_release(self) -> bool:
+        return True
 
 
 # TODO: Merge with ReleaseSet

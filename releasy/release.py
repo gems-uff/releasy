@@ -34,7 +34,7 @@ class Release:
         self.commits: Set[Commit] = set()
         self.base_releases: Set[Release] = set()
         self.contributors : ContributorTracker = ContributorTracker()
-        self.sm_release: SemanticRelease = None
+        self.semantic: SemanticRelease = None
         self.has_shared_commits: bool = False
         self.newcomers: Set(Developer) = set()
         self.add_commit(commit)
@@ -50,6 +50,15 @@ class Release:
 
     def __repr__(self):
         return repr(self.name)
+
+    def __lt__(self, other):
+        return self.version.__lt__(other.version)
+    def __gt__(self, other):
+        return self.version.__gt__(other.version)
+    def __le__(self, other):
+        return self.__lt__(other) or self.__eq__(other)
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
 
     def add_commit(self, commit: Commit):
         """Add a commit to the release"""
@@ -172,7 +181,22 @@ class ReleaseVersion():
 
         return 0
 
-    def type(self, mask: int):
+    def is_main_release(self) -> bool:
+        return self.type(TYPE_MAIN)
+
+    def is_pre_release(self) -> bool:
+        return self.type(TYPE_PRE)
+    
+    def is_major(self) -> bool:
+        return self.type(TYPE_MAJOR)
+
+    def is_minor(self) -> bool:
+        return self.type(TYPE_MINOR)
+
+    def is_patch(self) -> bool:
+        return self.type(TYPE_PATCH)
+
+    def type(self, mask: int) -> bool:
         type = 0b0
         if int(self.numbers[2]) > 0:
             type |= TYPE_PATCH
@@ -196,9 +220,12 @@ class ReleaseVersion():
 class ReleaseSet():
     def __init__(self, releases = None) -> None:
         self._releases: Dict[str, Release] = {}
-        if releases: 
+        if releases:
             for release in releases:
                 self.add(release)
+
+    def __iter__(self):
+        return (release for release in self._releases.values())
 
     def __getitem__(self, key) -> Release:
         if isinstance(key, int):

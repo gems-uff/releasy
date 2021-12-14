@@ -71,8 +71,8 @@ class Miner:
         return self
 
     def mine(self, miner: AbstractMiner, params: Dict[str, object] = None) -> Miner:
-        mined_releases = miner.mine(self.project.releases, params)
-        self.project.releases = mined_releases
+        updated_project = miner.mine(self.project, params)
+        self.project = updated_project
         return self
 
     def create(self) -> Project:

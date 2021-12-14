@@ -12,10 +12,14 @@ def describe_project():
     @pytest.fixture
     def project():
         project = Project()
-        project.add_release(Release('v1.0.0'))
-        project.add_release(Release('1.1.0'))
-        project.add_release(Release('v1.1.1'))
-        project.add_release(Release('v2.0.0beta'))
+        project.releases.add(Release('1.0.0'))
+        project.releases.add(Release('1.1.0'))
+        project.releases.add(Release('v1.1.1'))
+        project.releases.add(Release('1.1.0beta'))
+        project.main_releases.add(MainRelease(project.releases['1.0.0']))
+        project.main_releases.add(MainRelease(project.releases['1.1.0']))
+        project.patches.add(Patch(project.releases['v1.1.1']))
+        project.pre_releases.add(PreRelease(project.releases['1.1.0beta']))
         return project
 
     def it_has_release(project: Project):
@@ -23,16 +27,14 @@ def describe_project():
 
     def it_has_main_releases(project: Project):
         assert set(project.main_releases) \
-            == set([MainRelease(Release('v1.0.0')), 
+            == set([MainRelease(Release('1.0.0')), 
                     MainRelease(Release('1.1.0'))])
 
     def it_has_patches(project: Project):
-        assert set(project.patches) \
-            == set([Patch(Release('v1.1.1'))])
+        assert set(project.patches) == set([Patch(Release('v1.1.1'))])
 
     def it_has_pre_releases(project: Project):
-        assert set(project.pre_releases) \
-            == set([PreRelease(Release('v2.0.0beta'))])
+         assert set(project.pre_releases) == set([PreRelease(Release('1.1.0beta'))])
 
     def it_has_prefixes(project: Project):
         assert project.prefixes == set(['', 'v'])

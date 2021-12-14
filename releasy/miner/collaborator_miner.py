@@ -1,13 +1,13 @@
 from typing import Dict
 from releasy.miner import AbstractMiner
-from releasy.release import ReleaseSet
+from releasy.project import Project
 
 
 class NewcomerMiner(AbstractMiner):
     """ Mine newcomers, that is new collaborattors to the project """
-    def mine(self, releases: ReleaseSet, params: Dict[str, object]) -> ReleaseSet:
+    def mine(self, project: Project, params: Dict[str, object]) -> Project:
         collaborattors = set()
-        for release in releases:
+        for release in project.releases:
             release.newcomers = set()
             for commit in release.commits:
                 if commit.committer not in collaborattors:
@@ -16,4 +16,4 @@ class NewcomerMiner(AbstractMiner):
                     release.newcomers.add(commit.author)
                 collaborattors.add(commit.committer)
                 collaborattors.add(commit.author)
-        return releases
+        return project
