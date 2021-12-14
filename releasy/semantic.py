@@ -173,6 +173,10 @@ class MainRelease(SemanticRelease):
         """Time interval between the release and it base main release"""
         if self.base_main_release:
             return self.time - self.base_main_release.time
+        else:
+            commits = sorted(self.commits, 
+                             key=lambda commit: commit.committer_time)
+            return self.time - commits[0].committer_time
 
     def is_main_release(self) -> bool:
         return True

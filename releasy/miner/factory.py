@@ -1,10 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict
-from releasy.miner import AbstractMiner
-
 from releasy.release import ReleaseSet
-
 from .release_miner import (
     AbstractReleaseMiner,
     AbstractReleaseSorter,
@@ -98,3 +95,12 @@ class MiningStrategy():
         strategy.release_sort_strategy = TimeReleaseSorter()
         strategy.commit_assigment_strategy = HistoryCommitMiner()
         return strategy
+
+
+class AbstractMiner(ABC):
+    """ Abstract miner """
+    @abstractmethod
+    def mine(self, project: Project, params: Dict[str, object]) -> Project:
+        pass
+
+    #TODO add dependencies

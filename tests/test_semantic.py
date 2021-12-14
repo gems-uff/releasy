@@ -103,7 +103,8 @@ def describe_main_release():
         assert main_releases['2.0.0'].base_main_release.name == "1.1.0"
 
     def it_has_delay(main_releases: SmReleaseSet):
-        #assert main_releases['1.0.0'].delay == datetime.timedelta(days=5) #FIXME
+        assert main_releases['0.9.0'].delay == datetime.timedelta(hours=1)
+        assert main_releases['1.0.0'].delay == datetime.timedelta(days=2)
         assert main_releases['1.1.0'].delay == datetime.timedelta(days=4, hours=23)
         assert main_releases['2.0.0'].delay == datetime.timedelta(days=8, hours=1)
 

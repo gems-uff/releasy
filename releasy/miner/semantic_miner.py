@@ -1,6 +1,6 @@
 
 from typing import Dict
-from . import AbstractMiner
+from .factory import AbstractMiner
 from ..release import (
     ReleaseSet)
 from ..project import Project

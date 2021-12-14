@@ -1,6 +1,6 @@
 from typing import Dict
-from releasy.miner import AbstractMiner
-from releasy.project import Project
+from .factory import AbstractMiner
+from ..project import Project
 
 
 class NewcomerMiner(AbstractMiner):

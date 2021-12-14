@@ -108,6 +108,11 @@ class Release:
         """Time interval between the release and it main base release"""
         if self.main_base_release:
             return self.time - self.main_base_release.time
+        else:
+            commits = sorted(self.commits, 
+                             key=lambda commit: commit.committer_time)
+            return self.time - commits[0].committer_time
+
 
 class TagRelease(Release):
     """ A release represented by a tag """
