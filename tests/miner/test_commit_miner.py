@@ -35,8 +35,10 @@ def describe_commit_miner():
 
 def describe_history_miner():
     def it_mine_commits(releases: ReleaseSet, commits: List[Commit]):
+        assert releases["0.0.0-alpha1"].commits \
+               == set([commits[0]])
         assert releases["v0.9.0"].commits \
-               == set([commits[1], commits[0]])
+               == set([commits[1]])
         assert releases["v1.0.0"].commits \
                == set([commits[3], commits[2]])
         assert releases["v1.0.2"].commits \
@@ -68,7 +70,9 @@ def describe_history_miner():
         assert len(commits[2].releases) == 2
 
     def it_mine_base_releases(releases):
-        assert not releases['v0.9.0'].base_releases
+        assert not releases['0.0.0-alpha1'].base_releases
+        assert releases["v0.9.0"].base_releases \
+               == set([releases['0.0.0-alpha1']])
         assert releases["v1.0.0"].base_releases \
                == set([releases['v0.9.0']])
         assert releases["v1.0.2"].base_releases \

@@ -44,6 +44,11 @@ class SemanticMiner(AbstractMiner):
 
 class OrphanSemanticMiner(AbstractMiner):
     def mine(self, project: Project, params: Dict[str, object]) -> Project:
+        self._fix_orphan_patches(project)
+        self._fix_orphan_pre_releases(project)
+        return project
+    
+    def _fix_orphan_patches(self, project: Project) -> None:
         releases = sorted(project.releases)
         orphan_patches = [release.semantic for release in releases
                                     if release.semantic.is_patch() \
@@ -52,11 +57,23 @@ class OrphanSemanticMiner(AbstractMiner):
             main_srelease_version = '.'.join(str(v) for v in patch.version.numbers[0:2] + [0])
             if main_srelease_version not in project.main_releases:
                 main_release = MainRelease(patch.release)
-                project.patches.remove(patch)
+                project.patches.remove(patch.name)
                 project.main_releases.add(main_release)
             else:
                 main_release = project.main_releases[main_srelease_version]
                 main_release.add_patch(patch)
                 project.patches.add(patch)
-                
+
+    def _fix_orphan_pre_releases(self, project: Project) -> None:     
+        releases = sorted(project.releases)
+        orphan_pre_release = [release.semantic for release in releases
+                                    if release.semantic.is_pre_release() \
+                                       and not release.semantic.main_srelease]
+        for pre_release in orphan_pre_release:
+            release_index = releases.index(pre_release.release)
+            while release_index < len(releases) \
+                    and releases[release_index].semantic.is_pre_release():
+                release_index += 1
+            main_srelease = releases[release_index].semantic
+            main_srelease.add_pre_release(pre_release)
         return project

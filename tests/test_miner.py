@@ -57,7 +57,7 @@ def test_version_release_matcher():
     release_miner = TagReleaseMiner()
     release_miner.matcher = VersionReleaseMatcher()
     releases = release_miner.mine_releases(datasource)
-    assert len(releases) == 9
+    assert len(releases) == 10
 
 #FIXME
 # def test_version_wo_pre_release_matcher():
@@ -82,7 +82,7 @@ def test_version_release_exception():
     release_miner = TagReleaseMiner()
     release_miner.matcher = VersionReleaseMatcher(release_exceptions=["v2.0.0-alpha1"])
     releases = release_miner.mine_releases(datasource)
-    assert len(releases) == 8
+    assert len(releases) == 9
 
 @pytest.mark.skip('')
 def test_time_release_sorter():

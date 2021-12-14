@@ -106,27 +106,12 @@ class MainRelease(SemanticRelease):
         self.main_srelease = self
 
     def add_patch(self, patch: Patch):
-        if patch and self.is_patch_compatible(patch):
-            self.patches.add(patch)
-            patch.main_srelease = self
+        self.patches.add(patch)
+        patch.main_srelease = self
 
     def add_pre_release(self, pre_release: PreRelease):
-        if pre_release and self.is_pre_release_compatible(pre_release):
-            self.pre_releases.add(pre_release)
-            pre_release.main_srelease = self
-
-    def is_patch_compatible(self, patch: Patch):
-        mrelease_version = self.release.version
-        patch_version = patch.release.version
-        if mrelease_version.numbers[0] == patch_version.numbers[0] \
-                and mrelease_version.numbers[1] == patch_version.numbers[1]:
-            return True
-        return False
-
-    def is_pre_release_compatible(self, pre_release: PreRelease):
-        if self.release.version.number == pre_release.release.version.number:
-            return True
-        return False
+        self.pre_releases.add(pre_release)
+        pre_release.main_srelease = self
 
     @property
     def name(self) -> str:

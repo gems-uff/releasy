@@ -137,7 +137,7 @@ class VcsMock(Vcs):
         # Commits
         # id, parents, author, committer, time increment, tag, tag time increment
         commit_data = [  
-            (0 ,[]     ,alice  ,alice  ,one_day,None    ,[]),
+            (0 ,[]     ,alice  ,alice  ,one_day,None    ,["0.0.0-alpha1"]),
             (1 ,[0]    ,alice  ,bob    ,one_day,one_hour,["v0.9.0"]),          #r0
             (2 ,[1]    ,bob    ,bob    ,one_day,None    ,[]),
             (3 ,[2]    ,bob    ,bob    ,one_day,one_hour,["v1.0.0"]),          #r1

@@ -117,7 +117,7 @@ def describe_main_release():
 
     def it_has_commits(main_releases: SmReleaseSet):
         assert main_releases['0.9.0'].commits \
-            == set([Commit(1), Commit(0)])
+            == set([Commit(1)])
         assert main_releases['1.1.0'].commits \
             == set([Commit(6), Commit(5), Commit(2)])
         assert main_releases['2.0.0'].commits \
@@ -125,7 +125,7 @@ def describe_main_release():
                     Commit(8), Commit(7), Commit(4)])
         
     def it_has_newcomers(main_releases: SmReleaseSet, dev: DevMock):
-        assert main_releases['0.9.0'].newcomers == set([dev.alice, dev.bob])
+        assert main_releases['0.9.0'].newcomers == set([dev.bob])
         assert not main_releases['1.1.0'].newcomers
         assert main_releases['2.0.0'].newcomers == set([dev.charlie])
 
@@ -171,6 +171,8 @@ def describe_pre_release():
             == pre_releases["2.0.0-beta1"].release.commits
 
     def it_has_newcomers(pre_releases: SmReleaseSet):
+        assert pre_releases["0.0.0-alpha1"].newcomers \
+            == pre_releases["0.0.0-alpha1"].release.newcomers
         assert pre_releases["2.0.0-alpha1"].newcomers \
             == pre_releases["2.0.0-alpha1"].release.newcomers
         assert pre_releases["2.0.0-beta1"].newcomers \

@@ -24,13 +24,16 @@ def releases() -> ReleaseSet:
 
 def describe_tag_release_miner():
     def it_mine_releases(releases):
-        assert len(releases) == 9
+        assert len(releases) == 10
 
     def it_assign_the_head_commit(releases: ReleaseSet, commits: List[Commit]):
+        assert releases['0.0.0-alpha1'].head == commits[0]
         assert releases['v0.9.0'].head == commits[1]
         assert releases['v1.0.0'].head == commits[3]
         assert releases['v1.0.2'].head == commits[13]
         assert releases['1.1.0'].head == commits[6]
+        assert releases['v2.0.0-alpha1'].head == commits[8]
+        assert releases['v2.0.0-beta1'].head == commits[10]
         assert releases['v2.0.0'].head == commits[14]
         assert releases['v2.0.1'].head == commits[14]
         assert releases['v2.1.1'].head == commits[20]

@@ -37,7 +37,8 @@ def describe_semantic_miner():
     def it_mine_pre_releases(releases: ReleaseSet):
         assert len([release for release in releases 
                             if release.semantic.is_pre_release()]) \
-            == 2
+            == 3
+        assert releases['0.0.0-alpha1'].semantic.is_pre_release()
         assert releases['v2.0.0-alpha1'].semantic.is_pre_release()
         assert releases['v2.0.0-beta1'].semantic.is_pre_release()
 
@@ -73,3 +74,13 @@ def describe_orphan_semantic_miner():
             == 2
         assert releases['v1.0.2'].semantic.is_patch()
         assert releases['v2.0.1'].semantic.is_patch()
+
+    def it_remove_orphan_pre_releases(releases: ReleaseSet):
+        assert len([release for release in releases 
+                            if release.semantic.is_pre_release()]) \
+            == 3
+        assert releases['0.0.0-alpha1'].semantic.is_pre_release()
+        assert releases['v2.0.0-alpha1'].semantic.is_pre_release()
+        assert releases['v2.0.0-beta1'].semantic.is_pre_release()
+        assert set(releases['v0.9.0'].semantic.pre_releases) \
+            == set([releases['0.0.0-alpha1'].semantic])
