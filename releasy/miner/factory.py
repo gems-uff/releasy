@@ -1,4 +1,9 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Dict
+from releasy.miner import AbstractMiner
+
+from releasy.release import ReleaseSet
 
 from .release_miner import (
     AbstractReleaseMiner,
@@ -33,8 +38,13 @@ class Miner:
         self.params = {}
         return self
 
-    def vcs(self, path: str) -> Miner:
-        self.datasource.vcs = GitVcs(path)
+    def vcs(self, vcs: object) -> Miner:
+        if isinstance(vcs, str):
+            self.datasource.vcs = GitVcs(vcs)
+        elif isinstance(vcs, Vcs):
+            self.datasource.vcs = vcs
+        else:
+            raise TypeError(vcs)
         return self
 
     def src(self, datasource: Datasource) -> Miner:
@@ -60,7 +70,9 @@ class Miner:
             self.params)
         return self
 
-    def mine_contributtors(self) -> Miner:
+    def mine(self, miner: AbstractMiner, params: Dict[str, object] = None) -> Miner:
+        mined_releases = miner.mine(self.project.releases, params)
+        self.project.releases = mined_releases
         return self
 
     def create(self) -> Project:

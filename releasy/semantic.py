@@ -7,8 +7,10 @@ Add semantic to releases, i.e.:
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import datetime
-from typing import Dict, List
-from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Release, ReleaseVersion
+from typing import Dict, List, Set
+
+from releasy.commit import Commit
+from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Developer, Release, ReleaseVersion
 
 
 class SemanticRelease(ABC):
@@ -74,9 +76,14 @@ class SemanticRelease(ABC):
 
     #TODO: Add test to SM Release Commits
     @property
-    def commits(self):
+    def commits(self) -> Set[Commit]:
         """Release commits"""
         return self.release.commits
+
+    @property
+    def newcomers(self) -> Set[Developer]:
+        """Release commits"""
+        return self.release.newcomers
 
 
 class MainRelease(SemanticRelease):
@@ -126,6 +133,13 @@ class MainRelease(SemanticRelease):
         for pre_release in self.pre_releases:
             commits.update(pre_release.commits)
         return commits
+
+    @property
+    def newcomers(self) -> Set[Developer]:
+        newcomers = super().newcomers
+        for pre_release in self.pre_releases:
+            newcomers.update(pre_release.newcomers)
+        return newcomers
 
     def __str__(self) -> str:
         return f"Main {self.name}"

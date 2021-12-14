@@ -36,6 +36,7 @@ class Release:
         self.contributors : ContributorTracker = ContributorTracker()
         self.sm_release: SemanticRelease = None
         self.has_shared_commits: bool = False
+        self.newcomers: Set(Developer) = set()
         self.add_commit(commit)
 
     def __hash__(self):
