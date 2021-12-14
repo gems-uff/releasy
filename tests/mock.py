@@ -157,7 +157,7 @@ class VcsMock(Vcs):
             (17,[14]   ,alice  ,alice  ,one_day,None    ,[]),
             (18,[16,10],alice  ,alice  ,one_day,None    ,[]),
             (19,[16,17],alice  ,alice  ,one_day,None    ,[]),
-            (20,[18,19],alice  ,alice  ,one_day,None    ,["v2.1.0"]),         #r7
+            (20,[18,19],alice  ,alice  ,one_day,None    ,["v2.1.1"]),         #r7
             (21,[20]   ,alice  ,alice  ,one_day,None    ,[]),
         ]
 

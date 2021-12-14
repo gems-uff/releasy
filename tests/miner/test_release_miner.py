@@ -33,4 +33,4 @@ def describe_tag_release_miner():
         assert releases['1.1.0'].head == commits[6]
         assert releases['v2.0.0'].head == commits[14]
         assert releases['v2.0.1'].head == commits[14]
-        assert releases['v2.1.0'].head == commits[20]
+        assert releases['v2.1.1'].head == commits[20]

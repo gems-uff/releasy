@@ -50,7 +50,7 @@ def describe_history_miner():
         assert releases["v2.0.0"].commits \
                == set([commits[14], commits[12], commits[11]])
         assert releases["v2.0.1"].commits == releases["v2.0.0"].commits
-        assert releases["v2.1.0"].commits \
+        assert releases["v2.1.1"].commits \
                == set([commits[20], commits[19], commits[17], commits[18],
                        commits[16], commits[15]])
 
@@ -63,7 +63,7 @@ def describe_history_miner():
         assert not releases['v2.0.0-beta1'].has_shared_commits
         assert releases['v2.0.0'].has_shared_commits
         assert releases['v2.0.1'].has_shared_commits
-        assert not releases['v2.1.0'].has_shared_commits
+        assert not releases['v2.1.1'].has_shared_commits
         assert len(commits[14].releases) == 2
         assert len(commits[2].releases) == 2
 
@@ -83,7 +83,7 @@ def describe_history_miner():
                == set([releases['v1.0.2'], releases['v2.0.0-beta1']])
         assert releases["v2.0.1"].base_releases \
                == releases["v2.0.0"].base_releases
-        assert releases["v2.1.0"].base_releases \
+        assert releases["v2.1.1"].base_releases \
                == set([releases['v2.0.0'], releases['v2.0.1'], releases['v2.0.0-beta1']])
 
     # def it_has_delay(releases: List[Release]):

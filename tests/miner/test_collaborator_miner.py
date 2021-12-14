@@ -29,4 +29,4 @@ def describe_collaborator_miner():
         assert not releases['v2.0.0-beta1'].newcomers
         assert not releases['v2.0.0'].newcomers
         assert not releases['v2.0.1'].newcomers
-        assert not releases['v2.1.0'].newcomers
+        assert not releases['v2.1.1'].newcomers

@@ -55,25 +55,22 @@ def dev():
 def describe_main_release():
     def it_has_a_name(main_releases: SmReleaseSet):
         assert main_releases['v0.9.0'].name == "v0.9.0"
+        assert main_releases['v1.0.0'].name == "v1.0.0"
         assert main_releases['1.1.0'].name == "1.1.0"
         assert main_releases['v2.0.0'].name == "v2.0.0"
-        assert main_releases['v2.1.0'].name == "v2.1.0"
 
     def it_has_a_release(main_releases: SmReleaseSet):
-        assert len(main_releases) == 5
+        assert len(main_releases) == 4
         assert main_releases['v0.9.0'].release.name == "v0.9.0"
         assert main_releases['v1.0.0'].release.name == "v1.0.0"
         assert main_releases['1.1.0'].release.name == "1.1.0"
         assert main_releases['v2.0.0'].release.name == "v2.0.0"
-        assert main_releases['v2.1.0'].release.name == "v2.1.0"
     
     def it_has_a_version(main_releases: SmReleaseSet):
-        assert len(main_releases) == 5
         assert main_releases['v0.9.0'].version.number == "0.9.0"
         assert main_releases['v1.0.0'].version.number == "1.0.0"
         assert main_releases['1.1.0'].version.number == "1.1.0"
         assert main_releases['v2.0.0'].version.number == "2.0.0"
-        assert main_releases['v2.1.0'].version.number == "2.1.0"
 
     def it_have_patches(main_releases: SmReleaseSet, patches: SmReleaseSet):
         assert not main_releases['v0.9.0'].patches
@@ -82,7 +79,6 @@ def describe_main_release():
         assert not main_releases['1.1.0'].patches
         assert set(main_releases['v2.0.0'].patches) \
              == set([patches['v2.0.1']])
-        assert not main_releases['v2.1.0'].patches
 
     def it_have_base_main_releases(main_releases: SmReleaseSet):
         assert not main_releases['v0.9.0'].base_main_releases
@@ -92,20 +88,16 @@ def describe_main_release():
             == SmReleaseSet([main_releases['v0.9.0']])
         assert main_releases['v2.0.0'].base_main_releases \
             == SmReleaseSet([main_releases['v1.0.0'], main_releases['1.1.0']])
-        assert main_releases['v2.1.0'].base_main_releases \
-            == SmReleaseSet([main_releases['v2.0.0']])
 
     def it_have_base_main_release(main_releases: SmReleaseSet):
         assert not main_releases['v0.9.0'].base_main_release
         assert main_releases['1.1.0'].base_main_release.name == "v0.9.0"
         assert main_releases['v2.0.0'].base_main_release.name == "1.1.0"
-        assert main_releases['v2.1.0'].base_main_release.name == "v2.0.0"
 
     def it_has_delay(main_releases: SmReleaseSet):
         #assert main_releases['1.0.0'].delay == datetime.timedelta(days=5) #FIXME
         assert main_releases['1.1.0'].delay == datetime.timedelta(days=4, hours=23)
         assert main_releases['v2.0.0'].delay == datetime.timedelta(days=8, hours=1)
-        assert main_releases['v2.1.0'].delay == datetime.timedelta(days=5, hours=23)
 
     def it_handle_unordered(): #TODO
         reference = datetime.datetime(2020, 1, 1, 12, 00)        
@@ -123,36 +115,41 @@ def describe_main_release():
         assert main_releases['v2.0.0'].commits \
             == set([Commit(14), Commit(12), Commit(11), Commit(10), Commit(9),
                     Commit(8), Commit(7), Commit(4)])
-        assert main_releases['v2.1.0'].commits \
-            == set([Commit(20), Commit(19), Commit(18), Commit(17), Commit(16),
-                 Commit(15)])
         
     def it_has_newcomers(main_releases: SmReleaseSet, dev: DevMock):
         assert main_releases['v0.9.0'].newcomers == set([dev.alice, dev.bob])
         assert not main_releases['1.1.0'].newcomers
         assert main_releases['v2.0.0'].newcomers == set([dev.charlie])
-        assert not main_releases['v2.1.0'].newcomers
+
 
 def describe_patch():
     def it_has_a_name(patches: SmReleaseSet):
         assert patches['v1.0.2'].name == 'v1.0.2'
         assert patches['v2.0.1'].name == 'v2.0.1'
+        assert patches['v2.1.1'].name == 'v2.1.1'
 
     def it_has_a_release(patches: SmReleaseSet):
+        assert len(patches) == 3
         assert patches['v1.0.2'].release.name == 'v1.0.2'
         assert patches['v2.0.1'].release.name == 'v2.0.1'
+        assert patches['v2.1.1'].release.name == 'v2.1.1'
 
     def it_has_a_main_release(patches: SmReleaseSet):
         assert patches['v1.0.2'].main_release.name == 'v1.0.0'
         assert patches['v2.0.1'].main_release.name == 'v2.0.0'
+        assert not patches['v2.1.1'].main_release
 
     def it_has_commits(patches: SmReleaseSet):
         assert patches['v1.0.2'].commits == patches['v1.0.2'].release.commits
         assert patches['v2.0.1'].commits == patches['v2.0.1'].release.commits
+        assert patches['v2.1.1'].commits \
+            == set([Commit(20), Commit(19), Commit(18), Commit(17), Commit(16),
+                    Commit(15)])
 
     def it_has_newcomers(patches: SmReleaseSet):
         assert patches['v1.0.2'].newcomers == patches['v1.0.2'].release.newcomers
         assert patches['v2.0.1'].newcomers == patches['v2.0.1'].release.newcomers
+        assert not patches['v2.1.1'].newcomers
 
 def describe_pre_release():
     def it_has_a_name(pre_releases: SmReleaseSet):

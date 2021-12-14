@@ -21,4 +21,4 @@ python_version = "3.9"
 
 [scripts]
 test="pytest --cov=releasy"
-test-cov="pytest --cov  --cov-report=html"
+test-cov="pytest --cov=releasy --cov-report=html --cov-report=xml "
