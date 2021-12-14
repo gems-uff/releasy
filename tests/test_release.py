@@ -4,7 +4,6 @@ import random
 import datetime
 from releasy.commit import Commit
 
-from releasy.miner.factory import ProjectMiner as Miner
 from releasy.miner.source import Datasource
 from releasy.release import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseSet, ReleaseVersion
 
