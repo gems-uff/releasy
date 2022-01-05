@@ -19,12 +19,14 @@ from releasy.miner.factory import (
 from releasy.miner.collaborator_miner import NewcomerMiner
 from releasy.miner.semantic_miner import SemanticMiner
 from releasy.semantic import (
+    DevelopmentPhase,
     MainRelease,
     Patch,
     PreRelease,
+    ReleasePhase,
     SmReleaseSet)
 
-from .mock import DevMock, VcsMock
+from .mock import DevMock, VcsMock, commits
 
 @pytest.fixture
 def project() -> Project:
@@ -102,11 +104,11 @@ def describe_main_release():
         assert main_releases['1.1.0'].base_main_release.name == "0.9.0"
         assert main_releases['2.0.0'].base_main_release.name == "1.1.0"
 
-    def it_has_delay(main_releases: SmReleaseSet):
-        assert main_releases['0.9.0'].delay == datetime.timedelta(hours=1)
-        assert main_releases['1.0.0'].delay == datetime.timedelta(days=2)
-        assert main_releases['1.1.0'].delay == datetime.timedelta(days=4, hours=23)
-        assert main_releases['2.0.0'].delay == datetime.timedelta(days=8, hours=1)
+    def it_has_cycle(main_releases: SmReleaseSet):
+        assert main_releases['0.9.0'].cycle == datetime.timedelta(hours=1)
+        assert main_releases['1.0.0'].cycle == datetime.timedelta(days=2)
+        assert main_releases['1.1.0'].cycle == datetime.timedelta(days=4, hours=23)
+        assert main_releases['2.0.0'].cycle == datetime.timedelta(days=8, hours=1)
 
     def it_handle_unordered(): #TODO
         reference = datetime.datetime(2020, 1, 1, 12, 00)        
@@ -130,6 +132,22 @@ def describe_main_release():
         assert not main_releases['1.1.0'].newcomers
         assert main_releases['2.0.0'].newcomers == set([dev.charlie])
 
+    def it_has_development_phase(main_releases: SmReleaseSet):
+        assert main_releases['1.0.0'].development.start \
+            == datetime.datetime(2020, 1, 3, 12, 00)
+        assert main_releases['1.0.0'].development.end \
+            == datetime.datetime(2020, 1, 4, 13, 00)
+        assert main_releases['1.0.0'].development.cycle \
+            == datetime.timedelta(days=1, hours=1)
+
+    #TODO evaluate whether the maintenance phase should include the release
+    def it_has_maintenance_phase(main_releases: SmReleaseSet):
+        assert main_releases['1.0.0'].maintenance.start \
+            == datetime.datetime(2020, 1, 4, 13, 00)
+        assert main_releases['1.0.0'].maintenance.end \
+            == datetime.datetime(2020, 1, 14, 12, 00)
+        assert main_releases['1.0.0'].maintenance.cycle \
+            == datetime.timedelta(days=9, hours=23)
 
 def describe_patch():
     def it_has_a_name(patches: SmReleaseSet):
@@ -178,3 +196,18 @@ def describe_pre_release():
             == pre_releases["2.0.0-alpha1"].release.newcomers
         assert pre_releases["2.0.0-beta1"].newcomers \
             == pre_releases["2.0.0-beta1"].release.newcomers
+
+def describe_development_phase():
+    @pytest.fixture
+    def release_phase(main_releases):
+        release_phase = DevelopmentPhase(main_releases['1.0.0'])
+        return release_phase
+
+    def it_has_start(release_phase):
+        assert release_phase.start == datetime.datetime(2020, 1, 3, 12, 00)   
+
+    def it_has_end(release_phase):
+        assert release_phase.end == datetime.datetime(2020, 1, 4, 13, 00)
+
+    def it_has_cycle(release_phase):
+        assert release_phase.cycle == datetime.timedelta(days=1, hours=1)

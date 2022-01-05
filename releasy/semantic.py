@@ -5,7 +5,7 @@ Add semantic to releases, i.e.:
   - Patches
 """
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 import datetime
 from typing import Dict, List, Set
 
@@ -104,6 +104,10 @@ class MainRelease(SemanticRelease):
         self.patches: SmReleaseSet = SmReleaseSet()
         self.pre_releases: SmReleaseSet = SmReleaseSet()
         self.main_srelease = self
+        #TODO evaluate whether development phase should include pre releases
+        self.development = DevelopmentPhase(self) 
+        self.maintenance = MaintenancePhase(self)
+        #self.test = ReleasePhase(self.pre_releases)
 
     def add_patch(self, patch: Patch):
         self.patches.add(patch)
@@ -169,7 +173,7 @@ class MainRelease(SemanticRelease):
         return sorted_base_main_releases[self_release_index-1]
 
     @property
-    def delay(self) -> datetime.timedelta:
+    def cycle(self) -> datetime.timedelta:
         """Time interval between the release and it base main release"""
         if self.base_main_release:
             return self.time - self.base_main_release.time
@@ -256,3 +260,58 @@ class  SmReleaseSet():
         return '[' \
              + ', '.join([release.name for release in self._releases.values()]) \
              + ']'
+
+class ReleasePhase(ABC):
+    def __init__(self, mrelease: MainRelease, sreleases: SmReleaseSet) -> None:
+        self.mrelease = mrelease
+        
+    @abstractproperty
+    def commits(self) -> List[Commit]:
+        """ Return all the commits assigned to the phase """
+        pass
+
+    @property
+    def start(self) -> datetime.datetime:
+        """ Return the timestamp of the first commit assigned to the phase """
+        commits = sorted(self.commits, key=lambda commit: commit.committer_time)
+        return commits[0].committer_time
+
+    @property
+    def end(self) -> datetime.datetime:
+        """ Return the timestamp of the last commit assigned to the phase """
+        commits = sorted(self.commits, key=lambda commit: commit.committer_time)
+        return commits[-1].committer_time
+
+    @property
+    def cycle(self) -> datetime.timedelta:
+        """ Return the time elapsed from the start to the end of the phase """
+        return self.end - self.start
+
+class DevelopmentPhase(ReleasePhase):
+    def __init__(self, mrelease: MainRelease) -> None:
+        super().__init__(mrelease, SmReleaseSet([mrelease]))
+
+    @property
+    def commits(self) -> List[Commit]:
+        return self.mrelease.commits
+
+    @property
+    def end(self) -> datetime:
+        return self.mrelease.time
+
+class MaintenancePhase(ReleasePhase):
+    def __init__(self, mrelease: MainRelease) -> None:
+        super().__init__(mrelease, mrelease.patches)
+
+    @property
+    def commits(self) -> List[Commit]:
+        
+        commits = []
+        for patch in self.mrelease.patches:
+            for commit in patch.commits:
+                commits.append(commit)
+        return commits
+
+    @property
+    def start(self) -> datetime:
+        return self.mrelease.time
