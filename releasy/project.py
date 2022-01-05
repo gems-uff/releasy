@@ -22,7 +22,7 @@ class Project():
     """
 
     def __init__(self) -> None:
-        self.datasource: Datasource = None
+        #self.datasource: Datasource = None
         self.releases: ReleaseSet = ReleaseSet()
         self.main_releases = SmReleaseSet()
         self.patches = SmReleaseSet()
