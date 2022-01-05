@@ -94,7 +94,7 @@ class GitCommit(Commit):
 
     def __init__(self, vcs: GitVcs, raw_commit: pygit2.Commit):
         self._vcs = vcs
-        self._raw_commit = raw_commit
+        #self._raw_commit = raw_commit
 
         author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
         author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
