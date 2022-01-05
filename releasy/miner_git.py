@@ -93,7 +93,7 @@ class GitCommit(Commit):
     """ Encapsulate Git Commit """
 
     def __init__(self, vcs: GitVcs, raw_commit: pygit2.Commit):
-        self._vcs = vcs
+        #self._vcs = vcs
         #self._raw_commit = raw_commit
 
         author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
@@ -119,8 +119,7 @@ class GitCommit(Commit):
             committer_time=committer_time
         )
 
-        self.parents = [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
-        self._vcs = None
+        self.parents = [vcs.get_commit(rparent) for rparent in raw_commit.parents]
         
     # @property
     # def parents(self):
