@@ -118,20 +118,19 @@ class GitCommit(Commit):
             committer=committer,
             committer_time=committer_time
         )
+
+        self.parents = [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
+        self._vcs = None
         
-    @property
-    def parents(self):
-        # late bind method to avoid high memory usage
-        return [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
+    # @property
+    # def parents(self):
+    #     # late bind method to avoid high memory usage
+    #     return [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
 
-    @parents.setter
-    def parents(self, parents):
-        pass
-
-    def describe(self):
-        try:
-            tag_name = self._vcs._repo.describe(self._raw_commit,
-                    describe_strategy=pygit2.GIT_DESCRIBE_TAGS, abbreviated_size=0)
-            return tag_name
-        except KeyError:
-            return None
+    # def describe(self):
+    #     try:
+    #         tag_name = self._vcs._repo.describe(self._raw_commit,
+    #                 describe_strategy=pygit2.GIT_DESCRIBE_TAGS, abbreviated_size=0)
+    #         return tag_name
+    #     except KeyError:
+    #         return None
