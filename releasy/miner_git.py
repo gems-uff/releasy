@@ -93,8 +93,8 @@ class GitCommit(Commit):
     """ Encapsulate Git Commit """
 
     def __init__(self, vcs: GitVcs, raw_commit: pygit2.Commit):
-        #self._vcs = vcs
-        #self._raw_commit = raw_commit
+        self._vcs = vcs
+        self._raw_commit = raw_commit
 
         author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
         author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
@@ -111,7 +111,7 @@ class GitCommit(Commit):
 
         super().__init__(
             hashcode=raw_commit.hex,
-            #parents=[],
+            # parents=[],
             message=message,
             author=author,
             author_time=author_time,
@@ -119,12 +119,12 @@ class GitCommit(Commit):
             committer_time=committer_time
         )
 
-        self.parents = [vcs.get_commit(rparent) for rparent in raw_commit.parents]
+    #    self.parents = [vcs.get_commit(rparent) for rparent in raw_commit.parents]
         
-    # @property
-    # def parents(self):
-    #     # late bind method to avoid high memory usage
-    #     return [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
+    @property
+    def parents(self):
+        # late bind method to avoid high memory usage
+        return [self._vcs.get_commit(rparent) for rparent in self._raw_commit.parents]
 
     # def describe(self):
     #     try:

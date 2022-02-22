@@ -4,7 +4,8 @@ import cProfile
 from releasy.miner_git import GitVcs
 from releasy.miner import DescribeReleaseSorter, TagReleaseMiner, TimeNaiveCommitMiner, TimeExpertCommitMiner, TimeVersionReleaseSorter, PathCommitMiner, RangeCommitMiner, TimeCommitMiner, VersionReleaseMatcher, VersionReleaseSorter, TimeReleaseSorter
 
-vcs = GitVcs("/mnt/d/repos/research/release/repos/d3/d3")
+#vcs = GitVcs("/mnt/d/repos/research/release/repos/d3/d3")
+vcs = GitVcs("/mnt/d/repos/research/release/repos/vuejs/vuejs")
 # vcs = GitVcs("../../repos2/ansible/ansible")
 #vcs = GitVcs("../../repos2/facebook/react")
 #vcs = GitVcs("../../repos2/laravel/framework")

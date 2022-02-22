@@ -23,7 +23,8 @@ class Commit:
                  committer=None, committer_time=None):
         self.id = hashcode
         self.hashcode = hashcode
-        self.parents = parents
+        if parents:
+            self.parents = parents
         self.message = message
         self.author = author
         self.author_time = author_time
@@ -50,8 +51,8 @@ class Commit:
     def __repr__(self):
         return str(self.hashcode)
 
-    def describe(self):
-        raise NotImplementedError()
+    # def describe(self):
+    #     raise NotImplementedError()
 
     def history(self, unreachable_by: Set[Commit] = None,
             include_self: bool = False):
