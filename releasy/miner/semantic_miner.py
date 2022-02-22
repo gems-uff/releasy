@@ -43,6 +43,12 @@ class SemanticMiner(AbstractMiner):
 
 
 class OrphanSemanticMiner(AbstractMiner):
+    """
+    Orphan patches happens when the project creates a patch from a inexistent 
+    release. For instance, if there is a patch 1.0.1 but there is no release 
+    1.0.0, the patch 1.0.1 is considered orphan.
+    """
+    
     def mine(self, project: Project, params: Dict[str, object]) -> Project:
         self._fix_orphan_patches(project)
         self._fix_orphan_pre_releases(project)

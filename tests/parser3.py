@@ -2,7 +2,8 @@
 import datetime
 import releasy
 
-path = "/mnt/d/repos/research/release/repos/vuejs/vue"
+#path = "/mnt/d/repos/research/release/repos/vuejs/vue"
+path = "/mnt/d/repos/research/release/repos/twbs/bootstrap"
 #path = "/mnt/d/repos/research/release/repos/ionic-team/ionic-framework"
 # path = "/mnt/d/repos/research/release/repos/Wordpress/Wordpress"
 
@@ -11,12 +12,16 @@ miner.init()
 miner.vcs(path)
 miner.mine_releases()
 miner.mine_commits()
+miner.mine(releasy.miner.semantic_miner.SemanticMiner())
+miner.mine(releasy.miner.semantic_miner.OrphanSemanticMiner())
+miner.mine(releasy.miner.collaborator_miner.NewcomerMiner())
 project = miner.create()
 
 print(f"{len(project.main_releases):4} - {path}")
 print(f"{'release':10} {'base':10} {'# commits':>10} {'delay':10}")
 rapid_releases = set()
 trad_releases = set()
+
 for main_release in project.main_releases:
     try:
         release_name = main_release.name

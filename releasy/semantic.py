@@ -262,6 +262,8 @@ class  SmReleaseSet():
              + ']'
 
 class ReleasePhase(ABC):
+    """ Represents a release phase """
+
     def __init__(self, mrelease: MainRelease, sreleases: SmReleaseSet) -> None:
         self.mrelease = mrelease
         
@@ -287,7 +289,17 @@ class ReleasePhase(ABC):
         """ Return the time elapsed from the start to the end of the phase """
         return self.end - self.start
 
+    @property
+    def committers(self) -> Set[Developer]:
+        """ Return the committers """
+        committers = set()
+        for commit in self.commits:
+            committers.add(commit.committer)
+        return committers
+
 class DevelopmentPhase(ReleasePhase):
+    """ Represents the development phase of the release """
+
     def __init__(self, mrelease: MainRelease) -> None:
         super().__init__(mrelease, SmReleaseSet([mrelease]))
 
