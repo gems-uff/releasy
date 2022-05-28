@@ -2,25 +2,26 @@ import pytest
 from releasy.miner.collaborator_miner import NewcomerMiner
 from releasy.miner.factory import Miner
 from releasy.release import Developer, ReleaseSet
-from tests.mock import DevMock, VcsMock
+from ..mock import DevMock, VcsMock
 
 
 @pytest.fixture
 def dev() -> DevMock:
     return DevMock()
 
-def describe_collaborator_miner():
-    @pytest.fixture
-    def releases():
-        miner = Miner()
-        miner.vcs(VcsMock())
-        miner.mine_releases()
-        miner.mine_commits()
-        miner.mine(NewcomerMiner())
-        project = miner.create()
-        return project.releases
+@pytest.fixture
+def releases():
+    miner = Miner()
+    miner.vcs(VcsMock())
+    miner.mine_releases()
+    miner.mine_commits()
+    miner.mine(NewcomerMiner())
+    project = miner.create()
+    return project.releases
 
-    def it_mine_newcommers(releases: ReleaseSet, dev: DevMock):
+class describe_collaborator_miner():
+
+    def it_mine_newcommers(self, releases: ReleaseSet, dev: DevMock):
         assert releases['0.0.0-alpha1'].newcomers == set([dev.alice])
         assert releases['v0.9.0'].newcomers == set([dev.bob])
         assert not releases['v1.0.0'].newcomers

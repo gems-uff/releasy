@@ -7,12 +7,12 @@ from releasy.commit import (
 
 from .mock import commits
 
-def describe_commit():
-    def it_has_id(commits: List[Commit]):
+class describe_commit():
+    def it_has_id(self, commits: List[Commit]):
         for index, commit in enumerate(commits):
             assert commit.id == index
 
-    def it_has_full_history(commits: List[Commit]):
+    def it_has_full_history(self, commits: List[Commit]):
         assert not commits[0].history()
         assert commits[1].history() == set([commits[0]])
         assert commits[3].history() == commits[2].history(include_self=True)
@@ -24,7 +24,7 @@ def describe_commit():
             == commits[10].history(include_self=True) \
              | commits[11].history(include_self=True)
         
-    def it_has_partial_history(commits: List[Commit]):
+    def it_has_partial_history(self, commits: List[Commit]):
         assert commits[3].history(unreachable_by=set([commits[1]])) \
             == set([commits[2]])
         assert commits[14].history(

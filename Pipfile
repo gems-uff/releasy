@@ -14,7 +14,6 @@ pytest = "*"
 pytest-cov = "*"
 pytest-profiling = "*"
 pytest-spec = "*"
-pytest-describe = "*"
 
 [requires]
 python_version = "3.10"
