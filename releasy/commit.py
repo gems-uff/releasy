@@ -23,6 +23,7 @@ class Commit:
                  committer=None, committer_time=None):
         self.id = hashcode
         self.hashcode = hashcode
+        self.parents = []
         if parents:
             self.parents = parents
         self.message = message
