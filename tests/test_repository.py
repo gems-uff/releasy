@@ -3,6 +3,7 @@ import pytest
 from releasy.repository import Commit, Repository, Tag
 from .mock_repository import MockRepositoryProxy
 
+
 class describe_tag:
     @pytest.fixture(autouse=True)
     def init(self):
@@ -19,6 +20,7 @@ class describe_tag:
     def it_has_commit(self):
         tag = Tag(self.repository, '1.0.0', Commit(self.repository, '1'))
         assert Commit(self.repository, '1') == tag.commit
+
 
 class describe_commit:
     @pytest.fixture(autouse=True)

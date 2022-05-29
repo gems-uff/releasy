@@ -1,9 +1,13 @@
 # This module abstract repository objects such as commits and tags
 from __future__ import annotations
+from abc import ABC, abstractclassmethod
 from typing import Set
 
 
 class Repository:
+    """ 
+    A repository stores Tags and Commits
+    """
     def __init__(self, proxy):
         self.proxy = proxy
         self.proxy.repository = self
@@ -21,7 +25,27 @@ class Repository:
         return parents
 
 
+class RepositoryProxy(ABC):
+    """ 
+    An adapter to enable developers creating specific repository, such as Git 
+    """
+    @abstractclassmethod
+    def fetch_tags(self) -> Set[Tag]:
+        pass
+
+    @abstractclassmethod
+    def fetch_commit(self, id: str) -> Commit:
+        pass
+
+    @abstractclassmethod
+    def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
+        pass
+
+
 class Tag:
+    """
+    A Tag represents a reference to a commit, which is a potential release
+    """
     def __init__(self, repository: Repository, name: str, commit: Commit = None, message: str = None) -> None:
         self.repository = repository
         self.name = name
@@ -49,14 +73,20 @@ class Tag:
 
 
 class Commit:
+    """
+    A Commit represents a change
+    """
     def __init__(self, repository: Repository, id: str, message: str = None) -> None:
         self.repository = repository
         self.id = id
         self.message = message
+        self._parents = None
 
     @property
     def parents(self) -> Set[Commit]:
-        return self.repository.get_parents(self)
+        if not self._parents:
+            self._parents = self.repository.get_parents(self)
+        return self._parents
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Commit):
