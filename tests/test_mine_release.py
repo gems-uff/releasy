@@ -7,9 +7,8 @@ from .mock_repository import MockRepositoryProxy
 class describe_release_miner:
     @pytest.fixture(autouse=True)
     def init(self):
-        repository = Repository(MockRepositoryProxy())
-        project = Project()
-        self.miner = ReleaseMiner(repository, project)
+        project = Project(Repository(MockRepositoryProxy()))
+        self.miner = ReleaseMiner(project)
 
     def it_mine_releases(self):
         project = self.miner.mine()
