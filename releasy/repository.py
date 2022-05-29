@@ -8,20 +8,33 @@ class Repository:
     """ 
     A repository stores Tags and Commits
     """
-    def __init__(self, proxy):
+    def __init__(self, proxy: RepositoryProxy):
         self.proxy = proxy
-        self.proxy.repository = self
 
     def get_tags(self) -> Set[Tag]:
-        tags = self.proxy.get_tags()
+        detached_tags = self.proxy.fetch_tags()
+        
+        # Important: recreate the set because we are changing the hash
+        tags: Set[Tag] = set()
+        for tag in detached_tags:
+            tag.repository = self
+            tags.add(tag)
         return tags
 
     def get_commit(self, id: str) -> Commit:
-        commit = self.proxy.get_commit(id)
+        commit = self.proxy.fetch_commit(id)
+        commit.repository = self
         return commit
 
     def get_parents(self, commit: Commit) -> Set[Commit]:
-        parents = self.proxy.get_parents(commit)
+        detached_parents = self.proxy.fetch_commit_parents(commit)
+
+        # Important: recreate the set because we are changing the hash
+        parents: Set[Commit] = set()
+        for parent in detached_parents:
+            parent.repository = self
+            parents.add(parent)
+
         return parents
 
 
@@ -54,12 +67,12 @@ class Tag:
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Tag):
-            return self.name == __o.name
+            return self.repository == __o.repository and self.name == __o.name
         else:
             return False
         
     def __hash__(self) -> int:
-        return hash(self.name)
+        return hash((self.repository, self.name))
 
     def __repr__(self) -> str:
         return self.name
@@ -90,12 +103,12 @@ class Commit:
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Commit):
-            return self.id == __o.id
+            return self.repository == __o.repository and self.id == __o.id
         else:
             return False
         
     def __hash__(self) -> int:
-        return hash(self.id)
+        return hash((self.repository, self.id))
 
     def __repr__(self) -> str:
         return self.id[0:8]

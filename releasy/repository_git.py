@@ -35,22 +35,25 @@ class GitRepository(RepositoryProxy):
         return commit
 
     def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
-        commit_ref: pygit2.Commit = self.repository.get(id)
+        commit_ref: pygit2.Commit = self.git.get(commit.id)
         parents: Set[Commit] = set()
         for parent_ref in commit_ref.parents:
-            parent = self.fetch_commit(parent_ref)
+            parent = self.fetch_commit(parent_ref.hex)
             parents.add(parent)
         return parents
 
 
 class CommitCache:
-    def __init__(self, repository: pygit2.Repository) -> None:
-        self.repository =  repository
+    """
+    Implement a cache to improve fech commit performance
+    """
+    def __init__(self, git: pygit2.Repository) -> None:
+        self.git =  git
         self.cache: Dict[str, pygit2.Commit] = {}
 
     def fetch_commit(self, commit_id: str) -> pygit2.Commit:
         if commit_id not in self.cache:
-            commit_ref: pygit2.Commit = self.repository.get(commit_id)
+            commit_ref: pygit2.Commit = self.git.get(commit_id)
             self.cache[commit_id] = commit_ref
 
         return self.cache[commit_id]

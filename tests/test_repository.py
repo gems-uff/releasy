@@ -28,7 +28,7 @@ class describe_commit:
         self.repository = Repository(MockRepositoryProxy())
 
     def it_has_repository(self):
-        commit = Commit(Repository(self.repository), '1')
+        commit = Commit(self.repository, '1')
         assert commit.repository
 
     def it_has_id(self):
@@ -39,3 +39,14 @@ class describe_commit:
         commit = Commit(self.repository, '14')
         assert Commit(self.repository, '12') in commit.parents
         assert Commit(self.repository, '13') in commit.parents
+
+
+class describe_repository:
+    @pytest.fixture(autouse=True)
+    def init(self):
+        self.repository = Repository(MockRepositoryProxy())
+
+    def it_fetch_tags(self):
+        tags = self.repository.get_tags()
+        assert len(tags) == 10
+        assert Tag(self.repository, '1.1.0') in tags

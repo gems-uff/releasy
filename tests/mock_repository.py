@@ -1,38 +1,44 @@
 from typing import Set
-from releasy.repository import Commit, Tag
+from releasy.repository import Commit, RepositoryProxy, Tag
 
 
-class MockRepositoryProxy():
-    def __init__(self):
-        self.repository = None
-
-    def get_tags(self) -> Set[Tag]:
+class MockRepositoryProxy(RepositoryProxy):
+    def fetch_tags(self) -> Set[Tag]:
         tag_refs = {
-            "v2.0.0": '14'
+            "0.0.0-alpha1":  '0',
+            "v0.9.0":        '1',
+            "v1.0.0":        '3',
+            "v1.0.2":        '13',
+            "1.1.0":         '6',
+            "v2.0.0-alpha1": '8',
+            "v2.0.0-beta1":  '10',
+            "v2.0.0"       : '14',
+            "v2.0.1"       : '14',
+            "v2.1.1"       : '20'
         }
 
         tags: Set[Tag] = set()
         for tag_ref, commit_ref in tag_refs.items():
-            tag = Tag(self.repository, tag_ref, self.get_commit(commit_ref))
+            tag = Tag(None, tag_ref, self.fetch_commit(commit_ref))
+            tags.add(tag)
 
-        tags = self.proxy.get_tags()
         return tags
     
-    def get_commit(self, id: str) -> Commit:
-        commit = Commit(self.repository, id)
+    def fetch_commit(self, id: str) -> Commit:
+        commit = Commit(None, id)
         return commit
 
-    def get_parents(self, commit: Commit) -> Set[Commit]:
+    def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
         parent_refs = {
-            '1': ['0'],
-            '2': ['1'],
-            '3': ['2'],
-            '4': ['3'],
-            '5': ['2'],
-            '6': ['5'],
-            '7': ['4', '6'],
-            '8': ['7'],
-            '9': ['8'],
+            '1':  ['0'],
+            '2':  ['1'],
+            '3':  ['2'],
+            '4':  ['3'],
+            '5':  ['2'],
+            '6':  ['5'],
+            '7':  ['4' , '6'],
+            '8':  ['7'],
+            '9':  ['8'],
             '10': ['9'],
             '11': ['2'],
             '12': ['10', '11'],
@@ -49,5 +55,6 @@ class MockRepositoryProxy():
 
         parents: Set[Commit] = set()
         for commit_ref in parent_refs[commit.id]:
-            parents.add(self.get_commit(commit_ref))
+            parent = self.fetch_commit(commit_ref)
+            parents.add(parent)
         return parents
