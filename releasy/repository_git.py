@@ -11,6 +11,7 @@ class GitRepository(RepositoryProxy):
     A Repository proxy to Git
     """
     def __init__(self, path) -> None:
+        super().__init__()
         self.path = path
         self.git: pygit2.Repository = pygit2.Repository(path)
         self.commit_cache = CommitCache(self.git)

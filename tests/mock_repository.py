@@ -1,7 +1,6 @@
 from typing import Set
 from releasy.repository import Commit, RepositoryProxy, Tag
 
-
 class MockRepositoryProxy(RepositoryProxy):
     def fetch_tags(self) -> Set[Tag]:
         tag_refs = {
@@ -14,7 +13,8 @@ class MockRepositoryProxy(RepositoryProxy):
             "v2.0.0-beta1":  '10',
             "v2.0.0"       : '14',
             "v2.0.1"       : '14',
-            "v2.1.1"       : '20'
+            "v2.1.1"       : '20',
+            "non"          : '18'
         }
 
         tags: Set[Tag] = set()
@@ -54,7 +54,8 @@ class MockRepositoryProxy(RepositoryProxy):
         }
 
         parents: Set[Commit] = set()
-        for commit_ref in parent_refs[commit.id]:
-            parent = self.fetch_commit(commit_ref)
-            parents.add(parent)
+        if commit.id in parent_refs:
+            for commit_ref in parent_refs[commit.id]:
+                parent = self.fetch_commit(commit_ref)
+                parents.add(parent)
         return parents

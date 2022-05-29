@@ -18,6 +18,7 @@ class Repository:
         tags: Set[Tag] = set()
         for tag in detached_tags:
             tag.repository = self
+            tag.commit.repository = self #TODO fix
             tags.add(tag)
         return tags
 
@@ -36,6 +37,9 @@ class Repository:
             parents.add(parent)
 
         return parents
+
+    def get_commits(self) -> Set[Commit]:
+        return set()
 
 
 class RepositoryProxy(ABC):
@@ -70,7 +74,7 @@ class Tag:
             return self.repository == __o.repository and self.name == __o.name
         else:
             return False
-        
+
     def __hash__(self) -> int:
         return hash((self.repository, self.name))
 
