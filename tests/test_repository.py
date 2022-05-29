@@ -1,45 +1,60 @@
+from datetime import timedelta
 from typing import Set
 import pytest
-from releasy.repository import Commit, Repository, Tag
+from releasy.repository import Commit, Repository, RepositoryProxy, Tag
 from .mock_repository import MockRepositoryProxy
 
 
-class describe_tag:
-    @pytest.fixture(autouse=True)
-    def init(self):
-        self.repository = Repository(MockRepositoryProxy())
+@pytest.fixture
+def repo():
+    return Repository(MockRepositoryProxy())
 
-    def it_has_repository(self):
-        tag = Tag(self.repository, '1.0.0')
+class describe_tag:
+    def it_has_repository(self, repo: Repository):
+        tag = Tag(repo, '1.0.0')
         assert tag.repository
 
-    def it_has_name(self):
-        tag = Tag(self.repository, '1.0.0')
+    def it_has_name(self, repo: Repository):
+        tag = Tag(repo, '1.0.0')
         assert tag.name == '1.0.0'
 
-    def it_has_commit(self):
-        tag = Tag(self.repository, '1.0.0', Commit(self.repository, '1'))
-        assert Commit(self.repository, '1') == tag.commit
+    def it_has_commit(self, repo: Repository):
+        tag = Tag(repo, '1.0.0', Commit(repo, '1'))
+        assert Commit(repo, '1') == tag.commit
 
 
 class describe_commit:
-    @pytest.fixture(autouse=True)
-    def init(self):
-        self.repository = Repository(MockRepositoryProxy())
-
-    def it_has_repository(self):
-        commit = Commit(self.repository, '1')
+    def it_has_repository(self, repo: Repository):
+        commit = Commit(repo, '1')
         assert commit.repository
 
-    def it_has_id(self):
-        commit = Commit(self.repository, '1')
+    def it_has_id(self, repo: Repository):
+        commit = Commit(repo, '1')
         assert commit.id == '1'
 
-    def it_has_parents(self):
-        commit = Commit(self.repository, '14')
-        assert Commit(self.repository, '12') in commit.parents
-        assert Commit(self.repository, '13') in commit.parents
+    def it_has_parents(self, repo: Repository):
+        commit = Commit(repo, '14')
+        assert Commit(repo, '12') in commit.parents
+        assert Commit(repo, '13') in commit.parents
 
+    def it_has_committer(self, repo: Repository):
+        assert 'alice' == repo.get_commit('0').committer
+        assert 'bob' == repo.get_commit('2').committer
+        assert 'charlie' == repo.get_commit('7').committer
+
+    def it_has_author(self, repo: Repository):
+        assert 'alice' == repo.get_commit('0').author
+        assert 'bob' == repo.get_commit('1').author
+        assert 'charlie' == repo.get_commit('8').author
+
+    def it_has_committer_time(self, repo: Repository):
+        ref = repo.get_commit('0').committer_time
+        assert repo.get_commit('10').committer_time == ref + 10*timedelta(days=1)
+
+    def it_has_author_time(self, repo: Repository):
+        ref = repo.get_commit('0').committer_time
+        assert repo.get_commit('10').committer_time == ref + 10*timedelta(days=1)
+        
 
 class describe_repository:
     @pytest.fixture(autouse=True)
@@ -50,3 +65,18 @@ class describe_repository:
         tags = self.repository.get_tags()
         assert len(tags) == 11
         assert Tag(self.repository, '1.1.0') in tags
+
+    def it_fetch_commits(self):
+        assert self.repository.get_commit('1') == Commit(self.repository, '1')
+
+class DemoProxy(RepositoryProxy):
+    pass
+
+class describe_repository_proxy:
+    def it_is_abstract(self):
+        with pytest.raises(TypeError):
+            RepositoryProxy()
+    
+    def it_need_concrete_sublcasses(self):
+        with pytest.raises(TypeError):
+            DemoProxy()

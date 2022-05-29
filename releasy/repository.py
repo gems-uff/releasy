@@ -2,6 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractclassmethod
 from typing import Set
+from datetime import datetime
 
 
 class Repository:
@@ -9,43 +10,30 @@ class Repository:
     A repository stores Tags and Commits
     """
     def __init__(self, proxy: RepositoryProxy):
+        proxy.repository = self # TODO better alternative
         self.proxy = proxy
 
     def get_tags(self) -> Set[Tag]:
-        detached_tags = self.proxy.fetch_tags()
-        
-        # Important: recreate the set because we are changing the hash
-        tags: Set[Tag] = set()
-        for tag in detached_tags:
-            tag.repository = self
-            tag.commit.repository = self #TODO fix
-            tags.add(tag)
+        tags = self.proxy.fetch_tags()
         return tags
 
     def get_commit(self, id: str) -> Commit:
         commit = self.proxy.fetch_commit(id)
-        commit.repository = self
         return commit
 
     def get_parents(self, commit: Commit) -> Set[Commit]:
-        detached_parents = self.proxy.fetch_commit_parents(commit)
-
-        # Important: recreate the set because we are changing the hash
-        parents: Set[Commit] = set()
-        for parent in detached_parents:
-            parent.repository = self
-            parents.add(parent)
-
+        parents = self.proxy.fetch_commit_parents(commit)
         return parents
-
-    def get_commits(self) -> Set[Commit]:
-        return set()
 
 
 class RepositoryProxy(ABC):
     """ 
     An adapter to enable developers creating specific repository, such as Git 
     """
+    def __init__(self) -> None:
+        super().__init__()
+        self.repository: Repository = None #TODO better alternative
+
     @abstractclassmethod
     def fetch_tags(self) -> Set[Tag]:
         pass
@@ -93,11 +81,17 @@ class Commit:
     """
     A Commit represents a change
     """
-    def __init__(self, repository: Repository, id: str, message: str = None) -> None:
+    def __init__(self, repository: Repository, id: str, message: str = None, 
+                 committer: str = None, commiter_time: datetime = None,
+                 author: str = None, author_time: datetime = None) -> None:
         self.repository = repository
         self.id = id
         self.message = message
-        self._parents = None
+        self._parents = None # Lazy loaded
+        self.committer = committer
+        self.committer_time = commiter_time
+        self.author = author
+        self.author_time = author_time
 
     @property
     def parents(self) -> Set[Commit]:

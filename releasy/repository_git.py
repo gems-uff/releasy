@@ -3,7 +3,7 @@
 from typing import Dict, List, Set
 import pygit2
 
-from releasy.repository import Commit, RepositoryProxy, Tag
+from releasy.repository import Commit, Repository, RepositoryProxy, Tag
 
 
 class GitRepository(RepositoryProxy):
@@ -15,6 +15,7 @@ class GitRepository(RepositoryProxy):
         self.path = path
         self.git: pygit2.Repository = pygit2.Repository(path)
         self.commit_cache = CommitCache(self.git)
+        self.repository: Repository = None
 
     def fetch_tags(self) -> Set[Tag]:
         tag_refs = [ref for ref in self.git.references.objects 
@@ -25,18 +26,18 @@ class GitRepository(RepositoryProxy):
             tag_name = tag_ref.shorthand
             peek = tag_ref.peel()
             if peek.type == pygit2.GIT_OBJ_COMMIT:
-                tag = Tag(None, tag_name, self.fetch_commit(peek.hex))
+                tag = Tag(self.repository, tag_name, self.fetch_commit(peek.hex))
                 tags.add(tag)
         
         return tags
 
     def fetch_commit(self, commit_id: str) -> Commit:
         commit_ref = self.commit_cache.fetch_commit(commit_id)
-        commit = Commit(None, commit_ref.hex, commit_ref.name)
+        commit = Commit(self.repository, commit_ref.hex, commit_ref.name)
         return commit
 
     def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
-        commit_ref: pygit2.Commit = self.git.get(commit.id)
+        commit_ref: pygit2.Commit = self.commit_cache.fetch_commit(commit.id)
         parents: Set[Commit] = set()
         for parent_ref in commit_ref.parents:
             parent = self.fetch_commit(parent_ref.hex)
@@ -56,5 +57,4 @@ class CommitCache:
         if commit_id not in self.cache:
             commit_ref: pygit2.Commit = self.git.get(commit_id)
             self.cache[commit_id] = commit_ref
-
         return self.cache[commit_id]

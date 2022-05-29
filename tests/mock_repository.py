@@ -1,4 +1,5 @@
 from typing import Set
+from datetime import datetime, timedelta
 from releasy.repository import Commit, RepositoryProxy, Tag
 
 class MockRepositoryProxy(RepositoryProxy):
@@ -19,13 +20,50 @@ class MockRepositoryProxy(RepositoryProxy):
 
         tags: Set[Tag] = set()
         for tag_ref, commit_ref in tag_refs.items():
-            tag = Tag(None, tag_ref, self.fetch_commit(commit_ref))
+            tag = Tag(self.repository, tag_ref, self.fetch_commit(commit_ref))
             tags.add(tag)
 
         return tags
     
     def fetch_commit(self, id: str) -> Commit:
-        commit = Commit(None, id)
+        pos = int(id)
+        ref_dt = datetime(2020, 1, 1, 12, 00)        
+
+        committers = {
+            '2': 'bob',
+            '3': 'bob',
+            '7': 'charlie',
+            '8': 'charlie'
+        }
+        if id in committers:
+            committer = committers[id]
+        else: 
+            committer = 'alice'
+        committer_date = ref_dt + timedelta(days=1) * pos
+
+        authors = {
+            '1': 'bob',
+            '2': 'bob',
+            '3': 'bob',
+            '7': 'bob',
+            '8': 'charlie',
+            '9': 'bob'
+        }
+        if id in authors:
+            author = authors[id]
+        else: 
+            author = 'alice'
+        author_date = committer_date
+
+        commit = Commit(
+            self.repository,
+            id,
+            id,
+            committer,
+            committer_date,
+            author,
+            author_date)
+
         return commit
 
     def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
