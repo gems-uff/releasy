@@ -1,7 +1,7 @@
 
 from typing import Dict
 from .factory import AbstractMiner
-from ..release import (
+from ..release_old import (
     ReleaseSet)
 from ..project import Project
 from ..semantic import (

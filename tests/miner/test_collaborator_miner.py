@@ -1,7 +1,7 @@
 import pytest
 from releasy.miner.collaborator_miner import NewcomerMiner
 from releasy.miner.factory import Miner
-from releasy.release import Developer, ReleaseSet
+from releasy.release_old import Developer, ReleaseSet
 from ..mock import DevMock, VcsMock
 
 

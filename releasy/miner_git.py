@@ -6,7 +6,7 @@ import pygit2
 
 
 from .miner.source import Vcs
-from .release import Developer
+from .release_old import Developer
 from .commit import (
     Commit,
     Tag)

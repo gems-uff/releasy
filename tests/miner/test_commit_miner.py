@@ -7,7 +7,7 @@ from releasy.miner.commit_miner import (
     CommitMiner)
 from releasy.miner.source import Datasource, Vcs
 from releasy.commit import Commit
-from releasy.release import ReleaseSet
+from releasy.release_old import ReleaseSet
 
 from ..mock import VcsMock
 

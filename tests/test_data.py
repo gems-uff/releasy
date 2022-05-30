@@ -1,7 +1,7 @@
 import pytest
-from releasy.release import FrequencySet
+from releasy.release_old import FrequencySet
 from releasy.commit import Commit
-from releasy.release import (
+from releasy.release_old import (
     Release, 
     ReleaseSet
 )

@@ -1,7 +1,8 @@
 from typing import List
 
 from releasy.commit import Commit
-from .miner_main import AbstractMiner, Project
+from .miner_main import AbstractMiner
+from .release import Project
 
 class HistoryCommitMiner(AbstractMiner):
     def mine(self) -> Project:

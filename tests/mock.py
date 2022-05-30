@@ -3,7 +3,7 @@ import pytest
 
 from datetime import datetime, timedelta
 
-from releasy.release import Developer
+from releasy.release_old import Developer
 from releasy.commit import (
     Commit, 
     Tag)

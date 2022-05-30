@@ -5,7 +5,7 @@ from typing import List
 from releasy.commit import Commit
 from releasy.miner.source import Datasource
 from releasy.miner.factory import Miner
-from releasy.release import ReleaseSet
+from releasy.release_old import ReleaseSet
 
 from ..mock import VcsMock
 

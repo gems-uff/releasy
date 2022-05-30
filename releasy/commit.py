@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Set
 
 if TYPE_CHECKING:
-    from .release import Release
+    from .release_old import Release
 
 class Commit:
     """

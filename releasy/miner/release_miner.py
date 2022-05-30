@@ -12,11 +12,11 @@ import re
 from datetime import timedelta
 from functools import cmp_to_key
 
-from ..release import ContributorTracker
+from ..release_old import ContributorTracker
 from .source import Datasource
 
 from ..commit import (Commit)
-from ..release import (
+from ..release_old import (
     Release,
     TagRelease,
     ReleaseSet,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict
-from releasy.release import ReleaseSet
+from releasy.release_old import ReleaseSet
 from .release_miner import (
     AbstractReleaseMiner,
     AbstractReleaseSorter,

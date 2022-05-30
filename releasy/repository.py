@@ -1,7 +1,7 @@
 # This module abstract repository objects such as commits and tags
 from __future__ import annotations
 from abc import ABC, abstractclassmethod
-from typing import Set
+from typing import Dict, Set
 from datetime import datetime
 
 
@@ -12,18 +12,33 @@ class Repository:
     def __init__(self, proxy: RepositoryProxy):
         proxy.repository = self # TODO better alternative
         self.proxy = proxy
+        self.commit_cache = CommitCache(proxy)
 
     def get_tags(self) -> Set[Tag]:
         tags = self.proxy.fetch_tags()
         return tags
 
     def get_commit(self, id: str) -> Commit:
-        commit = self.proxy.fetch_commit(id)
+        commit = self.commit_cache.fetch_commit(id)
         return commit
 
     def get_parents(self, commit: Commit) -> Set[Commit]:
         parents = self.proxy.fetch_commit_parents(commit)
         return parents
+
+class CommitCache:
+    """
+    Implement cache to improve fech commit performance
+    """
+    def __init__(self, proxy: RepositoryProxy) -> None:
+        self.cache: Dict[str, Commit] = {}
+        self.proxy = proxy
+
+    def fetch_commit(self, commit_id: str) -> Commit:
+        if commit_id not in self.cache:
+            commit = self.proxy.fetch_commit(commit_id)
+            self.cache[commit_id] = commit
+        return self.cache[commit_id]
 
 
 class RepositoryProxy(ABC):

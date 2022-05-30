@@ -2,7 +2,7 @@ from typing import List
 import pytest
 
 from releasy.project import Project
-from releasy.release import Release
+from releasy.release_old import Release
 from releasy.semantic import (
     MainRelease,
     Patch,

@@ -5,9 +5,9 @@ import datetime
 from releasy.commit import Commit
 
 from releasy.miner.source import Datasource
-from releasy.release import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseSet, ReleaseVersion
+from releasy.release_old import TYPE_MAIN, TYPE_MAJOR, TYPE_MINOR, TYPE_PATCH, TYPE_PRE, ReleaseSet, ReleaseVersion
 
-from releasy.release import Release
+from releasy.release_old import Release
 from .mock import VcsMock
 
 

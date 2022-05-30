@@ -6,7 +6,7 @@ from typing import List
 from releasy.commit import Commit
 from releasy.project import Project
 
-from releasy.release import (
+from releasy.release_old import (
     TYPE_MAIN,
     TYPE_PATCH,
     TYPE_PRE,

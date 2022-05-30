@@ -3,11 +3,11 @@ from typing import List, Set
 from datetime import timedelta
 
 from .source import Datasource
-from ..release import (
+from ..release_old import (
     Release,
     ReleaseSet)
 from ..commit import Commit
-from ..release import ContributorTracker
+from ..release_old import ContributorTracker
 
 
 class CommitMiner(ABC):

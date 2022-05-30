@@ -1,6 +1,6 @@
 
 import pytest
-from releasy.release import ReleaseSet
+from releasy.release_old import ReleaseSet
 from releasy.miner.semantic_miner import OrphanSemanticMiner, SemanticMiner
 from releasy.miner.factory import Miner
 from ..mock import VcsMock

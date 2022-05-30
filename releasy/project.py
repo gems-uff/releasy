@@ -8,7 +8,7 @@ from .semantic import (
     PreRelease,
     SmReleaseSet)
 from .miner.source import Datasource
-from .release import (
+from .release_old import (
     TYPE_MAIN,
     TYPE_PATCH,
     TYPE_PRE,

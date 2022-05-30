@@ -20,7 +20,7 @@ class MockRepositoryProxy(RepositoryProxy):
 
         tags: Set[Tag] = set()
         for tag_ref, commit_ref in tag_refs.items():
-            tag = Tag(self.repository, tag_ref, self.fetch_commit(commit_ref))
+            tag = Tag(self.repository, tag_ref, self.repository.get_commit(commit_ref))
             tags.add(tag)
 
         return tags
@@ -94,6 +94,6 @@ class MockRepositoryProxy(RepositoryProxy):
         parents: Set[Commit] = set()
         if commit.id in parent_refs:
             for commit_ref in parent_refs[commit.id]:
-                parent = self.fetch_commit(commit_ref)
+                parent = self.repository.get_commit(commit_ref)
                 parents.add(parent)
         return parents

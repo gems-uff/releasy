@@ -18,7 +18,7 @@ from releasy.miner.commit_miner import (
     RangeCommitMiner,
     TimeExpertCommitMiner,
     TimeNaiveCommitMiner)
-from releasy.release import (
+from releasy.release_old import (
     Release,
     ReleaseSet)
 

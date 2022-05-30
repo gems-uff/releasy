@@ -10,7 +10,7 @@ import datetime
 from typing import Dict, List, Set
 
 from releasy.commit import Commit
-from .release import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Developer, Release, ReleaseVersion
+from .release_old import TYPE_MAIN, TYPE_MAJOR, TYPE_PATCH, Developer, Release, ReleaseVersion
 
 
 class SemanticRelease(ABC):

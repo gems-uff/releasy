@@ -69,6 +69,7 @@ class describe_repository:
     def it_fetch_commits(self):
         assert self.repository.get_commit('1') == Commit(self.repository, '1')
 
+
 class DemoProxy(RepositoryProxy):
     pass
 

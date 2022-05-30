@@ -1,7 +1,8 @@
 from typing import Set
 import re
 
-from .miner_main import AbstractMiner, Project, Release, ReleaseSet
+from .release import Project, Release
+from .miner_main import AbstractMiner, ReleaseSet
 from .repository import Repository
 
 class ReleaseMiner(AbstractMiner):

@@ -26,9 +26,8 @@ class GitRepository(RepositoryProxy):
             tag_name = tag_ref.shorthand
             peek = tag_ref.peel()
             if peek.type == pygit2.GIT_OBJ_COMMIT:
-                tag = Tag(self.repository, tag_name, self.fetch_commit(peek.hex))
+                tag = Tag(self.repository, tag_name, self.repository.get_commit(peek.hex))
                 tags.add(tag)
-        
         return tags
 
     def fetch_commit(self, commit_id: str) -> Commit:
@@ -40,7 +39,7 @@ class GitRepository(RepositoryProxy):
         commit_ref: pygit2.Commit = self.commit_cache.fetch_commit(commit.id)
         parents: Set[Commit] = set()
         for parent_ref in commit_ref.parents:
-            parent = self.fetch_commit(parent_ref.hex)
+            parent = self.repository.get_commit(parent_ref.hex)
             parents.add(parent)
         return parents
 

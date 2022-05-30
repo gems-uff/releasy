@@ -1,7 +1,7 @@
 import pytest
 from releasy.repository import Repository
 from releasy.miner_release import ReleaseMiner
-from releasy.miner_main import Project
+from releasy.release import Project
 from .mock_repository import MockRepositoryProxy
 
 class describe_release_miner:
