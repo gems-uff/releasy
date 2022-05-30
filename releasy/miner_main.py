@@ -2,6 +2,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict, Set
 
+from releasy.release import Project
+
 from .repository import Repository, Tag
 
 

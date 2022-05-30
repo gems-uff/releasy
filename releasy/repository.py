@@ -26,6 +26,7 @@ class Repository:
         parents = self.proxy.fetch_commit_parents(commit)
         return parents
 
+
 class CommitCache:
     """
     Implement cache to improve fech commit performance

@@ -2,7 +2,7 @@
 """
 from typing import List, Set
 
-from .semantic import (
+from .semantic_old import (
     MainRelease,
     Patch,
     PreRelease,

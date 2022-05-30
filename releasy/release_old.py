@@ -12,7 +12,7 @@ from typing import (
 import re
 
 if TYPE_CHECKING:
-    from .semantic import SemanticRelease
+    from .semantic_old import SemanticRelease
 
 from .commit import (
     Commit,

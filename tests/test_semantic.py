@@ -18,7 +18,7 @@ from releasy.miner.factory import (
     Datasource)
 from releasy.miner.collaborator_miner import NewcomerMiner
 from releasy.miner.semantic_miner import SemanticMiner
-from releasy.semantic import (
+from releasy.semantic_old import (
     DevelopmentPhase,
     MainRelease,
     Patch,

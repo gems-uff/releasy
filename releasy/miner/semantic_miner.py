@@ -4,7 +4,7 @@ from .factory import AbstractMiner
 from ..release_old import (
     ReleaseSet)
 from ..project import Project
-from ..semantic import (
+from ..semantic_old import (
     MainRelease,
     Patch,
     PreRelease,

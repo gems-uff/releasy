@@ -3,7 +3,7 @@ import pytest
 
 from releasy.project import Project
 from releasy.release_old import Release
-from releasy.semantic import (
+from releasy.semantic_old import (
     MainRelease,
     Patch,
     PreRelease)
