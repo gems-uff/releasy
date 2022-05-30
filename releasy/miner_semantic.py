@@ -4,7 +4,7 @@ import re
 
 from .release import Project
 from .semantic import MainRelease
-from .miner_main import AbstractMiner
+from .miner_main import AbstractMiner, ReleaseSet
 
 class SemanticReleaseMiner(AbstractMiner):
     """
@@ -48,5 +48,5 @@ class SemanticReleaseMiner(AbstractMiner):
             # TODO else orphan
 
         # TODO project.semantic.main_releases = mrelease
-        project.main_releases = mreleases
+        project.main_releases = ReleaseSet(mreleases)
         return project
