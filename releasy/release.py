@@ -7,6 +7,8 @@ from .repository import Repository, Tag
 class Project:
     def __init__(self, repository: Repository) -> None:
         self.repository = repository
+        self.main_releases = None
+        self.patches = None
 
     @property
     def releases(self) -> Set[Release]:
