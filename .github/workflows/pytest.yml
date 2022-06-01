@@ -23,5 +23,4 @@ jobs:
         pipenv install --dev
     - name: Test with pyTest
       run: |
-        pipenv run test
-        
+        pipenv run pytest -m 'not local'

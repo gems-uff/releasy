@@ -3,7 +3,7 @@ from releasy.repository import Commit, Repository, Tag
 
 from releasy.repository_git import GitRepository
 
-
+@pytest.mark.local
 class describe_git_repository:
     @pytest.fixture(autouse=True)
     def init(self):
