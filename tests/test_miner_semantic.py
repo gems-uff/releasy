@@ -1,5 +1,5 @@
 import pytest
-from releasy.repository import Repository
+from releasy.repository import Commit, Repository
 from releasy.miner_release import ReleaseMiner
 from releasy.miner_commit import HistoryCommitMiner
 from releasy.release import Project
@@ -65,5 +65,24 @@ class describe_release_miner:
     #     assert mreleases['2.0.0'].pre_releases['v2.0.0-beta1'] # FIX remove 'v2.0.0-'
     #     assert mreleases['2.0.0'].pre_releases['v2.0.0-alpha1'] # FIX remove 'v2.0.0-'
 
-    def it_mine_commits(self):
-        pass
+    def it_mine_main_release_commits(self, project: Project, mreleases: SReleaseSet[MainRelease]):
+        repo = project.repository
+        assert mreleases['0.9.0'].commits \
+            == set([Commit(repo, '1')])
+        assert mreleases['1.0.0'].commits \
+            == set([Commit(repo, '2'), Commit(repo, '3')])
+        assert mreleases['1.1.0'].commits \
+            == set([Commit(repo, '2'), Commit(repo, '5'), Commit(repo, '6')])
+        assert mreleases['2.0.0'].commits \
+            == set([Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'),
+                    Commit(repo, '14'), Commit(repo, '15')])
+
+
+    # def it_mine_patches_commits(self, project: Project, mreleases: SReleaseSet[MainRelease]):
+    #     repo = project.repository
+    #     assert patches['1.0.2'].commits \
+    #         == set([Commit(repo, '13')])
+    #     assert patches['2.0.1'].commits \
+    #         == set([Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'),
+    #                 Commit(repo, '14')])
+    #     assert patches['2.1.1']
