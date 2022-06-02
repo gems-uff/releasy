@@ -49,8 +49,6 @@ class SemanticReleaseMiner(AbstractMiner):
         mreleases: Set[MainRelease] = set()
         for mversion, releases in catalog['main'].items():
             if releases:
-                # mrelease_patches = patches[mversion] if mversion in patches \
-                #                                      else SReleaseSet()
                 mrelease = MainRelease(project, mversion, releases,
                                        catalog['pre'][mversion],  
                                        catalog['patch'][mversion])

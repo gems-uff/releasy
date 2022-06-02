@@ -63,7 +63,7 @@ class describe_repository:
 
     def it_fetch_tags(self):
         tags = self.repository.get_tags()
-        assert len(tags) == 11
+        assert len(tags) == 13
         assert Tag(self.repository, '1.1.0') in tags
 
     def it_fetch_commits(self):

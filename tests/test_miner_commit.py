@@ -37,8 +37,12 @@ class describe_history_commit_miner:
         assert project.release['v2.0.0'].commits \
             == set([Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'),
                     Commit(repo, '14')])
+        assert project.release['2.0.0'].commits \
+            == set([Commit(repo, '15')])
         assert project.release['v2.0.0'].commits \
             == project.release['v2.0.1'].commits
+        assert project.release['2.1.1pre'].commits \
+            == set([Commit(repo, '17')])
         assert project.release['v2.1.1'].commits \
-            == set([Commit(repo, '15'), Commit(repo, '16'), Commit(repo, '17'),
-                    Commit(repo, '18'), Commit(repo, '19'), Commit(repo, '20')])
+            == set([Commit(repo, '16'), Commit(repo, '18'), Commit(repo, '19'), 
+                    Commit(repo, '20')])

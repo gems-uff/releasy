@@ -12,4 +12,4 @@ class describe_release_miner:
 
     def it_mine_releases(self):
         project = self.miner.mine()
-        assert len(project.releases) == 10
+        assert len(project.releases) == 12
