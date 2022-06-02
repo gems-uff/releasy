@@ -37,10 +37,11 @@ class SemanticReleaseMiner(AbstractMiner):
             if release.version.is_pre_release():
                 catalog['pre'][mversion].add(release)
             elif release.version.is_patch():
-                catalog['patch'][mversion].add(release)
-                patches.merge(Patch(self.project, 
-                                    release.version.number,
-                                    release))
+                patch = Patch(self.project, 
+                              release.version.number,
+                              release)
+                catalog['patch'][mversion].add(patch)
+                patches.merge(patch)
             else:
                 catalog['main'][mversion].add(release)
 
@@ -48,11 +49,11 @@ class SemanticReleaseMiner(AbstractMiner):
         mreleases: Set[MainRelease] = set()
         for mversion, releases in catalog['main'].items():
             if releases:
-                mrelease_patches = patches[mversion] if mversion in patches \
-                                                     else SReleaseSet()
+                # mrelease_patches = patches[mversion] if mversion in patches \
+                #                                      else SReleaseSet()
                 mrelease = MainRelease(project, mversion, releases,
                                        catalog['pre'][mversion],  
-                                       mrelease_patches)
+                                       catalog['patch'][mversion])
                 mreleases.add(mrelease)
             # TODO else orphan
 
