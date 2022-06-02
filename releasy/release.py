@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Set
 import re
-from .repository import Repository, Tag
+from .repository import Commit, Repository, Tag
 
 
 class Project:
@@ -19,6 +19,7 @@ class Release:
         self.project = project
         self.name = name
         self.tag = tag
+        self.commits: Set[Commit] = set()
         self.version = ReleaseVersion(name)
     
     def __hash__(self):
@@ -29,6 +30,9 @@ class Release:
             return self.project == __o.project and self.name == __o.name
         else:
             return False
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 TYPE_MAJOR   = 0b10000

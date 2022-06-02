@@ -42,44 +42,4 @@ class ReleaseSet(Generic[T]):
     def __len__(self):
         return len(self._releases)
 
-class SReleaseSet():
-    def __init__(self, sreleases: Set[SemanticRelease] = None) -> None:
-        self._sreleases: Dict[str, SemanticRelease] = dict()
-        if sreleases:
-            for srelease in sreleases:
-                self.add(srelease)
 
-    def __len__(self):
-        return len(self._sreleases)
-
-    def __contains__(self, item) -> bool:
-        if isinstance(item, str) and item in self._sreleases:
-            return True
-        # elif isinstance(item, SemanticRelease) and item.name in self._sreleases:
-        #     return True
-        else:
-            return False
-
-    def __getitem__(self, key) -> T:
-        if isinstance(key, int):
-            release_name = list(self._sreleases.keys())[key]
-            return self._sreleases[release_name]
-        elif isinstance(key, str):
-            return self._sreleases[key]
-        else:
-            raise TypeError()
-
-    def add(self, srelease: SemanticRelease):
-        if srelease and srelease.name not in self._sreleases:
-            self._sreleases[srelease.name] = srelease
-
-    def merge(self, srelease: SemanticRelease):
-        if srelease in self:
-            name = srelease.name
-            stored_srelease = self[name]
-
-            for release in srelease.releases:
-                if release not in stored_srelease.releases:
-                    stored_srelease.add(release)
-        else:
-            self.add(srelease)
