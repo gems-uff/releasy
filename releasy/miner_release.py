@@ -7,6 +7,9 @@ from .miner_main import AbstractMiner, ReleaseSet
 from .repository import Repository
 
 class ReleaseMiner(AbstractMiner):
+    """ 
+    Mine all releases 
+    """
     def __init__(self, project: Project) -> None:
         super().__init__(project)
         self.release_regexp = re.compile(
@@ -27,6 +30,9 @@ class ReleaseMiner(AbstractMiner):
         return project
 
 class FinalReleaseMiner(ReleaseMiner):
+    """ 
+    Mine only final releases, ignoring pre releases 
+    """
     def mine(self) -> Project:
         project = super().mine()
         releases = ReleaseSet(release 
