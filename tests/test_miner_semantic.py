@@ -1,11 +1,10 @@
 import pytest
 from releasy.repository import Commit, Repository
-from releasy.miner_release import FinalReleaseMiner, ReleaseMiner
+from releasy.miner_release import FinalReleaseMiner
 from releasy.miner_commit import HistoryCommitMiner
 from releasy.release import Project
 from releasy.miner_semantic import SemanticReleaseMiner
 from releasy.semantic import MainRelease, Patch, SReleaseSet
-from releasy.collection import ReleaseSet
 from .mock_repository import MockRepositoryProxy
 
 @pytest.fixture

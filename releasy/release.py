@@ -20,6 +20,7 @@ class Release:
         self.name = name
         self.tag = tag
         self.commits: Set[Commit] = set()
+        self.tails: Set[Commit] = set()
         self.version = ReleaseVersion(name)
     
     def __hash__(self):

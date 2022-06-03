@@ -126,3 +126,8 @@ class Commit:
 
     def __repr__(self) -> str:
         return self.id[0:8]
+    
+    
+    # TODO commit.history_until(release_commits)
+    # for commit in commits:
+    #     release_commits = commit.history_until(release_commits)

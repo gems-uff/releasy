@@ -6,12 +6,12 @@ from .release import Project
 
 class HistoryCommitMiner(AbstractMiner):
     def mine(self) -> Project:
-        # commits = self.project.repository.get_commits()
         release_commits = set(map(lambda release: release.tag.commit, 
                               self.project.releases))
 
         for release in self.project.releases:
             commits = set()
+            tails = set()
             loop_detector = set()
             commits_to_track: List[Commit] = [release.tag.commit]
             while commits_to_track:
@@ -19,13 +19,24 @@ class HistoryCommitMiner(AbstractMiner):
                 commits.add(commit)
                 loop_detector.add(commit)
 
-                for parent in commit.parents:
-                    if parent not in release_commits:
-                        if parent not in loop_detector:
-                            commits_to_track.append(parent)
-            release.commits = commits
+                if commit.parents:
+                    for parent in commit.parents:
+                        if parent not in release_commits:
+                            if parent not in loop_detector:
+                                commits_to_track.append(parent)
+                        else:
+                            tails.add(commit)
+                else:
+                    tails.add(commit)
 
-        # TODO commit.history_until(release_commits)
-        # for commit in commits:
-        #     release_commits = commit.history_until(release_commits)
+            release.tails = tails
+            release.commits = commits
+            self._mine_base_releases()
+        return self.project
+
+    def _mine_base_releases(self):
+        for release in self.project.releases:
+            for tail in release.tails:
+                for parent in tail.parents:
+                    pass
         return self.project
