@@ -29,7 +29,7 @@ class ReleaseMiner(AbstractMiner):
 class FinalReleaseMiner(ReleaseMiner):
     def mine(self) -> Project:
         project = super().mine()
-        releases = set(release 
+        releases = ReleaseSet(release 
                        for release in project.releases 
                        if not release.version.is_pre_release())
         project.release = releases
