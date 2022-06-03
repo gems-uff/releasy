@@ -1,3 +1,4 @@
+from ensurepip import version
 from typing import Set
 import re
 
@@ -23,4 +24,13 @@ class ReleaseMiner(AbstractMiner):
                 releases.add(release)
 
         project.release = ReleaseSet(releases)
+        return project
+
+class FinalReleaseMiner(ReleaseMiner):
+    def mine(self) -> Project:
+        project = super().mine()
+        releases = set(release 
+                       for release in project.releases 
+                       if not release.version.is_pre_release())
+        project.release = releases
         return project

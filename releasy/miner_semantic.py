@@ -27,8 +27,8 @@ class SemanticReleaseMiner(AbstractMiner):
         for release in self.project.releases:
             if release.version.is_patch() \
                     and not release.version.is_pre_release():
-                patch = Patch(self.project, 
-                              release.version.number, 
+                patch = Patch(self.project,
+                              release.version.number,
                               ReleaseSet([release]))
                 patches.merge(patch)
         return patches

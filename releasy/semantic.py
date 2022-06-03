@@ -26,14 +26,22 @@ class SemanticRelease:
         return self.name
 
 
-class MainRelease(SemanticRelease):
+class FinalRelease(SemanticRelease):
+    pass
+
+#TODO implement pre release logic
+class PreRelease(SemanticRelease):
+    pass
+
+
+class MainRelease(FinalRelease):
     def __init__(self, project: Project, name: str, releases: ReleaseSet[Release],
                  patches: Set[Release]) -> None:
         super().__init__(project, name, releases)
         self.patches = ReleaseSet(patches)
 
 
-class Patch(SemanticRelease):
+class Patch(FinalRelease):
     def __init__(self, project: Project, name: str, releases: ReleaseSet[Release]) -> None:
         super().__init__(project, name, releases)   
 
