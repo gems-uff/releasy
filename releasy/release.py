@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Set
+from typing import Dict, Generic, Set, TypeVar
 import re
+
 from .repository import Commit, Repository, Tag
 
 
@@ -19,8 +20,11 @@ class Release:
         self.project = project
         self.name = name
         self.tag = tag
+        if tag: #Fix must remove tag from release
+            self.head = tag.commit
         self.commits: Set[Commit] = set()
-        self.tails: Set[Commit] = set()
+        self.tails = set[Commit]()
+        self.base_releases = ReleaseSet()
         self.version = ReleaseVersion(name)
     
     def __hash__(self):
@@ -133,3 +137,52 @@ class ReleaseVersion():
             return True
         else:
             return False
+
+
+
+T = TypeVar('T')
+class ReleaseSet(Generic[T]):
+    def __init__(self, releases: Set[T] = None) -> None:
+        self._releases: Dict[str, Set] = {}
+        if releases:
+            for release in releases:
+                self.add(release)
+
+    def __iter__(self):
+        return (release for release in self._releases.values())
+
+    def __getitem__(self, key) -> T:
+        if isinstance(key, int):
+            release_name = list(self._releases.keys())[key]
+            return self._releases[release_name]
+        elif isinstance(key, str):
+            return self._releases[key]
+        else:
+            raise TypeError()
+
+    def __contains__(self, item) -> bool:
+        if isinstance(item, str):
+            if item in self._releases:
+                return True
+        return False
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, ReleaseSet):
+            return self._releases == __o._releases
+        return False
+
+    @property
+    def names(self) -> Set[str]:
+        """Return a set withh all release names"""
+        return set(name for name in self._releases.keys())
+
+    def add(self, release: T):
+        if release:
+            self._releases[release.name] = release
+
+    def update(self, iterable):
+        for item in iterable:
+            self.add(item)
+
+    def __len__(self):
+        return len(self._releases)

@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import Dict, Generic, Set, TypeVar
-from .release import Project, Release
+from .release import Project, Release, ReleaseSet
 from .repository import Commit
-from .collection import ReleaseSet
-
 
 
 class SemanticRelease:

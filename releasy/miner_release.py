@@ -2,8 +2,8 @@ from ensurepip import version
 from typing import Set
 import re
 
-from .release import Project, Release
-from .miner_main import AbstractMiner, ReleaseSet
+from .release import Project, Release, ReleaseSet
+from .miner_main import AbstractMiner
 from .repository import Repository
 
 class ReleaseMiner(AbstractMiner):

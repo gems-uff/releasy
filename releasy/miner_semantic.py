@@ -2,10 +2,10 @@ from ensurepip import version
 from functools import reduce
 from typing import Dict, Set
 
-from .release import Project
+from .release import Project, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
 from .miner_main import AbstractMiner
-from .collection import ReleaseSet
+
 
 class SemanticReleaseMiner(AbstractMiner):
     """

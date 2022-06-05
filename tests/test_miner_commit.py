@@ -17,7 +17,7 @@ def project():
     return project
 
 class describe_history_commit_miner:
-    def it_mine_commit(self, project: Project):
+    def it_mine_commits(self, project: Project):
         repo = project.repository
         release = project.release['v0.9.0']
         assert project.release['0.0.0-alpha1'].commits \

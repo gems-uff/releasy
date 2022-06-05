@@ -1,8 +1,18 @@
+"""Commit Miner
+
+This module mine commits and assign them to releases.
+
+For each release, it assigns:
+- its commits: the commits that belong to the release; and
+- its tail commits: the first commits of each release branch
+"""
+
 from typing import List
 
 from releasy.commit import Commit
 from .miner_main import AbstractMiner
 from .release import Project
+
 
 class HistoryCommitMiner(AbstractMiner):
     def mine(self) -> Project:
@@ -31,12 +41,4 @@ class HistoryCommitMiner(AbstractMiner):
 
             release.tails = tails
             release.commits = commits
-            self._mine_base_releases()
-        return self.project
-
-    def _mine_base_releases(self):
-        for release in self.project.releases:
-            for tail in release.tails:
-                for parent in tail.parents:
-                    pass
         return self.project
