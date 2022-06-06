@@ -48,7 +48,7 @@ class MainRelease(FinalRelease):
         super().__init__(project, name, releases)
         self.patches = SReleaseSet(patches)
         self.base_mreleases = SReleaseSet[MainRelease]()
-        self.main_base_mrelease = None
+        self.main_base_mrelease: MainRelease = None
 
     @property
     def cycle(self) -> datetime.timedelta:
