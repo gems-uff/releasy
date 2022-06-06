@@ -10,6 +10,7 @@ class MockRepositoryProxy(RepositoryProxy):
             "v1.0.0":        '3',
             "v1.0.2":        '13',
             "1.1.0":         '6',
+            "1.1.1":         '7',
             "v2.0.0-alpha1": '8',
             "v2.0.0-beta1":  '10',
             "v2.0.0":        '14',

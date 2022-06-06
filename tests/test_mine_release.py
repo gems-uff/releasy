@@ -35,11 +35,12 @@ class describe_release_miner:
 
     def it_mine_releases(self):
         project = self.miner.mine()
-        assert len(project.releases) == 8
+        assert len(project.releases) == 9
         assert project.release['v0.9.0']
         assert project.release['v1.0.0']
         assert project.release['v1.0.2']
         assert project.release['1.1.0']
+        assert project.release['1.1.1']
         assert project.release['v2.0.0']
         assert project.release['2.0.0']
         assert project.release['v2.0.1']

@@ -41,12 +41,13 @@ class describe_release_miner:
     def it_mine_main_release_patches(self, mreleases: SReleaseSet[MainRelease]):
         assert not mreleases['0.9.0'].patches
         assert mreleases['1.0.0'].patches.names == set(['1.0.2'])
-        assert not mreleases['1.1.0'].patches
+        assert mreleases['1.1.0'].patches.names == set(['1.1.1'])
         assert mreleases['2.0.0'].patches.names == set(['2.0.1'])
 
     def it_mine_patches(self, patches: SReleaseSet[Patch]):
-        assert len(patches) == 3
+        assert len(patches) == 4
         assert patches['1.0.2'].releases.names == set(['v1.0.2'])
+        assert patches['1.1.1'].releases.names == set(['1.1.1'])
         assert patches['2.0.1'].releases.names == set(['v2.0.1'])
         assert patches['2.1.1'].releases.names == set(['v2.1.1'])
 
@@ -59,23 +60,33 @@ class describe_release_miner:
         assert mreleases['1.1.0'].commits \
             == set([Commit(repo, '2'), Commit(repo, '5'), Commit(repo, '6')])
         assert mreleases['2.0.0'].commits \
-            == set([Commit(repo, '4'), Commit(repo, '7'), Commit(repo, '8'),
-                    Commit(repo, '9'), Commit(repo, '10'), Commit(repo, '2'),
-                    Commit(repo, '11'), Commit(repo, '12'), Commit(repo, '14'), 
-                    Commit(repo, '15')])
+            == set([Commit(repo, '8'), Commit(repo, '9'), Commit(repo, '10'), 
+                    Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'), 
+                    Commit(repo, '14'),  Commit(repo, '15')])
 
     def it_mine_patches_commits(self, project: Project, patches: SReleaseSet[Patch]):
         repo = project.repository
-        assert patches['1.0.2'].commits \
-            == set([Commit(repo, '13')])
+        assert patches['1.0.2'].commits == set([Commit(repo, '13')])
+        assert patches['1.1.1'].commits \
+            == set([Commit(repo, '4'), Commit(repo, '7')])
         assert patches['2.0.1'].commits \
-            == set([Commit(repo, '4'), Commit(repo, '7'), Commit(repo, '8'),
-                    Commit(repo, '9'), Commit(repo, '10'), Commit(repo, '2'),
-                    Commit(repo, '11'), Commit(repo, '12'), Commit(repo, '14')])
-        assert patches['2.1.1']
+            == set([Commit(repo, '8'), Commit(repo, '9'), Commit(repo, '10'), 
+                    Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'), 
+                    Commit(repo, '14')])
+        assert patches['2.1.1'].commits \
+            == set([Commit(repo, '20'), Commit(repo, '19'), Commit(repo, '17'),
+                    Commit(repo, '18'), Commit(repo, '16'),
+                    Commit(repo, '10'), Commit(repo, '9'), Commit(repo, '8')])
 
-    def it_mine_base_releases(self, mreleases: SReleaseSet[MainRelease]):
+    def it_mine_base_mreleases(self, mreleases: SReleaseSet[MainRelease]):
         assert not mreleases['0.9.0'].base_mreleases.names
         assert mreleases['1.0.0'].base_mreleases.names == set(['0.9.0'])
         assert mreleases['1.1.0'].base_mreleases.names == set(['0.9.0'])
-        assert mreleases['2.0.0'].base_mreleases.names == set(['0.9.0', '1.1.0', '1.0.0'])
+        assert mreleases['2.0.0'].base_mreleases.names == set(
+            ['0.9.0', '1.0.0', '1.1.0'])
+
+    def it_mine_main_base_mrelease(self, mreleases: SReleaseSet[MainRelease]):
+        assert not mreleases['0.9.0'].main_base_mrelease
+        assert mreleases['1.0.0'].main_base_mrelease.name == '0.9.0'
+        assert mreleases['1.1.0'].main_base_mrelease.name == '0.9.0'
+        assert mreleases['2.0.0'].main_base_mrelease.name == '1.1.0'

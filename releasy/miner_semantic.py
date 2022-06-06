@@ -8,6 +8,7 @@ This module categorizes the releases according to their semantic:
 This module also categorize releases into pre releases.
 """
 
+from unicodedata import name
 from .release import Project, Release, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
 from .miner_main import AbstractMiner
@@ -35,6 +36,7 @@ class SemanticReleaseMiner(AbstractMiner):
         self.patches = patches
 
         self._assign_base_releases()
+        self._assign_main_base_release()
         return self.project
 
     def _mine_patches(self) -> SReleaseSet:
@@ -62,13 +64,14 @@ class SemanticReleaseMiner(AbstractMiner):
                 mreleases.merge(mrelease)
         return mreleases
     
-    def _assign_patches(self, mreleases: SReleaseSet, 
-                                     patches: SReleaseSet):
+    def _assign_patches(self, mreleases: SReleaseSet[MainRelease], 
+                        patches: SReleaseSet[Patch]):
         for patch in patches:
             mversion = '.'.join([str(number) for number in # TODO create a function
                                  patch.releases[0].version.numbers[0:2]] + ['0'])                          
             if mversion in mreleases:
                 mreleases[mversion].patches.add(patch)
+                patch.main_release = mreleases[mversion]
 
     def _assign_commits(self, sreleases: SReleaseSet[SemanticRelease]):
         for srelease in sreleases:
@@ -78,8 +81,25 @@ class SemanticReleaseMiner(AbstractMiner):
     def _assign_base_releases(self):
         for mrelease in self.mreleases:
             for release in mrelease.releases:
-                if release.version.is_main_release():
-                    for base_release in release.base_releases:
-                        if base_release not in mrelease.releases \
-                                and base_release.version.is_main_release():
-                            mrelease.base_mreleases.add(self.r2s[base_release])
+                # if release.version.is_main_release():
+                for base in release.base_releases:
+                    if base not in mrelease.releases:
+                        sbase = self.r2s[base]
+                        if isinstance(sbase, MainRelease):
+                            mparent = sbase
+                        elif isinstance(sbase, Patch):
+                            mparent = sbase.main_release
+                        else: 
+                            mparent = None
+
+                        if mparent != mrelease:
+                            mrelease.base_mreleases.add(mparent)
+
+    def _assign_main_base_release(self):
+        for mrelease in self.mreleases:
+            releases = sorted(mrelease.base_mreleases.all() | set([mrelease]), 
+                key=lambda mrelease: mrelease.name)
+            mrelease_pos = releases.index(mrelease)
+            mbase_pos = mrelease_pos - 1
+            if mbase_pos >= 0:
+                mrelease.main_base_mrelease = releases[mbase_pos]

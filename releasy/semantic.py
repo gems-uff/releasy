@@ -38,11 +38,13 @@ class MainRelease(FinalRelease):
         super().__init__(project, name, releases)
         self.patches = SReleaseSet(patches)
         self.base_mreleases = SReleaseSet[MainRelease]()
+        self.main_base_mrelease = None
 
 
 class Patch(FinalRelease):
     def __init__(self, project: Project, name: str, releases: ReleaseSet[Release]) -> None:
         super().__init__(project, name, releases)   
+        self.main_release: MainRelease = None
 
 
 SR = TypeVar('SR')
@@ -77,6 +79,9 @@ class SReleaseSet(Generic[SR]):
     def names(self) -> Set[str]:
         """Return a set with all release names"""
         return set(name for name in self._sreleases.keys())
+
+    def all(self) -> Set[SR]:
+        return set(self._sreleases.values())
 
     def add(self, srelease: SR):
         if srelease and srelease.name not in self._sreleases:

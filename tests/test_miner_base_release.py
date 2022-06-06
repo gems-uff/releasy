@@ -25,25 +25,21 @@ class describe_base_release_miner():
         releases = self.project.release
 
         assert not releases['0.0.0-alpha1'].base_releases
-        assert releases['v0.9.0'].base_releases.names \
-            == set(['0.0.0-alpha1'])
-        assert releases['v1.0.0'].base_releases.names \
-            == set(['v0.9.0'])
-        assert releases['v1.0.2'].base_releases.names \
-            == set(['v1.0.0'])
-        assert releases['1.1.0'].base_releases.names \
-            == set(['v0.9.0'])
-        assert releases['v2.0.0-alpha1'].base_releases.names \
-            == set(['v1.0.0', '1.1.0'])
-        assert releases['v2.0.0-beta1'].base_releases.names \
-            == set(['v2.0.0-alpha1'])
-        assert releases['v2.0.0'].base_releases.names \
-            == set(['v1.0.2', 'v0.9.0', 'v2.0.0-beta1'])
+        assert releases['v0.9.0'].base_releases.names == set(['0.0.0-alpha1'])
+        assert releases['v1.0.0'].base_releases.names == set(['v0.9.0'])
+        assert releases['v1.0.2'].base_releases.names == set(['v1.0.0'])
+        assert releases['1.1.0'].base_releases.names == set(['v0.9.0'])
+        assert releases['1.1.1'].base_releases.names == set(['1.1.0', 'v1.0.0'])
+        assert releases['v2.0.0-alpha1'].base_releases.names == set(['1.1.1'])
+        assert releases['v2.0.0-beta1'].base_releases.names == set(
+            ['v2.0.0-alpha1'])
+        assert releases['v2.0.0'].base_releases.names == set(
+            ['v1.0.2', 'v0.9.0', 'v2.0.0-beta1'])
         assert releases['v2.0.1'].base_releases \
             == releases['v2.0.0'].base_releases
-        assert releases['2.0.0'].base_releases.names \
-            == set(['v2.0.0', 'v2.0.1'])
-        assert releases['2.1.1pre'].base_releases.names \
-            == set(['v2.0.0', 'v2.0.1'])
-        assert releases['v2.1.1'].base_releases.names \
-            == set(['2.0.0', '2.1.1pre', 'v2.0.0-beta1'])
+        assert releases['2.0.0'].base_releases.names == set(
+            ['v2.0.0', 'v2.0.1'])
+        assert releases['2.1.1pre'].base_releases.names == set(
+            ['v2.0.0', 'v2.0.1'])
+        assert releases['v2.1.1'].base_releases.names == set(
+            ['2.0.0', '2.1.1pre', 'v2.0.0-beta1'])
