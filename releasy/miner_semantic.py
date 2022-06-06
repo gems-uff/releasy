@@ -8,13 +8,19 @@ This module categorizes the releases according to their semantic:
 This module also categorize releases into pre releases.
 """
 
-from .release import Project, ReleaseSet
+from .release import Project, Release, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
 from .miner_main import AbstractMiner
 
 
 class SemanticReleaseMiner(AbstractMiner):
     """Categorize releases into major, minor and main releases"""
+    def __init__(self, project: Project) -> None:
+        super().__init__(project)
+        self.mreleases = SReleaseSet[MainRelease]()
+        self.patches = SReleaseSet[Patch]()
+        self.r2s = dict[Release, SemanticRelease]()
+
     def mine(self) -> Project:
         patches = self._mine_patches()
         mreleases = self._mine_mreleases(patches)
@@ -24,6 +30,11 @@ class SemanticReleaseMiner(AbstractMiner):
 
         self.project.main_releases = mreleases
         self.project.patches = patches
+
+        self.mreleases = mreleases
+        self.patches = patches
+
+        self._assign_base_releases()
         return self.project
 
     def _mine_patches(self) -> SReleaseSet:
@@ -34,6 +45,7 @@ class SemanticReleaseMiner(AbstractMiner):
                 patch = Patch(self.project,
                               release.version.number,
                               ReleaseSet([release]))
+                self.r2s[release] = patch
                 patches.merge(patch)
         return patches
 
@@ -46,6 +58,7 @@ class SemanticReleaseMiner(AbstractMiner):
                               release.version.number, 
                               ReleaseSet([release]),
                               ReleaseSet())
+                self.r2s[release] = mrelease
                 mreleases.merge(mrelease)
         return mreleases
     
@@ -62,7 +75,11 @@ class SemanticReleaseMiner(AbstractMiner):
             for release in srelease.releases:
                 srelease.commits.update(release.commits)
 
-    def _assign_base_releases(self, sreleases: SReleaseSet[SemanticRelease]):
-        pass
-
-
+    def _assign_base_releases(self):
+        for mrelease in self.mreleases:
+            for release in mrelease.releases:
+                if release.version.is_main_release():
+                    for base_release in release.base_releases:
+                        if base_release not in mrelease.releases \
+                                and base_release.version.is_main_release():
+                            mrelease.base_mreleases.add(self.r2s[base_release])

@@ -161,9 +161,10 @@ class ReleaseSet(Generic[T]):
             raise TypeError()
 
     def __contains__(self, item) -> bool:
-        if isinstance(item, str):
-            if item in self._releases:
-                return True
+        if isinstance(item, str) and item in self._releases:
+            return True
+        elif isinstance(item, Release) and item.name in self._releases:
+            return True
         return False
 
     def __eq__(self, __o: object) -> bool:
