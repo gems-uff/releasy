@@ -37,7 +37,6 @@ class describe_final_release_miner:
             FinalReleaseMiner()
         ).mine()
 
-
     def it_mine_releases(self):
         assert len(self.project.releases) == 9
         assert self.project.releases['v0.9.0']

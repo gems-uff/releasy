@@ -36,6 +36,7 @@ class SemanticReleaseMiner(AbstractMiner):
         self.mreleases = mreleases
         self.patches = patches
 
+        self._assign_release()
         self._assign_base_releases()
         self._assign_main_base_release()
         return self.project
@@ -73,6 +74,11 @@ class SemanticReleaseMiner(AbstractMiner):
             if mversion in mreleases:
                 mreleases[mversion].patches.add(patch)
                 patch.main_release = mreleases[mversion]
+
+    def _assign_release(self):
+        sreleases: SReleaseSet[SemanticRelease] = self.mreleases | self.patches
+        for srelease in sreleases:
+            srelease.release = srelease.releases.first
 
     def _assign_commits(self, sreleases: SReleaseSet[SemanticRelease]):
         for srelease in sreleases:

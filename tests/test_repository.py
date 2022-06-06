@@ -2,12 +2,12 @@ from datetime import timedelta
 from typing import Set
 import pytest
 from releasy.repository import Commit, Repository, RepositoryProxy, Tag
-from .mock_repository import MockRepositoryProxy
+from .mock_repository import MockRepository, MockRepositoryProxy
 
 
 @pytest.fixture
 def repo():
-    return Repository(MockRepositoryProxy())
+    return MockRepository()
 
 class describe_tag:
     def it_has_repository(self, repo: Repository):
@@ -58,7 +58,7 @@ class describe_commit:
 class describe_repository:
     @pytest.fixture(autouse=True)
     def init(self):
-        self.repository = Repository(MockRepositoryProxy())
+        self.repository = MockRepository()
 
     def it_fetch_tags(self):
         tags = self.repository.get_tags()

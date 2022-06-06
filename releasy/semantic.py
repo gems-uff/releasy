@@ -1,15 +1,20 @@
 from __future__ import annotations
+
 from typing import Dict, Generic, Set, TypeVar
+
+import datetime
+
 from .project import Project
 from .release import Release, ReleaseSet
 from .repository import CommitSet
 
 
 class SemanticRelease:
-    def __init__(self, project: Project, name: str, releases: Set[Release]):
+    def __init__(self, project: Project, name: str, releases: ReleaseSet):
         self.project = project
         self.name = name
         self.releases = releases
+        self.release: Release = None
         self.commits = CommitSet()
     
     def __hash__(self):
@@ -23,6 +28,10 @@ class SemanticRelease:
 
     def __repr__(self) -> str:
         return self.name
+
+    @property
+    def time(self) -> datetime.datetime:
+        return self.release.time
 
 
 class FinalRelease(SemanticRelease):
@@ -41,6 +50,12 @@ class MainRelease(FinalRelease):
         self.base_mreleases = SReleaseSet[MainRelease]()
         self.main_base_mrelease = None
 
+    @property
+    def cycle(self) -> datetime.timedelta:
+        if self.main_base_mrelease:
+            return self.time - self.main_base_mrelease.time
+        else:
+            return None
 
 class Patch(FinalRelease):
     def __init__(self, project: Project, name: str, releases: ReleaseSet[Release]) -> None:
@@ -88,9 +103,41 @@ class SReleaseSet(Generic[SR]):
     def all(self) -> Set[SR]:
         return set(self._sreleases.values())
 
+    @property
+    def first(self) -> SR:
+        if self._sreleases:
+            if len(self._sreleases) == 1:
+                return self._sreleases[0]
+            else:
+                ordered_sreleases = sorted(self.all, key=lambda r: r.time)
+                return ordered_sreleases[0]
+        else:
+            return None
+
+    @property
+    def last(self) -> SR:
+        if self._sreleases:
+            if len(self._sreleases) == 1:
+                return self._sreleases[0]
+            else:
+                ordered_sreleases = sorted(self.all, key=lambda r: r.time)
+                return ordered_sreleases[-1]
+        else:
+            return None
+
+    def __or__(self, __o: SReleaseSet):
+        sreleases = SReleaseSet()
+        sreleases.update(self.all)
+        sreleases.update(__o.all)
+        return sreleases
+
     def add(self, srelease: SR):
         if srelease and srelease.name not in self._sreleases:
             self._sreleases[srelease.name] = srelease
+
+    def update(self, sreleases: SR):
+        for srelease in sreleases:
+            self.add(srelease)
 
     def merge(self, srelease: SR):
         if srelease in self:

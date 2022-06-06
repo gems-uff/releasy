@@ -4,6 +4,11 @@ from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, T
 
 
 class MockRepositoryProxy(RepositoryProxy):
+    def __init__(self, ref_dt: datetime) -> None:
+        super().__init__()
+        self.ref_dt = ref_dt
+
+
     def fetch_tags(self) -> Set[Tag]:
         tag_refs = {
             "0.0.0-alpha1":  '0',
@@ -31,7 +36,6 @@ class MockRepositoryProxy(RepositoryProxy):
     
     def fetch_commit(self, id: str) -> Commit:
         pos = int(id)
-        ref_dt = datetime(2020, 1, 1, 12, 00)        
 
         committers = {
             '2': 'bob',
@@ -43,7 +47,7 @@ class MockRepositoryProxy(RepositoryProxy):
             committer = committers[id]
         else: 
             committer = 'alice'
-        committer_date = ref_dt + timedelta(days=1) * pos
+        committer_date = self.ref_dt + timedelta(days=1) * pos
 
         authors = {
             '1': 'bob',
@@ -104,5 +108,7 @@ class MockRepositoryProxy(RepositoryProxy):
 
 
 class MockRepository(Repository):
+    ref_dt = datetime(2020, 1, 1, 12, 00)    
+    
     def __init__(self):
-        super().__init__(MockRepositoryProxy())
+        super().__init__(MockRepositoryProxy(MockRepository.ref_dt))

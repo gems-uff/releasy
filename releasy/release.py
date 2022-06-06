@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime, timedelta
 
 from typing import Dict, Generic, Set, TypeVar
 from typing import TYPE_CHECKING
@@ -37,6 +38,14 @@ class Release:
 
     def __repr__(self) -> str:
         return self.name
+
+    @property
+    def time(self) -> datetime:
+        return self.tag.time
+
+    # @property
+    # def cycle(self) -> timedelta:
+    #     return 
 
 
 TYPE_MAJOR   = 0b10000
@@ -175,6 +184,32 @@ class ReleaseSet(Generic[T]):
     def names(self) -> Set[str]:
         """Return a set withh all release names"""
         return set(name for name in self._releases.keys())
+
+    @property
+    def first(self) -> Release:
+        if self._releases:
+            if len(self._releases) == 1:
+                return self[0]
+            else:
+                ordered_releases = sorted(self.all, key=lambda r: r.time)
+                return ordered_releases[0]
+        else:
+            return None
+
+    @property
+    def last(self) -> Release:
+        if self._releases:
+            if len(self._releases) == 1:
+                return self[0]
+            else:
+                ordered_releases = sorted(self.all, key=lambda r: r.time)
+                return ordered_releases[-1]
+        else:
+            return None
+
+    @property
+    def all(self) -> Set[Release]:
+        return set(self._releases.values())
 
     def add(self, release: T):
         if release:

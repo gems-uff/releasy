@@ -68,11 +68,24 @@ class Tag:
     """
     A Tag represents a reference to a commit, which is a potential release
     """
-    def __init__(self, repository: Repository, name: str, commit: Commit = None, message: str = None) -> None:
+    def __init__(self, repository: Repository, name: str, commit: Commit = None,
+                 message: str = None, time: datetime = None) -> None:
         self.repository = repository
         self.name = name
         self.commit = commit
-        self._message = message
+        if message:
+            self.message = message
+        else:
+            self.message = ""
+        if time:
+            self.time = time
+        else:
+            if commit:
+                self.time = commit.committer_time
+        if message or time:
+            self.is_annotated = True
+        else:
+            self.is_annotated = False
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Tag):
@@ -85,13 +98,6 @@ class Tag:
 
     def __repr__(self) -> str:
         return self.name
-
-    @property
-    def message(self):
-        if self._message:
-            return self._message
-        else:
-            return self.commit.message
 
 
 class Commit:

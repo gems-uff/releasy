@@ -1,12 +1,15 @@
 import pytest
+from datetime import timedelta
+
+import releasy
 from releasy.miner_release import FinalReleaseMiner
 from releasy.miner_commit import HistoryCommitMiner
 from releasy.miner_base_release import BaseReleaseMiner
 from releasy.project import Project
 from releasy.miner_semantic import SemanticReleaseMiner
-import releasy
 from releasy.repository import Commit
 from releasy.semantic import MainRelease, Patch, SReleaseSet
+
 from .mock_repository import MockRepository
 
 @pytest.fixture
@@ -87,3 +90,19 @@ class describe_release_miner:
         assert mreleases['1.0.0'].main_base_mrelease.name == '0.9.0'
         assert mreleases['1.1.0'].main_base_mrelease.name == '0.9.0'
         assert mreleases['2.0.0'].main_base_mrelease.name == '1.1.0'
+
+    def it_mine_main_release_time(self, mreleases: SReleaseSet[MainRelease]):
+        assert mreleases['0.9.0'].time \
+            == MockRepository.ref_dt + timedelta(days=1)
+        assert mreleases['1.0.0'].time \
+            == MockRepository.ref_dt + timedelta(days=3)
+        assert mreleases['1.1.0'].time \
+            == MockRepository.ref_dt + timedelta(days=6)
+        assert mreleases['2.0.0'].time \
+            == MockRepository.ref_dt + timedelta(days=14)
+
+    def it_mine_main_release_cycle(self, mreleases: SReleaseSet[MainRelease]):
+        assert mreleases['0.9.0'].cycle == None
+        assert mreleases['1.0.0'].cycle == timedelta(days=2)
+        assert mreleases['1.1.0'].cycle == timedelta(days=5)
+        assert mreleases['2.0.0'].cycle == timedelta(days=8)
