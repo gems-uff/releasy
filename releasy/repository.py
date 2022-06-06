@@ -128,13 +128,6 @@ class Commit:
         self.committer_time = commiter_time
         self.author = author
         self.author_time = author_time
-        # author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
-        # author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
-        # author_time = datetime.fromtimestamp(float(raw_commit.author.time), author_tzinfo)
-
-        # committer = Developer(login=raw_commit.committer.email, email=raw_commit.committer.email, name=raw_commit.committer.name)
-        # committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
-        # committer_time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
 
 
     @property

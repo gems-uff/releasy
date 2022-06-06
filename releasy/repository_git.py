@@ -1,5 +1,6 @@
 # This module connect releasy with Git
 
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set
 import pygit2
 
@@ -32,14 +33,20 @@ class GitRepository(RepositoryProxy):
 
     def fetch_commit(self, commit_id: str) -> Commit:
         commit_ref = self.commit_cache.fetch_commit(commit_id)
+
+        committer_tzinfo = timezone(timedelta(minutes=commit_ref.committer.offset))
+        committer_time = datetime.fromtimestamp(float(commit_ref.committer.time), committer_tzinfo)
+        author_tzinfo = timezone(timedelta(minutes=commit_ref.author.offset))
+        author_time = datetime.fromtimestamp(float(commit_ref.author.time), author_tzinfo)
+
         commit = Commit(
             self.repository,
             commit_ref.hex,
             commit_ref.name,
             f"{commit_ref.committer.name} <{commit_ref.committer.email}>",
-            commit_ref.committer.time,
+            committer_time,
             f"{commit_ref.author.name} <{commit_ref.author.email}>",
-            commit_ref.author.time)
+            author_time)
         return commit
 
     def fetch_commit_parents(self, commit: Commit) -> CommitSet:

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import pytest
 from releasy.repository import Commit, Repository, Tag
 
@@ -23,3 +24,12 @@ class describe_git_repository:
         commit = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
         assert commit.parents.ids \
             == set(['f45fb10eb1354c7a4ff421b07598e008e8ad427b'])
+
+    def it_mine_time(self):
+        commit = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
+        # Fri May 27 22:03:48 2022 -0300
+        # Sat May 28 01:03:48 2022
+        assert commit.committer_time \
+            == datetime(2022, 5, 28, 1, 22, 49, tzinfo=timezone.utc) 
+        assert commit.author_time \
+            == datetime(2022, 5, 28, 1, 3, 48, tzinfo=timezone.utc) 
