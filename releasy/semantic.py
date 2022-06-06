@@ -29,6 +29,27 @@ class SemanticRelease:
     def __repr__(self) -> str:
         return self.name
 
+    def __lt__(self, other):
+        return self.__cmp(other) < 0
+    def __gt__(self, other):
+        return self.__cmp(other) > 0
+    def __eq__(self, other):
+        return self.__cmp(other) == 0
+    def __le__(self, other):
+        return self.__cmp(other) <= 0
+    def __ge__(self, other):
+        return self.__cmp(other) >= 0
+
+    def __cmp(self, __o: SemanticRelease) -> int:
+        versions_a = [int(number) for number in self.name.split('.')]
+        versions_b = [int(number) for number in __o.name.split('.')]
+        for (version_a, version_b) in zip(versions_a, versions_b):
+            if version_a > version_b:
+                return 1
+            if version_a < version_b:
+                return -1
+        return 0
+
     @property
     def time(self) -> datetime.datetime:
         return self.release.time

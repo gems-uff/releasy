@@ -107,8 +107,7 @@ class SemanticReleaseMiner(AbstractMiner):
             if len(mrelease.base_mreleases) == 1:
                 mrelease.base_mrelease = mrelease.base_mreleases[0]
             elif len(mrelease.base_mreleases) > 1:
-                releases = sorted(mrelease.base_mreleases.all | set([mrelease]), 
-                    key=lambda mrelease: mrelease.name) #FIX version instead of string
+                releases = sorted(mrelease.base_mreleases.all | set([mrelease])) #FIX version instead of string
                 mrelease_pos = releases.index(mrelease)
                 mbase_pos = mrelease_pos - 1
                 if mbase_pos >= 0:
