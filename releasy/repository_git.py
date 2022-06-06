@@ -1,7 +1,8 @@
 # This module connect releasy with Git
 
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
+from xmlrpc.client import Boolean
 import pygit2
 
 from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, Tag
@@ -19,33 +20,59 @@ class GitRepository(RepositoryProxy):
         self.repository: Repository = None
 
     def fetch_tags(self) -> Set[Tag]:
-        tag_refs = [ref for ref in self.git.references.objects 
+        rtags = [ref for ref in self.git.references.objects 
                     if ref.name.startswith('refs/tags/')]
 
         tags: Set[Tag] = set()
-        for tag_ref in tag_refs:
-            tag_name = tag_ref.shorthand
-            peek = tag_ref.peel()
-            if peek.type == pygit2.GIT_OBJ_COMMIT:
-                tag = Tag(self.repository, tag_name, self.repository.get_commit(peek.hex))
+        for rtag in rtags:
+            tag = self._get_tag(rtag)
+            if tag:
                 tags.add(tag)
         return tags
 
-    def fetch_commit(self, commit_id: str) -> Commit:
-        commit_ref = self.commit_cache.fetch_commit(commit_id)
+    def _get_tag(self, rtag: pygit2.Reference) -> Tag:
+        ref = self.git.get(rtag.target)
+        if ref.type == pygit2.GIT_OBJ_COMMIT:
+            commit = self.repository.get_commit(ref.hex)
+            #TODO time
+            tag = Tag(self.repository, rtag.shorthand, commit)
+            return tag                
+        elif ref.type == pygit2.GIT_OBJ_TAG: # annotatted tag
+            commit = self.repository.get_commit(rtag.peel().hex)
+            rtag_ref: pygit2.Tag = ref
+            try:
+                message = rtag_ref.message
+            except:
+                message = ''
+            tagger = f"{rtag_ref.tagger.name} <{rtag_ref.tagger.email}>"
+            time_tzinfo = timezone(timedelta(minutes=rtag_ref.tagger.offset))
+            time = datetime.fromtimestamp(float(rtag_ref.tagger.time), time_tzinfo)
+            tag = Tag(self.repository, rtag.shorthand, commit, message, tagger, 
+                    time)
+            return tag
+        else:
+            return None
 
-        committer_tzinfo = timezone(timedelta(minutes=commit_ref.committer.offset))
-        committer_time = datetime.fromtimestamp(float(commit_ref.committer.time), committer_tzinfo)
-        author_tzinfo = timezone(timedelta(minutes=commit_ref.author.offset))
-        author_time = datetime.fromtimestamp(float(commit_ref.author.time), author_tzinfo)
+    def fetch_commit(self, commit_id: str) -> Commit:
+        rcommit = self.commit_cache.fetch_commit(commit_id)
+
+        committer_tzinfo = timezone(timedelta(minutes=rcommit.committer.offset))
+        committer_time = datetime.fromtimestamp(float(rcommit.committer.time), committer_tzinfo)
+        author_tzinfo = timezone(timedelta(minutes=rcommit.author.offset))
+        author_time = datetime.fromtimestamp(float(rcommit.author.time), author_tzinfo)
+
+        try:
+            message = rcommit.name,
+        except:
+            message = ''
 
         commit = Commit(
             self.repository,
-            commit_ref.hex,
-            commit_ref.name,
-            f"{commit_ref.committer.name} <{commit_ref.committer.email}>",
+            rcommit.hex,
+            message,
+            f"{rcommit.committer.name} <{rcommit.committer.email}>",
             committer_time,
-            f"{commit_ref.author.name} <{commit_ref.author.email}>",
+            f"{rcommit.author.name} <{rcommit.author.email}>",
             author_time)
         return commit
 

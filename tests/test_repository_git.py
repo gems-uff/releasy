@@ -25,7 +25,22 @@ class describe_git_repository:
         assert commit.parents.ids \
             == set(['f45fb10eb1354c7a4ff421b07598e008e8ad427b'])
 
-    def it_mine_time(self):
+    def it_mine_tag_time(self):
+        tags = sorted(self.repository.get_tags(), key=lambda tag: tag.time)
+        # 1.0.0 1.0.1 Sep 18 00:12:14 2018 -0300
+        assert tags[0].time == tags[1].time
+        assert tags[1].time \
+            == datetime(2018, 9, 18, 3, 12, 14, tzinfo=timezone.utc)
+        # 3.0.1 Oct 31 16:04:09 2021
+        assert tags[16].time \
+            == datetime(2021, 10, 31, 16, 4, 9, tzinfo=timezone.utc)
+
+    def it_mine_annotated_tags(self):
+        tags = sorted(self.repository.get_tags(), key=lambda tag: tag.time)
+        assert tags[0].is_annotated #1.0.0
+        assert not tags[16].is_annotated #3.0.1
+
+    def it_mine_commit_time(self):
         commit = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
         # Fri May 27 22:03:48 2022 -0300
         # Sat May 28 01:03:48 2022

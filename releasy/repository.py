@@ -69,10 +69,11 @@ class Tag:
     A Tag represents a reference to a commit, which is a potential release
     """
     def __init__(self, repository: Repository, name: str, commit: Commit = None,
-                 message: str = None, time: datetime = None) -> None:
+                 message: str = None, tagger: str = None, time: datetime = None) -> None:
         self.repository = repository
         self.name = name
         self.commit = commit
+        self.tagger = tagger
         if message:
             self.message = message
         else:
@@ -86,19 +87,6 @@ class Tag:
             self.is_annotated = True
         else:
             self.is_annotated = False
-
-        # if raw_commit.type == pygit2.GIT_OBJ_COMMIT:
-        #     commit = vcs.get_commit(raw_commit)
-
-        #     target = vcs._repo.get(rtag.target) 
-        #     if target.type == pygit2.GIT_OBJ_TAG: # Annotated commit
-        #         if target.tagger:
-        #             tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
-        #             time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
-        #         try:
-        #             message = target.message
-        #         except:
-        #             message = ""
 
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Tag):
