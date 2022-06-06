@@ -32,9 +32,14 @@ class GitRepository(RepositoryProxy):
 
     def fetch_commit(self, commit_id: str) -> Commit:
         commit_ref = self.commit_cache.fetch_commit(commit_id)
-        commit = Commit(self.repository, commit_ref.hex, commit_ref.name,
-                        commit_ref.committer.email, commit_ref.committer.time,
-                        commit_ref.author.email, commit_ref.author.time)
+        commit = Commit(
+            self.repository,
+            commit_ref.hex,
+            commit_ref.name,
+            f"{commit_ref.committer.name} <{commit_ref.committer.email}>",
+            commit_ref.committer.time,
+            f"{commit_ref.author.name} <{commit_ref.author.email}>",
+            commit_ref.author.time)
         return commit
 
     def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
