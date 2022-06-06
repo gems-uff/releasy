@@ -3,7 +3,7 @@
 from typing import Dict, List, Set
 import pygit2
 
-from releasy.repository import Commit, Repository, RepositoryProxy, Tag
+from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, Tag
 
 
 class GitRepository(RepositoryProxy):
@@ -42,9 +42,9 @@ class GitRepository(RepositoryProxy):
             commit_ref.author.time)
         return commit
 
-    def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
+    def fetch_commit_parents(self, commit: Commit) -> CommitSet:
         commit_ref: pygit2.Commit = self.commit_cache.fetch_commit(commit.id)
-        parents: Set[Commit] = set()
+        parents = CommitSet()
         for parent_ref in commit_ref.parents:
             parent = self.repository.get_commit(parent_ref.hex)
             parents.add(parent)

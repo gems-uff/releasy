@@ -111,7 +111,7 @@ class Commit:
         self.author_time = author_time
 
     @property
-    def parents(self) -> Set[Commit]:
+    def parents(self) -> CommitSet:
         if not self._parents:
             self._parents = self.repository.get_parents(self)
         return self._parents
