@@ -1,7 +1,21 @@
 
 from __future__ import annotations
 
-__all__ = ['Miner']
+__all__ = [
+    'Miner',
+    'Project',
+    'ReleaseMiner',
+    'FinalReleaseMiner',
+    'ReleaseMiner',
+    'BaseReleaseMiner',
+    'SemanticReleaseMiner']
+
+from .miner_release import *
+from .miner_commit import *
+from .miner_base_release import *
+from .miner_semantic import *
+
+from .metric import ReleaseMetric
 
 from .project import Project
 from .repository import Repository
@@ -36,3 +50,18 @@ class Miner():
             miner.project = project
             project = miner.mine()
         return project
+
+
+
+class Metrify:
+    def __init__(self, releases) -> None:
+        self.releases = [release for release in releases]
+        self.metric_values = dict[str, List]
+
+    def measure(self, name: str, metric: ReleaseMetric) -> Metrify:
+        values = list()
+        for release in self.releases:
+            value = metric.measure(release)
+            values.append(value)
+        self.metric_values[name] = values
+        return self
