@@ -1,6 +1,12 @@
-from ensurepip import version
-from functools import reduce
-from typing import Dict, Set
+"""Semantic Miner Module
+
+This module categorizes the releases according to their semantic:
+
+- Main release
+- Patch releases
+
+This module also categorize releases into pre releases.
+"""
 
 from .release import Project, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
@@ -8,9 +14,7 @@ from .miner_main import AbstractMiner
 
 
 class SemanticReleaseMiner(AbstractMiner):
-    """
-    Mine major, minor and main releases
-    """
+    """Categorize releases into major, minor and main releases"""
     def mine(self) -> Project:
         patches = self._mine_patches()
         mreleases = self._mine_mreleases(patches)
@@ -57,3 +61,8 @@ class SemanticReleaseMiner(AbstractMiner):
         for srelease in sreleases:
             for release in srelease.releases:
                 srelease.commits.update(release.commits)
+
+    def _assign_base_releases(self, sreleases: SReleaseSet[SemanticRelease]):
+        pass
+
+
