@@ -2,7 +2,8 @@ from ensurepip import version
 from typing import Set
 import re
 
-from .release import Project, Release, ReleaseSet
+from .project import Project
+from .release import Release, ReleaseSet
 from .miner_main import AbstractMiner
 from .repository import Repository
 
@@ -10,8 +11,8 @@ class ReleaseMiner(AbstractMiner):
     """ 
     Mine all releases 
     """
-    def __init__(self, project: Project) -> None:
-        super().__init__(project)
+    def __init__(self) -> None:
+        super().__init__()
         self.release_regexp = re.compile(
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
@@ -26,7 +27,7 @@ class ReleaseMiner(AbstractMiner):
                 release = Release(self.project, tag.name, tag)
                 releases.add(release)
 
-        project.release = ReleaseSet(releases)
+        project.releases = ReleaseSet(releases)
         return project
 
 class FinalReleaseMiner(ReleaseMiner):
@@ -38,5 +39,5 @@ class FinalReleaseMiner(ReleaseMiner):
         releases = ReleaseSet(release 
                        for release in project.releases 
                        if not release.version.is_pre_release())
-        project.release = releases
+        project.releases = releases
         return project

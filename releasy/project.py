@@ -1,34 +1,15 @@
-"""
-"""
-from typing import List, Set
+from __future__ import annotations
 
-from .semantic_old import (
-    MainRelease,
-    Patch,
-    PreRelease,
-    SmReleaseSet)
-from .miner.source import Datasource
-from .release_old import (
-    TYPE_MAIN,
-    TYPE_PATCH,
-    TYPE_PRE,
-    Release,
-    ReleaseSet
-)
+from typing import TYPE_CHECKING
 
-class Project():
-    """
-    Represent a software project
-    """
+if TYPE_CHECKING:
+    from .repository import Repository
+    from .semantic import SReleaseSet, MainRelease, Patch
+    from .release import ReleaseSet
 
-    def __init__(self) -> None:
-        #self.datasource: Datasource = None
-        self.releases: ReleaseSet = ReleaseSet()
-        self.main_releases = SmReleaseSet()
-        self.patches = SmReleaseSet()
-        self.pre_releases = SmReleaseSet()
-
-    @property
-    def prefixes(self) -> Set[str]:
-        prefixes = set(release.version.prefix for release in self.releases)
-        return prefixes
+class Project:
+    def __init__(self, repository: Repository) -> None:
+        self.repository = repository
+        self.main_releases: SReleaseSet[MainRelease] = None
+        self.patches: SReleaseSet[Patch] = None
+        self.releases: ReleaseSet = None

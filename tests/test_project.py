@@ -1,7 +1,7 @@
 from typing import List
 import pytest
 
-from releasy.project import Project
+from releasy.project_old import Project
 from releasy.release_old import Release
 from releasy.semantic_old import (
     MainRelease,

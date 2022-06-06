@@ -5,7 +5,8 @@ before the actual release.
 """
 from __future__ import annotations
 from releasy.miner_main import AbstractMiner
-from releasy.release import Project, Release
+from releasy.release import Release
+from releasy.project import Project
 
 class BaseReleaseMiner(AbstractMiner):
     def mine(self) -> Project:

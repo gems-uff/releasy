@@ -3,7 +3,7 @@ from typing import Dict
 from .factory import AbstractMiner
 from ..release_old import (
     ReleaseSet)
-from ..project import Project
+from ..project_old import Project
 from ..semantic_old import (
     MainRelease,
     Patch,

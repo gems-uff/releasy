@@ -1,19 +1,18 @@
 from __future__ import annotations
+
 from typing import Dict, Generic, Set, TypeVar
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from releasy.project import Project
+
 import re
 
-from .repository import Commit, CommitSet, Repository, Tag
+from .repository import (
+    Commit,
+    CommitSet, 
+    Repository, 
+    Tag)
 
-
-class Project:
-    def __init__(self, repository: Repository) -> None:
-        self.repository = repository
-        self.main_releases = None
-        self.patches = None
-
-    @property
-    def releases(self) -> Set[Release]:
-        return set(self.release)
 
 class Release:
     def __init__(self, project: Project, name: str, tag: Tag) -> None:

@@ -9,15 +9,16 @@ This module also categorize releases into pre releases.
 """
 
 from unicodedata import name
-from .release import Project, Release, ReleaseSet
+from .project import Project
+from .release import Release, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
 from .miner_main import AbstractMiner
 
 
 class SemanticReleaseMiner(AbstractMiner):
     """Categorize releases into major, minor and main releases"""
-    def __init__(self, project: Project) -> None:
-        super().__init__(project)
+    def __init__(self) -> None:
+        super().__init__()
         self.mreleases = SReleaseSet[MainRelease]()
         self.patches = SReleaseSet[Patch]()
         self.r2s = dict[Release, SemanticRelease]()
@@ -97,7 +98,7 @@ class SemanticReleaseMiner(AbstractMiner):
 
     def _assign_main_base_release(self):
         for mrelease in self.mreleases:
-            releases = sorted(mrelease.base_mreleases.all() | set([mrelease]), 
+            releases = sorted(mrelease.base_mreleases.all | set([mrelease]), 
                 key=lambda mrelease: mrelease.name)
             mrelease_pos = releases.index(mrelease)
             mbase_pos = mrelease_pos - 1

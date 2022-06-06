@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Dict, Generic, Set, TypeVar
-from .release import Project, Release, ReleaseSet
-from .repository import Commit, CommitSet
+from .project import Project
+from .release import Release, ReleaseSet
+from .repository import CommitSet
 
 
 class SemanticRelease:
@@ -75,11 +76,15 @@ class SReleaseSet(Generic[SR]):
         else:
             raise TypeError()
 
+    def __repr__(self) -> str:
+        return str(set(self._sreleases.keys()))
+
     @property
     def names(self) -> Set[str]:
         """Return a set with all release names"""
         return set(name for name in self._sreleases.keys())
 
+    @property
     def all(self) -> Set[SR]:
         return set(self._sreleases.values())
 
@@ -97,3 +102,5 @@ class SReleaseSet(Generic[SR]):
                     stored_srelease.releases.add(release)
         else:
             self.add(srelease)
+
+    

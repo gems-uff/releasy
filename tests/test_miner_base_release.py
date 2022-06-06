@@ -1,29 +1,30 @@
 import pytest
 
+import releasy
 from releasy.miner_commit import HistoryCommitMiner
 from releasy.miner_release import ReleaseMiner
-from releasy.release import Project, ReleaseSet
-from releasy.repository import Repository
+from releasy.release import ReleaseSet
+from releasy.project import Project
 from releasy.miner_base_release import BaseReleaseMiner
-from .mock_repository import MockRepositoryProxy
 
+from .mock_repository import MockRepository
+
+
+@pytest.fixture
+def project() -> Project:
+    project = releasy.Miner(MockRepository()).apply(
+        ReleaseMiner(), 
+        HistoryCommitMiner(),
+        BaseReleaseMiner()
+    ).mine()
+    return project
+
+@pytest.fixture
+def releases(project: Project):
+    return project.releases
+    
 class describe_base_release_miner():
-    @pytest.fixture(autouse=True)
-    def init(self) -> ReleaseSet:
-        repository = Repository(MockRepositoryProxy())
-        project = Project(repository)
-        releaseMiner = ReleaseMiner(project)
-        project = releaseMiner.mine()
-        commitMiner = HistoryCommitMiner(project)
-        project = commitMiner.mine()
-        base_release_miner = BaseReleaseMiner(project)
-        project = base_release_miner.mine()
-        self.project = project
-        return project
-
-    def it_mine_base_releases(self):
-        releases = self.project.release
-
+    def it_mine_base_releases(self, releases: ReleaseSet):
         assert not releases['0.0.0-alpha1'].base_releases
         assert releases['v0.9.0'].base_releases.names == set(['0.0.0-alpha1'])
         assert releases['v1.0.0'].base_releases.names == set(['v0.9.0'])

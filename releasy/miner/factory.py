@@ -15,7 +15,7 @@ from .commit_miner import HistoryCommitMiner
 
 from ..miner_git import GitVcs
 from .source import Vcs
-from ..project import Project
+from ..project_old import Project
 
 
 class Miner:

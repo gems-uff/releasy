@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict, Set
 
-from releasy.release import Project
+from releasy.project import Project
 
 from .repository import Repository, Tag
 
@@ -22,8 +22,8 @@ class Miner:
 
 
 class AbstractMiner(ABC):
-    def __init__(self, project: Project) -> None:
-        self.project = project
+    def __init__(self) -> None:
+        self.project: Project = None
 
     @abstractmethod
     def mine() -> Project:

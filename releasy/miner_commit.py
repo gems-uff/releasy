@@ -12,7 +12,7 @@ from typing import List
 from releasy.commit import Commit
 from releasy.repository import CommitSet
 from .miner_main import AbstractMiner
-from .release import Project
+from .project import Project
 
 
 class HistoryCommitMiner(AbstractMiner):

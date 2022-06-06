@@ -1,6 +1,7 @@
 from typing import Set
 from datetime import datetime, timedelta
-from releasy.repository import Commit, CommitSet, RepositoryProxy, Tag
+from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, Tag
+
 
 class MockRepositoryProxy(RepositoryProxy):
     def fetch_tags(self) -> Set[Tag]:
@@ -100,3 +101,8 @@ class MockRepositoryProxy(RepositoryProxy):
                 parent = self.repository.get_commit(commit_ref)
                 parents.add(parent)
         return parents
+
+
+class MockRepository(Repository):
+    def __init__(self):
+        super().__init__(MockRepositoryProxy())

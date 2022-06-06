@@ -1,25 +1,22 @@
 import pytest
-from releasy.repository import Commit, Repository
 from releasy.miner_release import FinalReleaseMiner
 from releasy.miner_commit import HistoryCommitMiner
 from releasy.miner_base_release import BaseReleaseMiner
-from releasy.release import Project
+from releasy.project import Project
 from releasy.miner_semantic import SemanticReleaseMiner
+import releasy
+from releasy.repository import Commit
 from releasy.semantic import MainRelease, Patch, SReleaseSet
-from .mock_repository import MockRepositoryProxy
+from .mock_repository import MockRepository
 
 @pytest.fixture
 def project() -> Project:
-    repository = Repository(MockRepositoryProxy())
-    project = Project(repository)
-    releaseMiner = FinalReleaseMiner(project)
-    project = releaseMiner.mine()
-    commitMiner = HistoryCommitMiner(project)
-    project = commitMiner.mine()
-    base_miner = BaseReleaseMiner(project)
-    project = base_miner.mine()
-    semanticMiner = SemanticReleaseMiner(project)
-    project = semanticMiner.mine()
+    project = releasy.Miner(MockRepository()).apply(
+        FinalReleaseMiner(),
+        HistoryCommitMiner(),
+        BaseReleaseMiner(),
+        SemanticReleaseMiner()
+    ).mine()
     return project
 
 @pytest.fixture
