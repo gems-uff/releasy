@@ -116,7 +116,6 @@ class Commit:
         self.author = author
         self.author_time = author_time
 
-
     @property
     def parents(self) -> CommitSet:
         if not self._parents:
@@ -159,6 +158,9 @@ class CommitSet:
     def __eq__(self, __o: object) -> bool:
         return self.all == __o
 
+    def __len__(self):
+        return len(self._commits)
+        
     def add(self, commit: Commit):
         if commit and commit not in self._commits:
             self._commits[commit.id] = commit

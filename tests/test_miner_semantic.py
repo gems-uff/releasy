@@ -86,10 +86,10 @@ class describe_release_miner:
             ['0.9.0', '1.0.0', '1.1.0'])
 
     def it_mine_main_base_mrelease(self, mreleases: SReleaseSet[MainRelease]):
-        assert not mreleases['0.9.0'].main_base_mrelease
-        assert mreleases['1.0.0'].main_base_mrelease.name == '0.9.0'
-        assert mreleases['1.1.0'].main_base_mrelease.name == '0.9.0'
-        assert mreleases['2.0.0'].main_base_mrelease.name == '1.1.0'
+        assert not mreleases['0.9.0'].base_mrelease
+        assert mreleases['1.0.0'].base_mrelease.name == '0.9.0'
+        assert mreleases['1.1.0'].base_mrelease.name == '0.9.0'
+        assert mreleases['2.0.0'].base_mrelease.name == '1.1.0'
 
     def it_mine_main_release_time(self, mreleases: SReleaseSet[MainRelease]):
         assert mreleases['0.9.0'].time \

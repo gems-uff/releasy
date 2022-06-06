@@ -48,12 +48,12 @@ class MainRelease(FinalRelease):
         super().__init__(project, name, releases)
         self.patches = SReleaseSet(patches)
         self.base_mreleases = SReleaseSet[MainRelease]()
-        self.main_base_mrelease: MainRelease = None
+        self.base_mrelease: MainRelease = None
 
     @property
     def cycle(self) -> datetime.timedelta:
-        if self.main_base_mrelease:
-            return self.time - self.main_base_mrelease.time
+        if self.base_mrelease:
+            return self.time - self.base_mrelease.time
         else:
             return None
 
