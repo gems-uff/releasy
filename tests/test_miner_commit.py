@@ -18,33 +18,18 @@ def project():
 
 class describe_history_commit_miner:
     def it_mine_commits(self, project: Project):
-        repo = project.repository
-        release = project.release['v0.9.0']
-        assert project.release['0.0.0-alpha1'].commits \
-            == set([Commit(repo, '0')])
-        assert project.release['v0.9.0'].commits \
-            == set([Commit(repo, '1')])
-        assert project.release['v1.0.0'].commits \
-            == set([Commit(repo, '2'), Commit(repo, '3')])
-        assert project.release['v1.0.2'].commits \
-            == set([Commit(repo, '13')])
-        assert project.release['1.1.0'].commits \
-            == set([Commit(repo, '2'), Commit(repo, '5'), Commit(repo, '6')])
-        assert project.release['1.1.1'].commits \
-            == set([Commit(repo, '4'), Commit(repo, '7')])
-        assert project.release['v2.0.0-alpha1'].commits \
-            == set([Commit(repo, '8')])
-        assert project.release['v2.0.0-beta1'].commits \
-            == set([Commit(repo, '9'), Commit(repo, '10')])
-        assert project.release['v2.0.0'].commits \
-            == set([Commit(repo, '2'), Commit(repo, '11'), Commit(repo, '12'),
-                    Commit(repo, '14')])
-        assert project.release['2.0.0'].commits \
-            == set([Commit(repo, '15')])
+        assert project.release['0.0.0-alpha1'].commits.ids == set(['0']) 
+        assert project.release['v0.9.0'].commits.ids == set(['1'])
+        assert project.release['v1.0.0'].commits.ids == set(['2', '3'])
+        assert project.release['v1.0.2'].commits.ids == set(['13'])
+        assert project.release['1.1.0'].commits.ids == set(['2', '5', '6'])
+        assert project.release['1.1.1'].commits.ids == set(['4', '7'])
+        assert project.release['v2.0.0-alpha1'].commits.ids == set(['8'])
+        assert project.release['v2.0.0-beta1'].commits.ids == set(['9', '10'])
+        assert project.release['v2.0.0'].commits.ids == set(['2', '11', '12', '14'])
+        assert project.release['2.0.0'].commits.ids == set(['15'])
         assert project.release['v2.0.0'].commits \
             == project.release['v2.0.1'].commits
-        assert project.release['2.1.1pre'].commits \
-            == set([Commit(repo, '17')])
-        assert project.release['v2.1.1'].commits \
-            == set([Commit(repo, '16'), Commit(repo, '18'), Commit(repo, '19'), 
-                    Commit(repo, '20')])
+        assert project.release['2.1.1pre'].commits.ids == set(['17'])
+        assert project.release['v2.1.1'].commits.ids \
+            == set(['16', '18', '19', '20'])

@@ -10,6 +10,7 @@ For each release, it assigns:
 from typing import List
 
 from releasy.commit import Commit
+from releasy.repository import CommitSet
 from .miner_main import AbstractMiner
 from .release import Project
 
@@ -20,8 +21,8 @@ class HistoryCommitMiner(AbstractMiner):
                               self.project.releases))
 
         for release in self.project.releases:
-            commits = set()
-            tails = set()
+            commits = CommitSet()
+            tails = CommitSet()
             loop_detector = set()
             commits_to_track: List[Commit] = [release.tag.commit]
             while commits_to_track:

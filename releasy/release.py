@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Dict, Generic, Set, TypeVar
 import re
 
-from .repository import Commit, Repository, Tag
+from .repository import Commit, CommitSet, Repository, Tag
 
 
 class Project:
@@ -22,7 +22,7 @@ class Release:
         self.tag = tag
         if tag: #Fix must remove tag from release
             self.head = tag.commit
-        self.commits: Set[Commit] = set()
+        self.commits = CommitSet()
         self.tails = set[Commit]()
         self.base_releases = ReleaseSet()
         self.version = ReleaseVersion(name)

@@ -1,6 +1,7 @@
 # This module abstract repository objects such as commits and tags
 from __future__ import annotations
 from abc import ABC, abstractclassmethod
+from mimetypes import init
 from typing import Dict, Set
 from datetime import datetime
 
@@ -22,7 +23,7 @@ class Repository:
         commit = self.commit_cache.fetch_commit(id)
         return commit
 
-    def get_parents(self, commit: Commit) -> Set[Commit]:
+    def get_parents(self, commit: Commit) -> CommitSet:
         parents = self.proxy.fetch_commit_parents(commit)
         return parents
 
@@ -59,7 +60,7 @@ class RepositoryProxy(ABC):
         pass
 
     @abstractclassmethod
-    def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
+    def fetch_commit_parents(self, commit: Commit) -> CommitSet:
         pass
 
 
@@ -131,3 +132,38 @@ class Commit:
     # TODO commit.history_until(release_commits)
     # for commit in commits:
     #     release_commits = commit.history_until(release_commits)
+
+class CommitSet:
+    def __init__(self, commits: Set[Commit] = None) -> None:
+        self._commits = dict[str, Commit]()
+        if commits:
+            self.update(commits)
+    
+    def __contains__(self, item) -> bool:
+        if isinstance(item, str) and item in self._commits:
+            return True
+        elif isinstance(item, Commit) and item.id in self._commits:
+            return True
+        return False
+
+    def __iter__(self):
+        return iter(self._commits.values())
+
+    def __eq__(self, __o: object) -> bool:
+        return self.all == __o
+
+    def add(self, commit: Commit):
+        if commit and commit not in self._commits:
+            self._commits[commit.id] = commit
+    
+    def update(self, commits):
+        for commit in commits:
+            self.add(commit)
+
+    @property
+    def ids(self) -> Set[str]:
+        return set(commit.id for commit in self._commits.values())
+
+    @property
+    def all(self) -> Set[Commit]:
+        return set(commit for commit in self._commits.values())

@@ -33,9 +33,8 @@ class describe_commit:
         assert commit.id == '1'
 
     def it_has_parents(self, repo: Repository):
-        commit = Commit(repo, '14')
-        assert Commit(repo, '12') in commit.parents
-        assert Commit(repo, '13') in commit.parents
+        commit = repo.get_commit('14')
+        assert commit.parents.ids == set(['12', '13'])
 
     def it_has_committer(self, repo: Repository):
         assert 'alice' == repo.get_commit('0').committer

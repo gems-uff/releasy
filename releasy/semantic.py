@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Dict, Generic, Set, TypeVar
 from .release import Project, Release, ReleaseSet
-from .repository import Commit
+from .repository import Commit, CommitSet
 
 
 class SemanticRelease:
@@ -9,7 +9,7 @@ class SemanticRelease:
         self.project = project
         self.name = name
         self.releases = releases
-        self.commits: Set[Commit]= set()
+        self.commits = CommitSet()
     
     def __hash__(self):
         return hash((self.project, self.name))

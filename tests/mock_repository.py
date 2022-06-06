@@ -1,6 +1,6 @@
 from typing import Set
 from datetime import datetime, timedelta
-from releasy.repository import Commit, RepositoryProxy, Tag
+from releasy.repository import Commit, CommitSet, RepositoryProxy, Tag
 
 class MockRepositoryProxy(RepositoryProxy):
     def fetch_tags(self) -> Set[Tag]:
@@ -69,7 +69,7 @@ class MockRepositoryProxy(RepositoryProxy):
 
         return commit
 
-    def fetch_commit_parents(self, commit: Commit) -> Set[Commit]:
+    def fetch_commit_parents(self, commit: Commit) -> CommitSet:
         parent_refs = {
             '1':  ['0'],
             '2':  ['1'],
@@ -94,7 +94,7 @@ class MockRepositoryProxy(RepositoryProxy):
             '21': ['20']
         }
 
-        parents: Set[Commit] = set()
+        parents = CommitSet()
         if commit.id in parent_refs:
             for commit_ref in parent_refs[commit.id]:
                 parent = self.repository.get_commit(commit_ref)
