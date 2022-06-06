@@ -1,12 +1,13 @@
 
 from __future__ import annotations
 
-from releasy.project import Project
-
 __all__ = ['Miner']
 
+from .project import Project
+from .repository import Repository
 from .miner_main import AbstractMiner
 from .repository_git import GitRepository
+
 
 class Miner():
     """Wrapper to Releasy Miner implementations, e.g:
@@ -20,7 +21,7 @@ class Miner():
     """
     def __init__(self, repository) -> None:
         if isinstance(repository, str):
-            self.repository = GitRepository(repository)
+            self.repository = Repository(GitRepository(repository))
         else:
             self.repository = repository
         self.miners = list[AbstractMiner]()
