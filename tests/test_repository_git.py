@@ -40,6 +40,16 @@ class describe_git_repository:
         assert tags[0].is_annotated #1.0.0
         assert not tags[16].is_annotated #3.0.1
 
+    def it_mine_tag_commits(self):
+        tags = sorted(self.repository.get_tags(), key=lambda tag: tag.time)
+        assert tags[0].commit.id == '6cbc4690fde818f063cde972192fedd1f5f7d4cd'
+        assert tags[16].commit.id == '08aee17c59f742e57518b69d0bd2c452e905e109'
+
+    def it_mine_tag_author(self):
+        tags = sorted(self.repository.get_tags(), key=lambda tag: tag.time)
+        assert tags[0].author == 'Felipe Curty <felipecrp@gmail.com>'
+        assert tags[16].author == None
+
     def it_mine_commit_time(self):
         commit = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
         # Fri May 27 22:03:48 2022 -0300

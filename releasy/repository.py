@@ -69,20 +69,19 @@ class Tag:
     A Tag represents a reference to a commit, which is a potential release
     """
     def __init__(self, repository: Repository, name: str, commit: Commit = None,
-                 message: str = None, tagger: str = None, time: datetime = None) -> None:
+                 message: str = None, author: str = None, time: datetime = None) -> None:
         self.repository = repository
         self.name = name
         self.commit = commit
-        self.tagger = tagger
+        self.author = author
         if message:
             self.message = message
         else:
             self.message = ""
         if time:
             self.time = time
-        else:
-            if commit:
-                self.time = commit.committer_time
+        elif commit:
+            self.time = commit.committer_time
         if message or time:
             self.is_annotated = True
         else:
