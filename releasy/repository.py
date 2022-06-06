@@ -87,6 +87,19 @@ class Tag:
         else:
             self.is_annotated = False
 
+        # if raw_commit.type == pygit2.GIT_OBJ_COMMIT:
+        #     commit = vcs.get_commit(raw_commit)
+
+        #     target = vcs._repo.get(rtag.target) 
+        #     if target.type == pygit2.GIT_OBJ_TAG: # Annotated commit
+        #         if target.tagger:
+        #             tagger_tzinfo = timezone(timedelta(minutes=target.tagger.offset))
+        #             time = datetime.fromtimestamp(float(target.tagger.time), tagger_tzinfo)
+        #         try:
+        #             message = target.message
+        #         except:
+        #             message = ""
+
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, Tag):
             return self.repository == __o.repository and self.name == __o.name
@@ -115,6 +128,14 @@ class Commit:
         self.committer_time = commiter_time
         self.author = author
         self.author_time = author_time
+        # author = Developer(login=raw_commit.author.email, email=raw_commit.author.email, name=raw_commit.author.name)
+        # author_tzinfo = timezone(timedelta(minutes=raw_commit.author.offset))
+        # author_time = datetime.fromtimestamp(float(raw_commit.author.time), author_tzinfo)
+
+        # committer = Developer(login=raw_commit.committer.email, email=raw_commit.committer.email, name=raw_commit.committer.name)
+        # committer_tzinfo = timezone(timedelta(minutes=raw_commit.committer.offset))
+        # committer_time = datetime.fromtimestamp(float(raw_commit.committer.time), committer_tzinfo)
+
 
     @property
     def parents(self) -> CommitSet:

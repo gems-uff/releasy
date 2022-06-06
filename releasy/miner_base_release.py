@@ -4,7 +4,7 @@ This module mine release base release, that is the release that was created
 before the actual release.
 """
 from __future__ import annotations
-from releasy.miner_main import AbstractMiner
+from releasy.miner_base import AbstractMiner
 from releasy.release import Release
 from releasy.project import Project
 

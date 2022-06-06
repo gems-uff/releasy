@@ -19,7 +19,7 @@ from .metric import ReleaseMetric
 
 from .project import Project
 from .repository import Repository
-from .miner_main import AbstractMiner
+from .miner_base import AbstractMiner
 from .repository_git import GitRepository
 
 

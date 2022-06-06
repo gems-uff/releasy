@@ -9,9 +9,8 @@ For each release, it assigns:
 
 from typing import List
 
-from releasy.commit import Commit
-from releasy.repository import CommitSet
-from .miner_main import AbstractMiner
+from releasy.repository import Commit, CommitSet
+from .miner_base import AbstractMiner
 from .project import Project
 
 

@@ -12,7 +12,7 @@ from unicodedata import name
 from .project import Project
 from .release import Release, ReleaseSet
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
-from .miner_main import AbstractMiner
+from .miner_base import AbstractMiner
 
 
 class SemanticReleaseMiner(AbstractMiner):

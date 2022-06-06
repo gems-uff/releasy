@@ -43,6 +43,11 @@ class Release:
     def time(self) -> datetime:
         return self.tag.time
 
+    @property
+    def merges(self):
+        return CommitSet(
+            commit for commit in self.commits if len(commit.parents) > 1)
+
     # @property
     # def cycle(self) -> timedelta:
     #     return 
