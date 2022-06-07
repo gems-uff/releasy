@@ -101,8 +101,14 @@ class describe_release_miner:
         assert mreleases['2.0.0'].time \
             == MockRepository.ref_dt + timedelta(days=14)
 
-    def it_mine_main_release_cycle(self, mreleases: SReleaseSet[MainRelease]):
+    def it_mine_main_release_delay(self, mreleases: SReleaseSet[MainRelease]):
         assert mreleases['0.9.0'].cycle == None
         assert mreleases['1.0.0'].cycle == timedelta(days=2)
         assert mreleases['1.1.0'].cycle == timedelta(days=5)
         assert mreleases['2.0.0'].cycle == timedelta(days=8)
+
+    def it_mine_main_release_delay(self, mreleases: SReleaseSet[MainRelease]):
+        assert mreleases['0.9.0'].delay == timedelta(0)
+        assert mreleases['1.0.0'].delay == timedelta(0)
+        assert mreleases['1.1.0'].delay == timedelta(0)
+        assert mreleases['2.0.0'].delay == timedelta(0)

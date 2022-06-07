@@ -54,6 +54,10 @@ class SemanticRelease:
     def time(self) -> datetime.datetime:
         return self.release.time
 
+    @property
+    def delay(self) -> datetime.timedelta:
+        return self.release.time - self.commits[0].committer_time
+
 
 class FinalRelease(SemanticRelease):
     pass

@@ -152,6 +152,15 @@ class CommitSet:
             return True
         return False
 
+    def __getitem__(self, key) -> Commit:
+        if isinstance(key, int):
+            commit_id = list(self._commits.keys())[key]
+            return self._commits[commit_id]
+        elif isinstance(key, str):
+            return self._commits[key]
+        else:
+            raise TypeError()
+
     def __iter__(self) -> Iterator[Commit]:
         return iter(self._commits.values())
 
