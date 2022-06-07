@@ -1,6 +1,7 @@
 from __future__ import annotations
+from collections import OrderedDict
 
-from typing import Dict, Generic, Iterator, Set, TypeVar
+from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 
 import datetime
 
@@ -56,7 +57,7 @@ class SemanticRelease:
 
     @property
     def delay(self) -> datetime.timedelta:
-        return self.release.time - self.commits[0].committer_time
+        return self.time - self.release.commits.first().committer_time
 
 
 class FinalRelease(SemanticRelease):
@@ -91,7 +92,7 @@ class Patch(FinalRelease):
 SR = TypeVar('SR')
 class SReleaseSet(Generic[SR]):
     def __init__(self, sreleases: Set[SR] = None) -> None:
-        self._sreleases: Dict[str, SR] = dict()
+        self._sreleases = OrderedDict[str, SR]()
         if sreleases:
             for srelease in sreleases:
                 self.add(srelease)
@@ -137,25 +138,23 @@ class SReleaseSet(Generic[SR]):
     def all(self) -> Set[SR]:
         return set(self._sreleases.values())
 
-    @property
-    def first(self) -> SR:
+    def first(self, func: Callable = None) -> SR:
         if self._sreleases:
-            if len(self._sreleases) == 1:
-                return self._sreleases[0]
+            if func:
+                ordered_sreleases = sorted(self._sreleases.values(), key=func)
             else:
-                ordered_sreleases = sorted(self.all, key=lambda r: r.time)
-                return ordered_sreleases[0]
+                ordered_sreleases = list(self._sreleases.values())
+            return ordered_sreleases[0]
         else:
             return None
 
-    @property
-    def last(self) -> SR:
+    def last(self, func: Callable = None) -> SR:
         if self._sreleases:
-            if len(self._sreleases) == 1:
-                return self._sreleases[0]
+            if func:
+                ordered_sreleases = sorted(self._sreleases.values(), key=func)
             else:
-                ordered_sreleases = sorted(self.all, key=lambda r: r.time)
-                return ordered_sreleases[-1]
+                ordered_sreleases = list(self._sreleases.values())
+            return ordered_sreleases[-1]
         else:
             return None
 
@@ -172,16 +171,4 @@ class SReleaseSet(Generic[SR]):
     def update(self, sreleases: SR) -> None:
         for srelease in sreleases:
             self.add(srelease)
-
-    def merge(self, srelease: SR) -> None:
-        if srelease in self:
-            name = srelease.name
-            stored_srelease = self[name]
-
-            for release in srelease.releases:
-                if release not in stored_srelease.releases:
-                    stored_srelease.releases.add(release)
-        else:
-            self.add(srelease)
-
     

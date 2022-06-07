@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Dict, Generic, Iterator, Set, TypeVar
+from collections import OrderedDict
+from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from releasy.project import Project
@@ -153,7 +154,7 @@ class ReleaseVersion():
 
 class ReleaseSet():
     def __init__(self, releases: Set[Release] = None) -> None:
-        self._releases: Dict[str, Set] = {}
+        self._releases = OrderedDict[str, Release]()
         if releases:
             for release in releases:
                 self.add(release)
@@ -187,25 +188,23 @@ class ReleaseSet():
         """Return a set withh all release names"""
         return set(name for name in self._releases.keys())
 
-    @property
-    def first(self) -> Release:
+    def first(self, func: Callable = None) -> Release:
         if self._releases:
-            if len(self._releases) == 1:
-                return self[0]
+            if func:
+                ordered_releases = sorted(self._releases.values(), key=func)
             else:
-                ordered_releases = sorted(self.all, key=lambda r: r.time)
-                return ordered_releases[0]
+                ordered_releases = list(self._releases.values())
+            return ordered_releases[0]
         else:
             return None
 
-    @property
-    def last(self) -> Release:
+    def last(self, func: Callable = None) -> Release:
         if self._releases:
-            if len(self._releases) == 1:
-                return self[0]
+            if func:
+                ordered_releases = sorted(self._releases.values(), key=func)
             else:
-                ordered_releases = sorted(self.all, key=lambda r: r.time)
-                return ordered_releases[-1]
+                ordered_releases = list(self._releases.values())
+            return ordered_releases[-1]
         else:
             return None
 

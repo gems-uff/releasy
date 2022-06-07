@@ -1,8 +1,9 @@
 # This module abstract repository objects such as commits and tags
 from __future__ import annotations
 from abc import ABC, abstractclassmethod
+from collections import OrderedDict
 from mimetypes import init
-from typing import Dict, Iterator, Set
+from typing import Callable, Dict, Iterator, Set
 from datetime import datetime
 
 
@@ -105,14 +106,14 @@ class Commit:
     A Commit represents a change
     """
     def __init__(self, repository: Repository, id: str, message: str = None, 
-                 committer: str = None, commiter_time: datetime = None,
+                 committer: str = None, committer_time: datetime = None,
                  author: str = None, author_time: datetime = None) -> None:
         self.repository = repository
         self.id = id
         self.message = message
         self._parents = None # Lazy loaded
         self.committer = committer
-        self.committer_time = commiter_time
+        self.committer_time = committer_time
         self.author = author
         self.author_time = author_time
 
@@ -141,7 +142,7 @@ class Commit:
 
 class CommitSet:
     def __init__(self, commits: Set[Commit] = None) -> None:
-        self._commits = dict[str, Commit]()
+        self._commits = OrderedDict[str, Commit]()
         if commits:
             self.update(commits)
     
@@ -193,3 +194,23 @@ class CommitSet:
     @property
     def committers(self) -> Set[str]:
         return set(commit.committer for commit in self._commits.values())
+
+    def first(self, func: Callable = None) -> Commit:
+        if self._commits:
+            if func:
+                ordered_commits = sorted(self._commits.values(), key=func)
+            else:
+                ordered_commits = list(self._commits.values())
+            return ordered_commits[0]
+        else:
+            return None
+
+    def last(self, func: Callable = None) -> Commit:
+        if self._commits:
+            if func:
+                ordered_commits = sorted(self._commits.values(), key=func)
+            else:
+                ordered_commits = list(self._commits.values())
+            return ordered_commits[-1]
+        else:
+            return None

@@ -46,27 +46,42 @@ class SemanticReleaseMiner(AbstractMiner):
         for release in self.project.releases:
             if release.version.is_patch() \
                     and not release.version.is_pre_release():
-                patch = Patch(self.project,
-                              release.version.number,
-                              ReleaseSet([release]))
+                version = release.version.number
+                if version not in patches:
+                    patch = Patch(self.project,
+                                version,
+                                ReleaseSet([release]))
+                    patch.release = release
+                    patches.add(patch)
+                else:
+                    patch = patches[version]
+                    patch.releases.add(release)
+                    if patch.time < patch.release.time:
+                        patch.release = release
                 self.r2s[release] = patch
-                patches.merge(patch)
         return patches
 
     def _mine_mreleases(self, patches: SReleaseSet) -> SReleaseSet:
-        mreleases = SReleaseSet()
+        mreleases = SReleaseSet[MainRelease]()
         for release in self.project.releases:
             if release.version.is_main_release() \
                     and not release.version.is_pre_release():
                 version_number = release.version.numbers \
                                  + [0]*(3-len(release.version.numbers))
                 version = ".".join(str(version) for version in version_number)
-                mrelease = MainRelease(self.project, 
+                if version not in mreleases:
+                    mrelease = MainRelease(self.project, 
                               version, 
                               ReleaseSet([release]),
                               ReleaseSet())
+                    # mrelease.release = release
+                    mreleases.add(mrelease)
+                else:
+                    mrelease = mreleases[version]
+                    mrelease.releases.add(release)
+                    # if release.time < mrelease.release.time:
+                    #     mrelease.release = release
                 self.r2s[release] = mrelease
-                mreleases.merge(mrelease)
         return mreleases
     
     def _assign_patches(self, mreleases: SReleaseSet[MainRelease], 
@@ -81,7 +96,7 @@ class SemanticReleaseMiner(AbstractMiner):
     def _assign_release(self):
         sreleases: SReleaseSet[SemanticRelease] = self.mreleases | self.patches
         for srelease in sreleases:
-            srelease.release = srelease.releases.first
+            srelease.release = srelease.releases.first(lambda r: r.time)
 
     def _assign_commits(self, sreleases: SReleaseSet[SemanticRelease]):
         for srelease in sreleases:
