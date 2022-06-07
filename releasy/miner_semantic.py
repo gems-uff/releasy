@@ -96,14 +96,14 @@ class SemanticReleaseMiner(AbstractMiner):
                     if base not in mrelease.releases:
                         sbase = self.r2s[base]
                         if isinstance(sbase, MainRelease):
-                            mparent = sbase
+                            mbase = sbase
                         elif isinstance(sbase, Patch):
-                            mparent = sbase.main_release
+                            mbase = sbase.main_release
                         else: 
-                            mparent = None
+                            mbase = None
 
-                        if mparent != mrelease:
-                            mrelease.base_mreleases.add(mparent)
+                        if mbase != mrelease:
+                            mrelease.base_mreleases.add(mbase)
 
     def _assign_main_base_release(self):
         for mrelease in self.mreleases:
