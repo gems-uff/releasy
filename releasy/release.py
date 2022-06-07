@@ -1,12 +1,11 @@
 from __future__ import annotations
-from datetime import datetime, timedelta
-
-from typing import Dict, Generic, Set, TypeVar
+from typing import Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from releasy.project import Project
 
 import re
+from datetime import datetime, timedelta
 
 from .repository import (
     Commit,
@@ -152,19 +151,17 @@ class ReleaseVersion():
             return False
 
 
-
-T = TypeVar('T')
-class ReleaseSet(Generic[T]):
-    def __init__(self, releases: Set[T] = None) -> None:
+class ReleaseSet():
+    def __init__(self, releases: Set[Release] = None) -> None:
         self._releases: Dict[str, Set] = {}
         if releases:
             for release in releases:
                 self.add(release)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Release]:
         return (release for release in self._releases.values())
 
-    def __getitem__(self, key) -> T:
+    def __getitem__(self, key) -> Release:
         if isinstance(key, int):
             release_name = list(self._releases.keys())[key]
             return self._releases[release_name]

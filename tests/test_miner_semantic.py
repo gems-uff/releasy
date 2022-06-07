@@ -36,7 +36,7 @@ class describe_release_miner:
         assert mreleases['0.9.0'].releases.names == set(['v0.9.0'])
         assert mreleases['1.0.0'].releases.names == set(['v1.0.0'])
         assert mreleases['1.1.0'].releases.names == set(['1.1.0'])
-        assert mreleases['2.0.0'].releases.names == set(['v2.0.0', '2.0.0'])
+        assert mreleases['2.0.0'].releases.names == set(['v2.0.0', '2.0'])
 
     def it_mine_main_release_patches(self, mreleases: SReleaseSet[MainRelease]):
         assert not mreleases['0.9.0'].patches

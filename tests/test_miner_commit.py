@@ -25,7 +25,7 @@ class describe_history_commit_miner:
         assert project.releases['v2.0.0-alpha1'].commits.ids == set(['8'])
         assert project.releases['v2.0.0-beta1'].commits.ids == set(['9', '10'])
         assert project.releases['v2.0.0'].commits.ids == set(['2', '11', '12', '14'])
-        assert project.releases['2.0.0'].commits.ids == set(['15'])
+        assert project.releases['2.0'].commits.ids == set(['15'])
         assert project.releases['v2.0.0'].commits \
             == project.releases['v2.0.1'].commits
         assert project.releases['2.1.1pre'].commits.ids == set(['17'])

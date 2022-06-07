@@ -38,9 +38,9 @@ class describe_base_release_miner():
             ['v1.0.2', 'v0.9.0', 'v2.0.0-beta1'])
         assert releases['v2.0.1'].base_releases \
             == releases['v2.0.0'].base_releases
-        assert releases['2.0.0'].base_releases.names == set(
+        assert releases['2.0'].base_releases.names == set(
             ['v2.0.0', 'v2.0.1'])
         assert releases['2.1.1pre'].base_releases.names == set(
             ['v2.0.0', 'v2.0.1'])
         assert releases['v2.1.1'].base_releases.names == set(
-            ['2.0.0', '2.1.1pre', 'v2.0.0-beta1'])
+            ['2.0', '2.1.1pre', 'v2.0.0-beta1'])

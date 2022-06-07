@@ -58,8 +58,11 @@ class SemanticReleaseMiner(AbstractMiner):
         for release in self.project.releases:
             if release.version.is_main_release() \
                     and not release.version.is_pre_release():
+                version_number = release.version.numbers \
+                                 + [0]*(3-len(release.version.numbers))
+                version = ".".join(str(version) for version in version_number)
                 mrelease = MainRelease(self.project, 
-                              release.version.number, 
+                              version, 
                               ReleaseSet([release]),
                               ReleaseSet())
                 self.r2s[release] = mrelease
@@ -70,7 +73,7 @@ class SemanticReleaseMiner(AbstractMiner):
                         patches: SReleaseSet[Patch]):
         for patch in patches:
             mversion = '.'.join([str(number) for number in # TODO create a function
-                                 patch.releases[0].version.numbers[0:2]] + ['0'])                          
+                                 patch.releases[0].version.numbers[0:2]] + ['0'])
             if mversion in mreleases:
                 mreleases[mversion].patches.add(patch)
                 patch.main_release = mreleases[mversion]
