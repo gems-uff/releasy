@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractclassmethod
 from mimetypes import init
-from typing import Dict, Set
+from typing import Dict, Iterator, Set
 from datetime import datetime
 
 
@@ -152,13 +152,13 @@ class CommitSet:
             return True
         return False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Commit]:
         return iter(self._commits.values())
 
     def __eq__(self, __o: object) -> bool:
         return self.all == __o
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._commits)
         
     def add(self, commit: Commit):
@@ -176,3 +176,11 @@ class CommitSet:
     @property
     def all(self) -> Set[Commit]:
         return set(commit for commit in self._commits.values())
+
+    @property
+    def authors(self) -> Set[str]:
+        return set(commit.author for commit in self._commits.values())
+
+    @property
+    def committers(self) -> Set[str]:
+        return set(commit.committer for commit in self._commits.values())

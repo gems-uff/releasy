@@ -31,3 +31,25 @@ class describe_history_commit_miner:
         assert project.releases['2.1.1pre'].commits.ids == set(['17'])
         assert project.releases['v2.1.1'].commits.ids \
             == set(['16', '18', '19', '20'])
+
+
+class describe_commit_set:
+    def it_has_authors(self, project: Project):
+        assert project.releases['v0.9.0'].commits.authors \
+            == set(['bob'])
+        assert project.releases['1.1.1'].commits.authors \
+            == set(['bob', 'alice'])
+        assert project.releases['v2.0.0'].commits.authors \
+            == set(['bob', 'alice'])
+        assert project.releases['v2.1.1'].commits.authors \
+            == set(['alice'])
+    
+    def it_has_committers(self, project: Project):
+        assert project.releases['v0.9.0'].commits.committers \
+            == set(['alice'])
+        assert project.releases['1.1.1'].commits.committers \
+            == set(['alice', 'charlie'])
+        assert project.releases['v2.0.0'].commits.committers \
+            == set(['bob', 'alice'])
+        assert project.releases['v2.1.1'].commits.committers \
+            == set(['alice'])
