@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Generic, Set, TypeVar
+from typing import Dict, Generic, Iterator, Set, TypeVar
 
 import datetime
 
@@ -67,7 +67,7 @@ class PreRelease(SemanticRelease):
     pass
 
 
-class MainRelease(FinalRelease):
+class MainRelease(SemanticRelease):
     def __init__(self, project: Project, name: str, releases: ReleaseSet[Release],
                  patches: Set[Release]) -> None:
         super().__init__(project, name, releases)
@@ -96,8 +96,11 @@ class SReleaseSet(Generic[SR]):
             for srelease in sreleases:
                 self.add(srelease)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._sreleases)
+
+    def __iter__(self) -> Iterator[SR]:
+        return iter(self._sreleases.values())
 
     def __contains__(self, item) -> bool:
         if isinstance(item, str) and item in self._sreleases:
@@ -118,6 +121,12 @@ class SReleaseSet(Generic[SR]):
 
     def __repr__(self) -> str:
         return str(set(self._sreleases.keys()))
+
+    def commits(self) -> CommitSet():
+        commits = CommitSet()
+        for srelease in self._sreleases.values():
+            commits.update(srelease.commits)
+        return commits
 
     @property
     def names(self) -> Set[str]:
@@ -150,21 +159,21 @@ class SReleaseSet(Generic[SR]):
         else:
             return None
 
-    def __or__(self, __o: SReleaseSet):
-        sreleases = SReleaseSet()
+    def __or__(self, __o: SReleaseSet[SR]) -> SReleaseSet[SR]:
+        sreleases = SReleaseSet[SR]()
         sreleases.update(self.all)
         sreleases.update(__o.all)
         return sreleases
 
-    def add(self, srelease: SR):
+    def add(self, srelease: SR) -> None:
         if srelease and srelease.name not in self._sreleases:
             self._sreleases[srelease.name] = srelease
 
-    def update(self, sreleases: SR):
+    def update(self, sreleases: SR) -> None:
         for srelease in sreleases:
             self.add(srelease)
 
-    def merge(self, srelease: SR):
+    def merge(self, srelease: SR) -> None:
         if srelease in self:
             name = srelease.name
             stored_srelease = self[name]

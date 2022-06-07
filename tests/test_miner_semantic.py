@@ -112,3 +112,14 @@ class describe_release_miner:
         assert mreleases['1.0.0'].delay == timedelta(0)
         assert mreleases['1.1.0'].delay == timedelta(0)
         assert mreleases['2.0.0'].delay == timedelta(0)
+
+
+class describe_semantic_release_set:
+    def it_has_commits(self, project: Project):
+        assert project.main_releases.commits().ids \
+            == set(['15', '14', '12', '11', '2', '1', '0',
+                    '10', '9', '8', '6', '5', '3'])
+        assert project.patches.commits().ids \
+            == set(['20', '19', '17', '14', '13', '12', '11', '2', '10', '9',
+                    '8', '7', '4', '18', '16'])
+            
