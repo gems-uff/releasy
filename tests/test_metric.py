@@ -15,7 +15,7 @@ from tests.mock_repository import MockRepository
 def project() -> Project:
     project = releasy.Miner(MockRepository()).apply(
         releasy.FinalReleaseMiner(),
-        releasy.HistoryCommitMiner(),
+        releasy.MixedHistoryCommitMiner(),
         releasy.BaseReleaseMiner(),
         releasy.SemanticReleaseMiner()
     ).mine()

@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import releasy
 from releasy.miner_release import FinalReleaseMiner
-from releasy.miner_commit import HistoryCommitMiner
+from releasy.miner_commit import MixedHistoryCommitMiner
 from releasy.miner_base_release import BaseReleaseMiner
 from releasy.project import Project
 from releasy.miner_semantic import SemanticReleaseMiner
@@ -16,7 +16,7 @@ from .mock_repository import MockRepository
 def project() -> Project:
     project = releasy.Miner(MockRepository()).apply(
         FinalReleaseMiner(),
-        HistoryCommitMiner(),
+        MixedHistoryCommitMiner(),
         BaseReleaseMiner(),
         SemanticReleaseMiner()
     ).mine()

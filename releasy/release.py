@@ -212,9 +212,13 @@ class ReleaseSet():
     def all(self) -> Set[Release]:
         return set(self._releases.values())
 
-    def add(self, release: T):
+    def add(self, release: Release):
         if release:
             self._releases[release.name] = release
+
+    def remove(self, release: Release):
+        if release.name in self:
+            del self._releases[release.name]
 
     def update(self, iterable):
         for item in iterable:
