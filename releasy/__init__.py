@@ -37,7 +37,7 @@ class Miner():
             self.repository = Repository(GitRepository(repository))
         else:
             self.repository = repository
-        self.name = repository.name
+        self.name = self.repository.name
         self.miners = list[AbstractMiner]()
 
     def apply(self, *miners) -> Miner:
