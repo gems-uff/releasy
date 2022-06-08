@@ -7,7 +7,7 @@ For each release, it assigns:
 - its tail commits: the first commits of each release branch
 """
 
-from typing import List
+from typing import Any, List, Tuple
 from releasy.release import Release
 
 from releasy.repository import Commit, CommitSet
@@ -20,10 +20,10 @@ class MixedHistoryCommitMiner(AbstractMiner):
         super().__init__()
         self.c2r = dict[Commit, Release]()
 
-    def mine(self) -> Project:
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        self.project = project
         self._mine_commits()
-        self._mine_base_releases()
-        return self.project
+        return (self.project, [self.c2r])
 
     def _mine_commits(self) -> None:
         release_commits = set(map(lambda release: release.tag.commit, 
@@ -34,14 +34,15 @@ class MixedHistoryCommitMiner(AbstractMiner):
             tails = CommitSet()
             loop_detector = set()
             commits_to_track: List[Commit] = [release.head]
+
+            if release.head not in self.c2r:
+                self.c2r[release.head] = set()
+            self.c2r[release.head].add(release)
+
             while commits_to_track:
                 commit = commits_to_track.pop()
                 commits.add(commit)
                 loop_detector.add(commit)
-
-                if commit not in self.c2r:
-                    self.c2r[commit] = set()
-                self.c2r[commit].add(release)
 
                 if commit.parents:
                     for parent in commit.parents:
@@ -56,27 +57,16 @@ class MixedHistoryCommitMiner(AbstractMiner):
             release.tails = tails
             release.commits = commits
 
-    def _mine_base_releases(self) -> None:
-        for release in self.project.releases:
-            for tail in release.tails:
-                for parent in tail.parents:
-                    if parent in self.c2r:
-                        for base_release in self.c2r[parent]:
-                            if base_release != release \
-                                    and base_release.head != release.head:
-                                release.base_releases.update(self.c2r[parent])
-        return self.project
-
 
 class HistoryCommitMiner(AbstractMiner):
     def __init__(self) -> None:
         super().__init__()
         self.c2r = dict[Commit, Release]()
 
-    def mine(self) -> Project:
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        self.project = project
         self._mine_commits()
-        self._mine_base_releases()
-        return self.project
+        return (self.project, [self.c2r])
 
     def _mine_commits(self) -> None:
         release_commits = set(map(lambda release: release.tag.commit, 
@@ -118,21 +108,3 @@ class HistoryCommitMiner(AbstractMiner):
 
             release.tails = tails
             release.commits = commits
-
-    def _mine_base_releases(self) -> None:
-        head2r = dict[Commit, Release]()
-        for release in self.project.releases:
-            if release.head not in head2r:
-                head2r[release.head] = set[Release]()
-            head2r[release.head].add(release)
-        
-        for release in self.project.releases:
-            for tail in release.tails:
-                for parent in tail.parents:
-                    for base_release in self.c2r[parent]:
-                        if base_release != release:
-                            release.base_releases.add(base_release)
-            if not release.tails:
-                for base_release in self.c2r[release.head]:
-                    if base_release != release:
-                            release.base_releases.add(base_release)

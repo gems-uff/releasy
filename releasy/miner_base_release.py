@@ -4,21 +4,28 @@ This module mine release base release, that is the release that was created
 before the actual release.
 """
 from __future__ import annotations
+from typing import Any, Tuple
 from releasy.miner_base import AbstractMiner
 from releasy.release import Release
 from releasy.project import Project
+from releasy.repository import Commit
 
 class BaseReleaseMiner(AbstractMiner):
-    def mine(self) -> Project:
-        commit_to_release = dict[str, Release]()
-        for release in self.project.releases:
-            if release.head.id not in commit_to_release:
-                commit_to_release[release.head.id] = set()
-            commit_to_release[release.head.id].add(release)
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        self.project = project
+        self.c2r = args[0]
+        self._mine_base_releases()
+        return (self.project, [])
 
+    def _mine_base_releases(self) -> None:
         for release in self.project.releases:
             for tail in release.tails:
                 for parent in tail.parents:
-                    if parent.id in commit_to_release:
-                        release.base_releases.update(commit_to_release[parent.id])
-        return self.project
+                    if parent in self.c2r:
+                        for base_release in self.c2r[parent]:
+                            if base_release != release:
+                                release.base_releases.add(base_release)
+            if not release.tails:
+                for base_release in self.c2r[release.head]:
+                    if base_release != release:
+                            release.base_releases.add(base_release)

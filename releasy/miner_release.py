@@ -1,5 +1,5 @@
 from ensurepip import version
-from typing import Set
+from typing import Any, Set, Tuple
 import re
 
 from .project import Project
@@ -17,27 +17,25 @@ class ReleaseMiner(AbstractMiner):
             r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
         )
 
-    def mine(self) -> Project:
-        project = self.project
-        tags = self.project.repository.get_tags()
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        tags = project.repository.get_tags()
 
         releases: Set[Release] = set()
         for tag in tags:
             if self.release_regexp.match(tag.name):
-                release = Release(self.project, tag.name, tag)
+                release = Release(project, tag.name, tag)
                 releases.add(release)
 
         project.releases = ReleaseSet(releases)
-        return project
+        return (project, [])
 
 class FinalReleaseMiner(ReleaseMiner):
     """ 
     Mine only final releases, ignoring pre releases 
     """
-    def mine(self) -> Project:
-        project = super().mine()
-        releases = ReleaseSet(release 
-                       for release in project.releases 
-                       if not release.version.is_pre_release())
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        super().mine(project, args)
+        releases = ReleaseSet(release for release in project.releases 
+                              if not release.version.is_pre_release())
         project.releases = releases
-        return project
+        return (project, [])

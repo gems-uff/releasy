@@ -15,8 +15,8 @@ class describe_base_release_miner():
     def project(self) -> Project:
         project = releasy.Miner(MockRepository()).apply(
             ReleaseMiner(), 
-            MixedHistoryCommitMiner()
-            # BaseReleaseMiner()
+            MixedHistoryCommitMiner(),
+            BaseReleaseMiner()
         ).mine()
         self.project = project
 
@@ -43,13 +43,13 @@ class describe_base_release_miner():
             ['2.0', '2.1.1pre', 'v2.0.0-beta1'])
 
 
-class describe_base_release_miner_with_hitory():
+class describe_base_release_miner_with_history():
     @pytest.fixture(autouse=True)
     def project(self) -> Project:
         project = releasy.Miner(MockRepository()).apply(
             ReleaseMiner(), 
-            HistoryCommitMiner()
-            # BaseReleaseMiner()
+            HistoryCommitMiner(),
+            BaseReleaseMiner()
         ).mine()
         self.project = project
 

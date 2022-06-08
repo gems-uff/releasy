@@ -8,6 +8,7 @@ This module categorizes the releases according to their semantic:
 This module also categorize releases into pre releases.
 """
 
+from typing import Any, Tuple
 from unicodedata import name
 from .project import Project
 from .release import Release, ReleaseSet
@@ -23,7 +24,8 @@ class SemanticReleaseMiner(AbstractMiner):
         self.patches = SReleaseSet[Patch]()
         self.r2s = dict[Release, SemanticRelease]()
 
-    def mine(self) -> Project:
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
+        self.project = project
         patches = self._mine_patches()
         mreleases = self._mine_mreleases(patches)
         self._assign_patches(mreleases, patches)
@@ -39,7 +41,7 @@ class SemanticReleaseMiner(AbstractMiner):
         self._assign_release()
         self._assign_base_releases()
         self._assign_main_base_release()
-        return self.project
+        return (self.project, [])
 
     def _mine_patches(self) -> SReleaseSet:
         patches = SReleaseSet()

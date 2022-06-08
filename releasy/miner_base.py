@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Dict, Set
+from typing import Any, Dict, Set, Tuple
 
 from releasy.project import Project
 
@@ -12,5 +12,5 @@ class AbstractMiner(ABC):
         self.project: Project = None
 
     @abstractmethod
-    def mine() -> Project:
+    def mine(self, project: Project, *args) -> Tuple[Project, Any]:
         pass

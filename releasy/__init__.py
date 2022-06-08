@@ -45,7 +45,7 @@ class Miner():
 
     def mine(self) -> Project:
         project = Project(self.repository)
+        args = []
         for miner in self.miners:
-            miner.project = project
-            project = miner.mine()
+            project, args = miner.mine(project, *args)
         return project
