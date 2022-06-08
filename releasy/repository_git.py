@@ -15,6 +15,7 @@ class GitRepository(RepositoryProxy):
     def __init__(self, path) -> None:
         super().__init__()
         self.path = path
+        self.name = path
         self.git: pygit2.Repository = pygit2.Repository(path)
         self.commit_cache = CommitCache(self.git)
         self.repository: Repository = None
@@ -38,20 +39,24 @@ class GitRepository(RepositoryProxy):
             tag = Tag(self.repository, rtag.shorthand, commit)
             return tag                
         elif ref.type == pygit2.GIT_OBJ_TAG: # annotatted tag
-            commit = self.repository.get_commit(rtag.peel().hex)
-            rtag_ref: pygit2.Tag = ref
-            try:
-                message = rtag_ref.message
-            except:
-                message = ''
-            tagger = f"{rtag_ref.tagger.name} <{rtag_ref.tagger.email}>"
-            time_tzinfo = timezone(timedelta(minutes=rtag_ref.tagger.offset))
-            time = datetime.fromtimestamp(float(rtag_ref.tagger.time), time_tzinfo)
-            tag = Tag(self.repository, rtag.shorthand, commit, message, tagger, 
-                    time)
-            return tag
-        else:
-            return None
+            peel = rtag.peel()
+            if peel.type == pygit2.GIT_OBJ_COMMIT:
+                commit = self.repository.get_commit(rtag.peel().hex)
+                rtag_ref: pygit2.Tag = ref
+                try:
+                    message = rtag_ref.message
+                except:
+                    message = ''
+                if rtag_ref.tagger:
+                    tagger = f"{rtag_ref.tagger.name} <{rtag_ref.tagger.email}>"
+                    time_tzinfo = timezone(timedelta(minutes=rtag_ref.tagger.offset))
+                    time = datetime.fromtimestamp(float(rtag_ref.tagger.time), time_tzinfo)
+                    tag = Tag(self.repository, rtag.shorthand, commit, message, tagger, 
+                            time)
+                else:
+                    tag = Tag(self.repository, rtag.shorthand, commit, message)
+                return tag
+        return None
 
     def fetch_commit(self, commit_id: str) -> Commit:
         rcommit = self.commit_cache.fetch_commit(commit_id)

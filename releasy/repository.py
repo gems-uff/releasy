@@ -13,6 +13,7 @@ class Repository:
     """
     def __init__(self, proxy: RepositoryProxy):
         proxy.repository = self # TODO better alternative
+        self.name: str = proxy.name
         self.proxy = proxy
         self.commit_cache = CommitCache(proxy)
 
@@ -51,6 +52,7 @@ class RepositoryProxy(ABC):
     def __init__(self) -> None:
         super().__init__()
         self.repository: Repository = None #TODO better alternative
+        self.name: str = None
 
     @abstractclassmethod
     def fetch_tags(self) -> Set[Tag]:

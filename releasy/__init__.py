@@ -32,11 +32,12 @@ class Miner():
         SemanticReleaseMiner()
     ).mine()
     """
-    def __init__(self, repository) -> None:
+    def __init__(self, repository: Repository) -> None:
         if isinstance(repository, str):
             self.repository = Repository(GitRepository(repository))
         else:
             self.repository = repository
+        self.name = repository.name
         self.miners = list[AbstractMiner]()
 
     def apply(self, *miners) -> Miner:
@@ -44,7 +45,7 @@ class Miner():
         return self
 
     def mine(self) -> Project:
-        project = Project(self.repository)
+        project = Project(self.name, self.repository)
         args = []
         for miner in self.miners:
             project, args = miner.mine(project, *args)

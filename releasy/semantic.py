@@ -34,8 +34,6 @@ class SemanticRelease:
         return self.__cmp(other) < 0
     def __gt__(self, other):
         return self.__cmp(other) > 0
-    def __eq__(self, other):
-        return self.__cmp(other) == 0
     def __le__(self, other):
         return self.__cmp(other) <= 0
     def __ge__(self, other):

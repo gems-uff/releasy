@@ -7,7 +7,7 @@ class MockRepositoryProxy(RepositoryProxy):
     def __init__(self, ref_dt: datetime) -> None:
         super().__init__()
         self.ref_dt = ref_dt
-
+        self.name = 'mock'
 
     def fetch_tags(self) -> Set[Tag]:
         tag_refs = {

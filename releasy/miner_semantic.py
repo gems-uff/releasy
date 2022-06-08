@@ -116,10 +116,10 @@ class SemanticReleaseMiner(AbstractMiner):
                             mbase = sbase
                         elif isinstance(sbase, Patch):
                             mbase = sbase.main_release
-                        else: 
+                        else: # pre release or orphans
                             mbase = None
 
-                        if mbase != mrelease:
+                        if mbase and mbase != mrelease:
                             mrelease.base_mreleases.add(mbase)
 
     def _assign_main_base_release(self):

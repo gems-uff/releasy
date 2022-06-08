@@ -8,8 +8,9 @@ if TYPE_CHECKING:
     from .release import ReleaseSet
 
 class Project:
-    def __init__(self, repository: Repository) -> None:
+    def __init__(self, name: str, repository: Repository) -> None:
         self.repository = repository
         self.main_releases: SReleaseSet[MainRelease] = None
         self.patches: SReleaseSet[Patch] = None
         self.releases: ReleaseSet = None
+        self.name = name
