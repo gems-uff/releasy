@@ -92,7 +92,9 @@ class HistoryCommitMiner(AbstractMiner):
             if release.head in self.c2r:
                 commit = commits_to_track.pop()
                 commits.add(commit)
-                tails.add(commit)
+                if commit not in self.c2r:
+                    self.c2r[commit] = set()
+                self.c2r[commit].add(release)
             else:
                 while commits_to_track:
                     commit = commits_to_track.pop()
@@ -126,12 +128,11 @@ class HistoryCommitMiner(AbstractMiner):
         
         for release in self.project.releases:
             for tail in release.tails:
-                if tail in head2r:
-                    for base_release in head2r[tail]:
-                        release.base_releases.add(base_release)
-                else:
-                    for parent in tail.parents:
-                        base_releases = self.c2r[parent]
-                        release.base_releases.update(base_releases)
-            if release in release.base_releases:
-                release.base_releases.remove(release)
+                for parent in tail.parents:
+                    for base_release in self.c2r[parent]:
+                        if base_release != release:
+                            release.base_releases.add(base_release)
+            if not release.tails:
+                for base_release in self.c2r[release.head]:
+                    if base_release != release:
+                            release.base_releases.add(base_release)
