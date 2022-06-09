@@ -14,7 +14,7 @@ class MockRepositoryProxy(RepositoryProxy):
             "0.0.0-alpha1":  '0',
             "v0.9.0":        '1',
             "v1.0.0":        '3',
-            "v1.0.2":        '13',
+            "r-1.0.2":        '13',
             "1.1.0":         '6',
             "1.1.1":         '7',
             "v2.0.0-alpha1": '8',
@@ -22,7 +22,7 @@ class MockRepositoryProxy(RepositoryProxy):
             "v2.0.0":        '14',
             "2.0":           '15',
             "v2.0.1":        '14',
-            "2.1.1pre":      '17',
+            "rel2.1.1pre":      '17',
             "v2.1.1":        '20',
             "non":           '18'
         }

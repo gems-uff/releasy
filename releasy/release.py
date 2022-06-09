@@ -185,8 +185,15 @@ class ReleaseSet():
 
     @property
     def names(self) -> Set[str]:
-        """Return a set withh all release names"""
+        """Return a set with all release names"""
         return set(name for name in self._releases.keys())
+
+    def prefixes(self) -> Set[str]:
+        """Return a set with all the release prefixes"""
+        prefixes = set[str]()
+        for release in self._releases.values():
+            prefixes.add(release.version.prefix)
+        return prefixes
 
     def first(self, func: Callable = None) -> Release:
         if self._releases:

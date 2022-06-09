@@ -42,7 +42,7 @@ class describe_release_miner:
     def it_mine_patches(self):
         patches = self.project.patches
         assert len(patches) == 4
-        assert patches['1.0.2'].releases.names == set(['v1.0.2'])
+        assert patches['1.0.2'].releases.names == set(['r-1.0.2'])
         assert patches['1.1.1'].releases.names == set(['1.1.1'])
         assert patches['2.0.1'].releases.names == set(['v2.0.1'])
         assert patches['2.1.1'].releases.names == set(['v2.1.1'])
@@ -134,7 +134,7 @@ class describe_release_miner_mixed:
     def it_mine_patches(self):
         patches = self.project.patches
         assert len(patches) == 4
-        assert patches['1.0.2'].releases.names == set(['v1.0.2'])
+        assert patches['1.0.2'].releases.names == set(['r-1.0.2'])
         assert patches['1.1.1'].releases.names == set(['1.1.1'])
         assert patches['2.0.1'].releases.names == set(['v2.0.1'])
         assert patches['2.1.1'].releases.names == set(['v2.1.1'])
@@ -227,4 +227,3 @@ class describe_semantic_release_set:
         assert self.project.patches.commits().ids \
             == set(['20', '19', '17', '14', '13', '12', '11', '2', '10', '9',
                     '8', '7', '4', '18', '16'])
-            

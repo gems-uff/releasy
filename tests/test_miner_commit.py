@@ -21,7 +21,7 @@ class describe_mix_history_commit_miner:
         assert project.releases['0.0.0-alpha1'].commits.ids == set(['0']) 
         assert project.releases['v0.9.0'].commits.ids == set(['1'])
         assert project.releases['v1.0.0'].commits.ids == set(['2', '3'])
-        assert project.releases['v1.0.2'].commits.ids == set(['13'])
+        assert project.releases['r-1.0.2'].commits.ids == set(['13'])
         assert project.releases['1.1.0'].commits.ids == set(['2', '5', '6'])
         assert project.releases['1.1.1'].commits.ids == set(['4', '7'])
         assert project.releases['v2.0.0-alpha1'].commits.ids == set(['8'])
@@ -30,7 +30,7 @@ class describe_mix_history_commit_miner:
         assert project.releases['2.0'].commits.ids == set(['15'])
         assert project.releases['v2.0.0'].commits \
             == project.releases['v2.0.1'].commits
-        assert project.releases['2.1.1pre'].commits.ids == set(['17'])
+        assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
         assert project.releases['v2.1.1'].commits.ids \
             == set(['16', '18', '19', '20'])
 
@@ -53,11 +53,11 @@ class describe_history_commit_miner:
         assert project.releases['1.1.1'].commits.ids == set(['7', '4'])
         assert project.releases['v2.0.0-alpha1'].commits.ids == set(['8'])
         assert project.releases['v2.0.0-beta1'].commits.ids == set(['10', '9'])
-        assert project.releases['v1.0.2'].commits.ids == set(['13'])
+        assert project.releases['r-1.0.2'].commits.ids == set(['13'])
         assert project.releases['v2.0.0'].commits.ids == set(['14', '12', '11'])
         assert project.releases['v2.0.1'].commits.ids == set(['14'])
         assert project.releases['2.0'].commits.ids == set(['15'])
-        assert project.releases['2.1.1pre'].commits.ids == set(['17'])
+        assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
         assert project.releases['v2.1.1'].commits.ids \
             == set(['20', '19', '18', '16'])
 

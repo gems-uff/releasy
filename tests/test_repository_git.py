@@ -68,5 +68,3 @@ class describe_git_repository:
         assert diff_delta.deletions == 190
         assert diff_delta.files_changed == 4
         assert diff_delta.churn == 370
-
-

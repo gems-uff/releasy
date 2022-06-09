@@ -18,7 +18,7 @@ class describe_release_miner:
         assert self.project.releases['0.0.0-alpha1']
         assert self.project.releases['v0.9.0']
         assert self.project.releases['v1.0.0']
-        assert self.project.releases['v1.0.2']
+        assert self.project.releases['r-1.0.2']
         assert self.project.releases['1.1.0']
         assert self.project.releases['1.1.1']
         assert self.project.releases['v2.0.0-beta1']
@@ -26,7 +26,7 @@ class describe_release_miner:
         assert self.project.releases['v2.0.0']
         assert self.project.releases['2.0']
         assert self.project.releases['v2.0.1']
-        assert self.project.releases['2.1.1pre']
+        assert self.project.releases['rel2.1.1pre']
         assert self.project.releases['v2.1.1']
 
 
@@ -41,10 +41,22 @@ class describe_final_release_miner:
         assert len(self.project.releases) == 9
         assert self.project.releases['v0.9.0']
         assert self.project.releases['v1.0.0']
-        assert self.project.releases['v1.0.2']
+        assert self.project.releases['r-1.0.2']
         assert self.project.releases['1.1.0']
         assert self.project.releases['1.1.1']
         assert self.project.releases['v2.0.0']
         assert self.project.releases['2.0']
         assert self.project.releases['v2.0.1']
         assert self.project.releases['v2.1.1']
+
+
+class describe__release_set:
+    @pytest.fixture(autouse=True)
+    def init(self):
+        self.project = releasy.Miner(MockRepository()).apply(
+            ReleaseMiner()
+        ).mine()
+
+    def it_mine_prefixes(self):
+        releases = self.project.releases
+        assert releases.prefixes() == set(['', 'v', 'rel', 'r-'])

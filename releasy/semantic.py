@@ -136,6 +136,14 @@ class SReleaseSet(Generic[SR]):
     def all(self) -> Set[SR]:
         return set(self._sreleases.values())
 
+    def prefixes(self) -> Set[str]:
+        """Return a set with all the release prefixes"""
+        prefixes = set[str]()
+        for srelease in self._sreleases.values():
+            for prefix in srelease.releases.prefixes():
+                prefixes.add(prefix)
+        return prefixes
+
     def first(self, func: Callable = None) -> SR:
         if self._sreleases:
             if func:
