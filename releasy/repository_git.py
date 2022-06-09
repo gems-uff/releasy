@@ -5,7 +5,7 @@ from typing import Dict, List, Set, Tuple
 from xmlrpc.client import Boolean
 import pygit2
 
-from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, Tag
+from releasy.repository import Commit, CommitSet, DiffDelta, Repository, RepositoryProxy, Tag
 
 
 class GitRepository(RepositoryProxy):
@@ -89,6 +89,11 @@ class GitRepository(RepositoryProxy):
             parents.add(parent)
         return parents
 
+    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
+        delta = self.git.diff(commit_a.id, commit_b.id)
+        diff_delta = DiffDelta(delta.stats.insertions, delta.stats.deletions, 
+                               delta.stats.files_changed)
+        return diff_delta
 
 class CommitCache:
     """

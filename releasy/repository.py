@@ -29,6 +29,10 @@ class Repository:
         parents = self.proxy.fetch_commit_parents(commit)
         return parents
 
+    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
+        diff_delta = self.proxy.diff(commit_a, commit_b)
+        return diff_delta
+
 
 class CommitCache:
     """
@@ -64,6 +68,10 @@ class RepositoryProxy(ABC):
 
     @abstractclassmethod
     def fetch_commit_parents(self, commit: Commit) -> CommitSet:
+        pass
+
+    @abstractclassmethod
+    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
         pass
 
 
@@ -136,11 +144,26 @@ class Commit:
 
     def __repr__(self) -> str:
         return self.id[0:8]
-    
+
+    def diff(self, commit: Commit) -> DiffDelta:
+        delta = self.repository.diff(self, commit)
+        return delta
     
     # TODO commit.history_until(release_commits)
     # for commit in commits:
     #     release_commits = commit.history_until(release_commits)
+
+
+class DiffDelta:
+    def __init__(self, insertions: int, deletions: int, files_changed: int):
+        self.insertions = insertions
+        self.deletions = deletions
+        self.files_changed = files_changed
+   
+    @property
+    def churn(self) -> int:
+        return self.insertions + self.deletions
+
 
 class CommitSet:
     def __init__(self, commits: Set[Commit] = None) -> None:

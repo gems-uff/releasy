@@ -106,6 +106,9 @@ class MockRepositoryProxy(RepositoryProxy):
                 parents.add(parent)
         return parents
 
+    def diff(self, commit_a: Commit, commit_b: Commit):
+        pass
+
 
 class MockRepository(Repository):
     ref_dt = datetime(2020, 1, 1, 12, 00)    

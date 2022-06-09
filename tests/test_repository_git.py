@@ -58,3 +58,15 @@ class describe_git_repository:
             == datetime(2022, 5, 28, 1, 22, 49, tzinfo=timezone.utc) 
         assert commit.author_time \
             == datetime(2022, 5, 28, 1, 3, 48, tzinfo=timezone.utc) 
+
+    def it_mine_diff(self):
+        commit_a = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
+        commit_b = self.repository.get_commit('f45fb10eb1354c7a4ff421b07598e008e8ad427b')
+        diff_delta = commit_a.diff(commit_b)
+
+        assert diff_delta.insertions == 180
+        assert diff_delta.deletions == 190
+        assert diff_delta.files_changed == 4
+        assert diff_delta.churn == 370
+
+
