@@ -5,17 +5,15 @@ import releasy
 from releasy.miner_release import FinalReleaseMiner
 from releasy.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
 from releasy.miner_base_release import BaseReleaseMiner
-from releasy.project import Project
 from releasy.miner_semantic import SemanticReleaseMiner
 from releasy.repository import Commit
-from releasy.semantic import MainRelease, Patch, SReleaseSet
 
 from .mock_repository import MockRepository
 
 
 class describe_release_miner:
     @pytest.fixture(autouse=True)
-    def project(self) -> Project:
+    def project(self) -> None:
         project = releasy.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
             HistoryCommitMiner(),
@@ -107,7 +105,7 @@ class describe_release_miner:
 
 class describe_release_miner_mixed:
     @pytest.fixture(autouse=True)
-    def project(self) -> Project:
+    def project(self) -> None:
         project = releasy.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
             MixedHistoryCommitMiner(),
@@ -211,7 +209,7 @@ class describe_release_miner_mixed:
 
 class describe_semantic_release_set:
     @pytest.fixture(autouse=True)
-    def project(self) -> Project:
+    def project(self) -> None:
         project = releasy.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
             MixedHistoryCommitMiner(),
@@ -227,3 +225,4 @@ class describe_semantic_release_set:
         assert self.project.patches.commits().ids \
             == set(['20', '19', '17', '14', '13', '12', '11', '2', '10', '9',
                     '8', '7', '4', '18', '16'])
+
