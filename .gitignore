@@ -9,4 +9,6 @@ releasy_uff.egg-info/
 cov.xml
 .pytest_cache/
 htmlcov/
-prof/
+*.bkp
+/tags
+

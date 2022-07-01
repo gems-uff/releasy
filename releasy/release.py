@@ -1,317 +1,235 @@
 from __future__ import annotations
+from collections import OrderedDict
+from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from .model import Commit, Project
+    from releasy.project import Project
 
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from .const import RELEASE_TYPE_MAJOR, RELEASE_TYPE_MINOR, RELEASE_TYPE_DUPLICATED, RELEASE_TIME, START_DEVELOPMENT_TIME, DEVELOPMENT_LENGTH, RELEASE_TYPE_PATCH, RELEASE_TYPE_PRE, RELEASE_TYPE_UNKNOWN
-from .model import CommitTracker
-from .data import Tag
-from .developer import ReleaseDeveloperRoleTracker
-from .exception import CommitReleaseAlreadyAssigned, MisplacedTimeException
-
-class ReleaseFactory():
-    def __init__(self, project: Project, prefixes=None, ignored_suffixes=None, version_separator=None):
-        self._project = project
-        self._pre_release_cache = {}
-        self.prefixes = prefixes
-        self.ignored_suffixes = ignored_suffixes
-        if not version_separator:
-            self.version_separator = r"\."
-        else:
-            self.version_separator = version_separator
-
-    def build(self, tag: Tag, orign_release: None):
-        """ Build the release
-
-        Parameters:
-            tag (Tag): the tag to parse
-            
-        Returns:
-            the release or None if the tag does not represent a release
-        """
-        release_info = self.get_release_info_from_tag(tag.name)
-        if not release_info:
-            return None
-        
-        (release_type, prefix, suffix, major, minor, patch) = release_info
-        release_version = f"{major}.{minor}.{patch}"
-
-        if release_version not in self._pre_release_cache:
-            self._pre_release_cache[release_version] = []
-
-        if orign_release: #TODO create duplicated release class
-            release_type = RELEASE_TYPE_DUPLICATED
-
-        release = Release(
-            project=self._project, 
-            tag=tag,
-            release_type=release_type,
-            prefix=prefix,
-            suffix=suffix,
-            major=major,
-            minor=minor,
-            patch=patch
-        )
-
-        if orign_release: 
-            release.original = orign_release
-            orign_release.aliases.append(release)
-
-        if release.is_type(RELEASE_TYPE_PRE):
-            self._pre_release_cache[release_version].append(release)
-        else:
-            for pre_release in self._pre_release_cache[release_version]:
-                release.add_pre_release(pre_release)
-
-        tag.release = release
-        
-        return release
-
-    def get_release_info_from_tag(self, tagname):
-        vsep = self.version_separator
-        prefix_pattern_str = r"(?P<prefix>.*?)"
-        suffix_pattern_str = r"[.-]?(?P<suffix>.*)"
-        version_pattern_str = r"(?P<version>([0-9]+" + vsep + r"?){2,3})"
-        
-        pattern_str = f"{prefix_pattern_str}{version_pattern_str}{suffix_pattern_str}"
-        pattern = re.compile(pattern_str)
-        pattern_match = pattern.match(tagname)
-        if not pattern_match:
-            return False
-
-        prefix = pattern_match.group("prefix")
-        if self.prefixes and prefix not in self.prefixes:
-            return False
-
-        suffix = pattern_match.group("suffix")
-        if self.ignored_suffixes:
-            for ignored_suffix in self.ignored_suffixes:
-                ignored_suffix_pattern_str = f"{ignored_suffix}$"
-                ignored_suffix_pattern = re.compile(ignored_suffix_pattern_str)
-                suffix = re.sub(ignored_suffix_pattern, "", suffix)
-
-        version = pattern_match.group("version")
-
-        semantic_pattern_str = r"(?P<major>[0-9]+)" + vsep + r"(?P<minor>[0-9]+)(" + vsep + r"(?P<patch>[0-9]+))?"
-        semantic_pattern = re.compile(semantic_pattern_str)
-        semantic_match = semantic_pattern.match(version)
-        if not semantic_match:
-            return False
-
-        major = int(semantic_match.group("major"))
-        minor = int(semantic_match.group("minor"))
-        if semantic_match.group("patch"):
-            patch = int(semantic_match.group("patch"))
-        else:
-            patch = 0
-
-        if suffix:
-            release_type = RELEASE_TYPE_PRE
-        elif patch > 0:
-            release_type = RELEASE_TYPE_PATCH
-        elif minor > 0:
-            release_type = RELEASE_TYPE_MINOR
-        elif major > 0:
-            release_type = RELEASE_TYPE_MAJOR
-        else:
-            release_type = RELEASE_TYPE_UNKNOWN
-
-        return (
-            release_type,
-            prefix,
-            suffix,
-            major,
-            minor,
-            patch
-        )
+from .repository import (
+    Commit,
+    CommitSet, 
+    Repository, 
+    Tag)
 
 
 class Release:
-    """
-    Software Release
-
-    Attributes:
-        name (str): release name
-        description (str): release description
-        time: release creation time
-        commits: list of commits that belong exclusively to this release
-        tag: tag that represents the release
-        head: commit referred  by release.tag
-        tails: list of commits where the release begin
-        developers: list of developers
-        length: release duration
-    """
-
-    def __init__(self, project: Project, tag, release_type=RELEASE_TYPE_UNKNOWN, prefix=None, suffix=None, major=None, minor=None, patch=None):
+    def __init__(self, project: Project, name: str, tag: Tag) -> None:
         self.project = project
-        self._tag = tag
-        self.type = release_type
-        if not prefix: #TODO check for default arguments
-            prefix = ""
-        self.prefix = prefix
-        if not suffix: #TODO check for default arguments
-            suffix = ""
-        self.suffix = suffix
-        self.major = major
-        self.minor = minor
-        self.patch = patch
-        self.version = f"{major}.{minor}.{patch}"
-        self.feature_version = f"{major}.{minor}.x"
-        self.base_releases = []
-        self.reachable_releases = []
-        self.tail_commits = []
-        self.commits = []
-        self.developers = ReleaseDeveloperRoleTracker()
-        self.pre_releases = []
-        self.aliases = []
-        self.original = None # in case of duplicate return the original release
-        
-    @property
-    def name(self):
-        return self._tag.name
-        
-    @property
-    def head_commit(self):
-        return self._tag.commit
+        self.name = name
+        self.tag = tag
+        if tag: #Fix must remove tag from release
+            self.head = tag.commit
+        self.commits = CommitSet()
+        self.tails = set[Commit]()
+        self.base_releases = ReleaseSet()
+        self.version = ReleaseVersion(name)
+    
+    def __hash__(self):
+        return hash((self.project, self.name))
 
-    @property
-    def time(self):
-        return self._tag.time
-
-    @property
-    def length(self):
-        if self.tail_commits:
-            length = self.time - self.tail_commits[0].author_time
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Release):
+            return self.project == __o.project and self.name == __o.name
         else:
-            length = self.time - self.head_commit.author_time
-        
-        if length < timedelta(0):
-            raise MisplacedTimeException(self)
-        return length
+            return False
 
-    @property
-    def description(self):
-        return self._tag.message
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
     @property
-    def typename(self):
-        current = self.project.release_pattern.match(self.name)
-        if current:
-            if current.group('patch') != '0':
-                return 'PATCH'
-            elif current.group('minor') != '0':
-                return 'MINOR'
-            else:
-                return 'MAJOR'
-        else:
-            return 'UNKNOWN'
+    def time(self) -> datetime:
+        return self.tag.time
 
     @property
-    def length_group(self):
-        if self.length < timedelta(hours=1):
-            return 0 #'minutes'
-        elif self.length < timedelta(days=1):
-            return 1 #'hours'
-        elif self.length < timedelta(days=7):
-            return 2 #'days'
-        elif self.length < timedelta(days=30):
-            return 3 #'weeks'
-        elif self.length < timedelta(days=365):
-            return 4 #'months'
-        else:
-            return 5 #'years'
+    def merges(self):
+        return CommitSet(
+            commit for commit in self.commits if len(commit.parents) > 1)
 
-    @property
-    def length_groupname(self):
-        return {
-            0: 'minutes',
-            1: 'hours',
-            2: 'days',
-            3: 'weeks',
-            4: 'months',
-            5: 'years'
-        }[self.length_group]
+    # @property
+    # def cycle(self) -> timedelta:
+    #     return 
+
+
+TYPE_MAJOR   = 0b10000
+TYPE_MINOR   = 0b01000
+TYPE_MAIN    = 0b00100
+TYPE_PRE     = 0b00010
+TYPE_PATCH   = 0b00001
+class ReleaseVersion():
+    def __init__(self, name: str, separator: re.Pattern = None,
+                 version_separator: re.Pattern = None) -> None:
+        self.full_name = name
+        self.prefix = ''
+        self.suffix = ''
+        
+        if not separator:
+            separator = re.compile(
+                r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
+            )
+        parts = separator.match(name)
+        if parts:
+            if parts.group('prefix'):
+                self.prefix = parts.group('prefix')
+            if parts.group('suffix'):
+                self.suffix = parts.group('suffix')
+            if parts.group('version'):
+                self.number = parts.group('version')
+
+        if not version_separator:
+            version_separator = re.compile(r'([0-9]+)')
+        version_parts = version_separator.findall(self.number)
+        self.numbers = [int(version_part) for version_part in version_parts]
+        if len(self.numbers) == 1:
+            self.numbers.append(0)
+        if len(self.numbers) == 2:
+            self.numbers.append(0)
+
+    def __lt__(self, other):
+        return self.__cmp(self, other) < 0
+    def __gt__(self, other):
+        return self.__cmp(self, other) > 0
+    def __eq__(self, other):
+        return self.__cmp(self, other) == 0
+    def __le__(self, other):
+        return self.__cmp(self, other) <= 0
+    def __ge__(self, other):
+        return self.__cmp(self, other) >= 0
+
+    def __cmp(self, version_a: ReleaseVersion, version_b: ReleaseVersion) -> int:
+        for vnumber_a, vnumber_b in zip(version_a.numbers, version_b.numbers):
+            if vnumber_a > vnumber_b:
+                return 1
+            if vnumber_a < vnumber_b:
+                return -1
+        if not version_a.suffix and version_b.suffix:
+            return 1
+        elif version_a.suffix and not version_b.suffix:
+            return -1
+
+        if version_a.suffix and version_b.suffix:
+            if version_a.suffix > version_b.suffix:
+                return 1
+            elif version_a.suffix < version_b.suffix:
+                return -1
+
+        return 0
+
+    def is_main_release(self) -> bool:
+        return self.type(TYPE_MAIN)
+
+    def is_pre_release(self) -> bool:
+        return self.type(TYPE_PRE)
     
-    @property
-    def churn(self):
-        if self.__commit_stats:
-            return self.__commit_stats.churn
+    def is_major(self) -> bool:
+        return self.type(TYPE_MAJOR)
 
-        self.__commit_stats = CommitStats()
-        if self.base_releases:
-            for base_release in self.base_releases:
-                self.__commit_stats += self.head.diff_stats(base_release.head)
-        else:
-            self.__commit_stats = self.head.diff_stats()
+    def is_minor(self) -> bool:
+        return self.type(TYPE_MINOR)
 
-        return self.__commit_stats.churn
+    def is_patch(self) -> bool:
+        return self.type(TYPE_PATCH)
 
-    def is_type(self, release_type):
-        if self.type & release_type == self.type:
+    def type(self, mask: int) -> bool:
+        type = 0b0
+        if int(self.numbers[2]) > 0:
+            type |= TYPE_PATCH
+        elif int(self.numbers[1]) > 0:
+            type |= TYPE_MINOR
+        elif int(self.numbers[0]) > 0:
+            type |= TYPE_MAJOR
+
+        if self.suffix:
+            type |= TYPE_PRE
+        elif not (type & TYPE_PATCH):
+            type |= TYPE_MAIN
+
+        if type & mask == mask:
             return True
         else:
             return False
 
-    def is_duplicated(self):
-        return self.is_type(RELEASE_TYPE_DUPLICATED)
 
-    def get_time(self, of=RELEASE_TIME):
-        switch = {
-            RELEASE_TIME: lambda : self.time,
-            START_DEVELOPMENT_TIME: lambda : self.time
-        }
+class ReleaseSet():
+    def __init__(self, releases: Set[Release] = None) -> None:
+        self._releases = OrderedDict[str, Release]()
+        if releases:
+            for release in releases:
+                self.add(release)
 
-        try:
-            return switch[of]()
-        except:
-            return -1
+    def __iter__(self) -> Iterator[Release]:
+        return (release for release in self._releases.values())
 
-    def get_length(self, of=DEVELOPMENT_LENGTH):
-        switch = {
-            DEVELOPMENT_LENGTH: lambda : self.length,
-        }
+    def __getitem__(self, key) -> Release:
+        if isinstance(key, int):
+            release_name = list(self._releases.keys())[key]
+            return self._releases[release_name]
+        elif isinstance(key, str):
+            return self._releases[key]
+        else:
+            raise TypeError()
 
-        try:
-            return switch[of]()
-        except:
-            return timedelta(0)
+    def __contains__(self, item) -> bool:
+        if isinstance(item, str) and item in self._releases:
+            return True
+        elif isinstance(item, Release) and item.name in self._releases:
+            return True
+        return False
 
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, ReleaseSet):
+            return self._releases == __o._releases
+        return False
 
-    def is_patch(self) -> bool:
-        return self.is_type(RELEASE_TYPE_PATCH)
+    @property
+    def names(self) -> Set[str]:
+        """Return a set with all release names"""
+        return set(name for name in self._releases.keys())
 
-    def is_pre_release(self) -> bool:
-        return self.is_type(RELEASE_TYPE_PRE)
+    def prefixes(self) -> Set[str]:
+        """Return a set with all the release prefixes"""
+        prefixes = set[str]()
+        for release in self._releases.values():
+            prefixes.add(release.version.prefix)
+        return prefixes
 
-    def add_commit(self, commit: Commit, assign_commit_to_release=True):
-        is_newcomer = False
-        if assign_commit_to_release:
-            if not commit.release:
-                commit.release = self
-                self.project.add_commit(commit)
-                is_newcomer = self.project.developers.add_from_commit(commit)
+    def first(self, func: Callable = None) -> Release:
+        if self._releases:
+            if func:
+                ordered_releases = sorted(self._releases.values(), key=func)
             else:
-                raise CommitReleaseAlreadyAssigned(commit, self)
+                ordered_releases = list(self._releases.values())
+            return ordered_releases[0]
+        else:
+            return None
 
-        self.commits.append(commit)
-        self.developers.add_from_commit(commit, is_newcomer)
+    def last(self, func: Callable = None) -> Release:
+        if self._releases:
+            if func:
+                ordered_releases = sorted(self._releases.values(), key=func)
+            else:
+                ordered_releases = list(self._releases.values())
+            return ordered_releases[-1]
+        else:
+            return None
 
-    def add_commits_from_pre_releases(self):
-        """ This method is necessary for lazy loading commits """
-        for pre_release in self.pre_releases:
-            for commit in pre_release.commits:
-                self.add_commit(commit, False)
-            for newcomer in pre_release.developers.newcomers:
-                self.developers.force_newcomer(newcomer)
-            self.tail_commits += pre_release.tail_commits
-            self.tail_commits = sorted(self.tail_commits, key=lambda commit: commit.author_time)
+    @property
+    def all(self) -> Set[Release]:
+        return set(self._releases.values())
 
-    def add_pre_release(self, pre_release: Release):
-        self.pre_releases.append(pre_release)
-        self.commits.extend(pre_release.commits)
+    def add(self, release: Release):
+        if release:
+            self._releases[release.name] = release
+
+    def remove(self, release: Release):
+        if release.name in self:
+            del self._releases[release.name]
+
+    def update(self, iterable):
+        for item in iterable:
+            self.add(item)
+
+    def __len__(self):
+        return len(self._releases)

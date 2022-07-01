@@ -1,7 +1,7 @@
 Releasy
 =======
 
-[![Build Status](https://travis-ci.com/gems-uff/releasy.svg?branch=master)](https://travis-ci.com/gems-uff/releasy)
+[![Build Status](https://github.com/gems-uff/releasy/actions/workflows/pytest.yml/badge.svg?branch=4.x)](https://github.com/gems-uff/releasy/actions/workflows/pytest.yml)
 
 Releasy is a tool that collects provenance data from releases 
 by parsing the software version control and issue tracking
