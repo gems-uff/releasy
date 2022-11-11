@@ -10,3 +10,5 @@ cov.xml
 .pytest_cache/
 htmlcov/
 *.bkp
+/tags
+
