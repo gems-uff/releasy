@@ -23,68 +23,47 @@ class SemanticReleaseMiner(AbstractMiner):
         self.mreleases = SReleaseSet[MainRelease]()
         self.patches = SReleaseSet[Patch]()
         self.r2s = dict[Release, SemanticRelease]()
+        self.mrelease_map = set[str]()
 
     def mine(self, project: Project, *args) -> Tuple[Project, Any]:
         self.project = project
-        patches = self._mine_patches()
-        mreleases = self._mine_mreleases(patches)
-        self._assign_patches(mreleases, patches)
-        self._assign_commits(mreleases)
-        self._assign_commits(patches)
+        (mreleases, patches) = self._mine_semantic()
+
+        # self._assign_patches(mreleases, patches)
+        # self._assign_commits(mreleases)
+        # self._assign_commits(patches)
 
         self.project.main_releases = mreleases
         self.project.patches = patches
 
-        self.mreleases = mreleases
-        self.patches = patches
+        # self.mreleases = mreleases
+        # self.patches = patches
 
-        self._assign_release()
-        self._assign_base_releases()
-        self._assign_main_base_release()
+        # self._assign_release()
+        # self._assign_base_releases()
+        # self._assign_main_base_release()
         return (self.project, [])
 
-    def _mine_patches(self) -> SReleaseSet:
+    def _mine_semantic(self) -> SReleaseSet:
+        mreleases = SReleaseSet[MainRelease]()
         patches = SReleaseSet()
         for release in self.project.releases:
-            if release.version.is_patch() \
-                    and not release.version.is_pre_release():
-                version = release.version.number
-                if version not in patches:
-                    patch = Patch(self.project,
-                                version,
-                                ReleaseSet([release]))
-                    patch.release = release
+            if not release.version.is_pre_release():
+                if release.version.is_patch():
+                    patch = Patch(self.project, release)
                     patches.add(patch)
                 else:
-                    patch = patches[version]
-                    patch.releases.add(release)
-                    if patch.time < patch.release.time:
-                        patch.release = release
-                self.r2s[release] = patch
-        return patches
-
-    def _mine_mreleases(self, patches: SReleaseSet) -> SReleaseSet:
-        mreleases = SReleaseSet[MainRelease]()
-        for release in self.project.releases:
-            if release.version.is_main_release() \
-                    and not release.version.is_pre_release():
-                version_number = release.version.numbers \
-                                 + [0]*(3-len(release.version.numbers))
-                version = ".".join(str(version) for version in version_number)
-                if version not in mreleases:
-                    mrelease = MainRelease(self.project, 
-                              version, 
-                              ReleaseSet([release]),
-                              ReleaseSet())
-                    # mrelease.release = release
-                    mreleases.add(mrelease)
-                else:
-                    mrelease = mreleases[version]
-                    mrelease.releases.add(release)
-                    # if release.time < mrelease.release.time:
-                    #     mrelease.release = release
-                self.r2s[release] = mrelease
-        return mreleases
+                    version = '.'.join(
+                        [str(number) for number in (release.version.numbers + [0]*(3-len(release.version.numbers)))]
+                    )
+                    if version not in self.mrelease_map:
+                        mrelease = MainRelease(self.project, release)
+                        mreleases.add(mrelease)
+                        self.mrelease_map.add(version)
+                    else:
+                        patch = Patch(self.project, release)
+                        patches.add(patch)
+        return (mreleases, patches)
     
     def _assign_patches(self, mreleases: SReleaseSet[MainRelease], 
                         patches: SReleaseSet[Patch]):

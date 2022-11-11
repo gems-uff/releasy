@@ -25,10 +25,10 @@ class describe_release_miner:
     def it_mine_main_releases(self):
         mreleases = self.project.main_releases
         assert len(mreleases) == 4
-        assert mreleases['0.9.0'].releases.names == set(['v0.9.0'])
-        assert mreleases['1.0.0'].releases.names == set(['v1.0.0'])
-        assert mreleases['1.1.0'].releases.names == set(['1.1.0'])
-        assert mreleases['2.0.0'].releases.names == set(['v2.0.0', '2.0'])
+        assert mreleases['v0.9.0']
+        assert mreleases['v1.0.0']
+        assert mreleases['1.1.0']
+        assert mreleases['v2.0.0']
 
     def it_mine_main_release_patches(self):
         mreleases = self.project.main_releases
@@ -39,11 +39,12 @@ class describe_release_miner:
 
     def it_mine_patches(self):
         patches = self.project.patches
-        assert len(patches) == 4
-        assert patches['1.0.2'].releases.names == set(['r-1.0.2'])
-        assert patches['1.1.1'].releases.names == set(['1.1.1'])
-        assert patches['2.0.1'].releases.names == set(['v2.0.1'])
-        assert patches['2.1.1'].releases.names == set(['v2.1.1'])
+        assert len(patches) == 5
+        assert patches['v2.1.1']
+        assert patches['v2.0.1']
+        assert patches['2.0']
+        assert patches['1.1.1']
+        assert patches['r-1.0.2']
 
     def it_mine_main_release_commits(self):
         mreleases = self.project.main_releases

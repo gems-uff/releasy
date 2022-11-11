@@ -11,12 +11,17 @@ from .repository import CommitSet
 
 
 class SemanticRelease:
-    def __init__(self, project: Project, name: str, releases: ReleaseSet):
+    def __init__(self, project: Project, release: Release):
         self.project = project
-        self.name = name
-        self.releases = releases
-        self.release: Release = None
-        self.commits = CommitSet()
+        self.release = release
+        
+    @property
+    def name(self):
+        return self.release.name
+
+    @property
+    def commits(self):
+        return self.release.commits
     
     def __hash__(self):
         return hash((self.project, self.name))
@@ -67,10 +72,9 @@ class PreRelease(SemanticRelease):
 
 
 class MainRelease(SemanticRelease):
-    def __init__(self, project: Project, name: str, releases: ReleaseSet[Release],
-                 patches: Set[Release]) -> None:
-        super().__init__(project, name, releases)
-        self.patches = SReleaseSet(patches)
+    def __init__(self, project: Project, release: Release) -> None:
+        super().__init__(project, release)
+        self.patches = SReleaseSet()
         self.base_mreleases = SReleaseSet[MainRelease]()
         self.base_mrelease: MainRelease = None
 
@@ -82,8 +86,8 @@ class MainRelease(SemanticRelease):
             return None
 
 class Patch(FinalRelease):
-    def __init__(self, project: Project, name: str, releases: ReleaseSet[Release]) -> None:
-        super().__init__(project, name, releases)   
+    def __init__(self, project: Project, release: Release) -> None:
+        super().__init__(project, release)   
         self.main_release: MainRelease = None
 
 
