@@ -31,6 +31,14 @@ class BaseReleaseMiner(AbstractMiner):
                             release.base_releases.add(base_release)
 
         for release in self.project.releases:
-            if release.base_releases:
-                #FIX use version diff
+            if len(release.base_releases) == 1:
                 release.base_release = release.base_releases[0]
+            elif len(release.base_releases) > 1:
+                releases = [release]
+                releases.extend(release.base_releases)
+                releases = sorted(releases, key = lambda r: r.version)
+                pos = releases.index(release)
+                if pos > 0:
+                    release.base_release = releases[pos-1]
+                else:
+                    release.base_release = releases[1]

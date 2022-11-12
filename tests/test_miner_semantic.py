@@ -52,7 +52,6 @@ class describe_release_miner:
 
     def it_mine_main_release_commits(self):
         mreleases = self.project.main_releases
-        repo = self.project.repository
         assert mreleases['v0.9.0'].commits.ids == set(['1', '0'])
         assert mreleases['0.10.1'].commits.ids == set(['5'])
         assert mreleases['v1.0.0'].commits.ids == set(['3', '2'])
@@ -62,11 +61,10 @@ class describe_release_miner:
 
     def it_mine_patches_commits(self):
         patches = self.project.patches
-        repo = self.project.repository
         assert patches['r-1.0.2'].commits.ids == set(['13'])
         assert patches['1.1.1'].commits.ids == set(['7', '4'])
         assert patches['2.0'].commits.ids == set(['15'])
-        assert patches['v2.0.1'].commits.ids == set(['14']) # FIX -> []
+        assert patches['v2.0.1'].commits.ids == set()
         assert patches['v2.1.1'].commits.ids == \
             set(['19', '17'])
         assert patches['v2.1.2'].commits.ids == \
@@ -74,11 +72,11 @@ class describe_release_miner:
 
     def it_mine_base_mreleases(self):
         mreleases = self.project.main_releases
-        assert not mreleases['v0.9.0'].base_release
-        assert not mreleases['0.10.1'].base_release
-        assert mreleases['v1.0.0'].base_release.name == 'v0.9.0'
-        assert mreleases['1.1.0'].base_release.name == 'v1.0.0'
-        assert mreleases['v2.0.0'].base_release.name == '1.1.0'
+        assert not mreleases['v0.9.0'].main_base_release
+        assert not mreleases['0.10.1'].main_base_release
+        assert mreleases['v1.0.0'].main_base_release.name == 'v0.9.0'
+        assert mreleases['1.1.0'].main_base_release.name == 'v1.0.0'
+        assert mreleases['v2.0.0'].main_base_release.name == '1.1.0'
 
     def it_mine_main_release_time(self):
         mreleases = self.project.main_releases

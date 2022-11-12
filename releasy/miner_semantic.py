@@ -33,16 +33,10 @@ class SemanticReleaseMiner(AbstractMiner):
         self._mine_semantic_releases()
         self._assign_patches_to_mreleases()
         self._assign_base_releases()
+        self._assign_main_base_releases()
   
         self.project.main_releases = self.mreleases
         self.project.patches = self.patches
-
-        # self.mreleases = mreleases
-        # self.patches = patches
-
-        # self._assign_release()
-        # self._assign_base_releases()
-        # self._assign_main_base_release()
         return (self.project, [])
 
     def _remove_pre_releases(self):
@@ -58,7 +52,7 @@ class SemanticReleaseMiner(AbstractMiner):
                         and release.version.number not in self.versions)
                     or not release.base_releases):
                 srelease = MainRelease(release)
-                self.mreleases.add(srelease) 
+                self.mreleases.add(srelease)
                 self.versions.add(release.version.number)
             else:
                 srelease = Patch(release)
@@ -81,31 +75,25 @@ class SemanticReleaseMiner(AbstractMiner):
             else:
                 patch_to_track.append(sbase_release)
 
-    def _assign_release(self):
-        sreleases: SReleaseSet[SemanticRelease] = self.mreleases | self.patches
-        for srelease in sreleases:
-            srelease.release = srelease.releases.first(lambda r: r.time)
-
-    def _assign_commits(self, sreleases: SReleaseSet[SemanticRelease]):
-        for srelease in sreleases:
-            for release in srelease.releases:
-                srelease.commits.update(release.commits)
-
     def _assign_base_releases(self):
-        for mrelease in self.mreleases:
-            if mrelease.release.base_release:
-                mrelease.base_release = self.r2s[mrelease.release.base_release]
-        for patch in self.patches:
-            if patch.release.base_release:
-                patch.base_release = self.r2s[patch.release.base_release]
+        for srelease in (self.mreleases | self.patches):
+            if srelease.release.base_release:
+                srelease.base_release = self.r2s[srelease.release.base_release]
 
-    def _assign_main_base_release(self):
-        for mrelease in self.mreleases:
-            if len(mrelease.base_mreleases) == 1:
-                mrelease.base_mrelease = mrelease.base_mreleases[0]
-            elif len(mrelease.base_mreleases) > 1:
-                releases = sorted(mrelease.base_mreleases.all | set([mrelease])) #FIX version instead of string
-                mrelease_pos = releases.index(mrelease)
-                mbase_pos = mrelease_pos - 1
-                if mbase_pos >= 0:
-                    mrelease.base_mrelease = releases[mbase_pos]
+    def _assign_main_base_releases(self):
+        for srelease in (self.mreleases | self.patches):
+            main_base_release = srelease.base_release
+            if isinstance(main_base_release, Patch):
+                main_base_release = main_base_release.main_release
+            srelease.main_base_release = main_base_release
+
+    # def _assign_main_base_release(self):
+    #     for mrelease in self.mreleases:
+    #         if len(mrelease.base_mreleases) == 1:
+    #             mrelease.base_mrelease = mrelease.base_mreleases[0]
+    #         elif len(mrelease.base_mreleases) > 1:
+    #             releases = sorted(mrelease.base_mreleases.all | set([mrelease])) #FIX version instead of string
+    #             mrelease_pos = releases.index(mrelease)
+    #             mbase_pos = mrelease_pos - 1
+    #             if mbase_pos >= 0:
+    #                 mrelease.base_mrelease = releases[mbase_pos]

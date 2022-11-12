@@ -54,6 +54,8 @@ class Release:
     # def cycle(self) -> timedelta:
     #     return 
 
+class ReleaseName():
+    pass
 
 TYPE_MAJOR   = 0b10000
 TYPE_MINOR   = 0b01000
@@ -156,10 +158,27 @@ class ReleaseVersion():
             return False
 
     #TODO return ReleaseVersion
-    def normalize(n: int):
+    def normalize(self, n: int):
         """ Return a version str with size n. If n is greater than the actual
         version len, it append [0] to the right."""
-        pass
+        size = len(self.numbers)
+        if size <= n:
+            return self.numbers + [0]*(n-size)
+        else:
+            return self.numbers[0:n]
+
+    def diff(self, target: ReleaseVersion):
+        """
+        Compare two versions and return a vector
+        Ex: 2.0.0 - 1.0.1 = [1, 0, -1]
+        """
+        size = max(len(target.numbers), len(self.numbers))
+        me = self.normalize(size)
+        target = target.normalize(size)
+        result = []
+        for v1,v2 in zip(me, target):
+            result.append(v1 - v2)
+        return result
     
 
 class ReleaseSet():

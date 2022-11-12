@@ -14,6 +14,7 @@ class SemanticRelease:
     def __init__(self, release: Release):
         self.project = release.project #TODO may be removed?
         self.release = release
+        self.main_base_release: MainRelease = None
         self.base_release: SemanticRelease = None
         
     @property
@@ -62,7 +63,7 @@ class SemanticRelease:
     @property
     def cycle(self) -> datetime.timedelta:
         if self.base_release:
-            ref = self.base_release.time
+            ref = self.main_base_release.time
         else:
             ref = self.commits.first(lambda c: c.committer_time).committer_time
         return self.time - ref
@@ -72,7 +73,7 @@ class SemanticRelease:
         if self.base_release:
             ref = self.release.commits.first(
                 lambda c: c.committer_time).committer_time
-            return ref - self.base_release.time
+            return ref - self.main_base_release.time
         else:
             return datetime.timedelta(0)
 
