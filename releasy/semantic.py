@@ -11,9 +11,10 @@ from .repository import CommitSet
 
 
 class SemanticRelease:
-    def __init__(self, project: Project, release: Release):
-        self.project = project
+    def __init__(self, release: Release):
+        self.project = release.project #TODO may be removed?
         self.release = release
+        self.base_release: SemanticRelease = None
         
     @property
     def name(self):
@@ -59,8 +60,21 @@ class SemanticRelease:
         return self.release.time
 
     @property
+    def cycle(self) -> datetime.timedelta:
+        if self.base_release:
+            ref = self.base_release.time
+        else:
+            ref = self.commits.first(lambda c: c.committer_time).committer_time
+        return self.time - ref
+
+    @property
     def delay(self) -> datetime.timedelta:
-        return self.time - self.release.commits.first().committer_time
+        if self.base_release:
+            ref = self.release.commits.first(
+                lambda c: c.committer_time).committer_time
+            return ref - self.base_release.time
+        else:
+            return datetime.timedelta(0)
 
 
 class FinalRelease(SemanticRelease):
@@ -72,22 +86,14 @@ class PreRelease(SemanticRelease):
 
 
 class MainRelease(SemanticRelease):
-    def __init__(self, project: Project, release: Release) -> None:
-        super().__init__(project, release)
+    def __init__(self, release: Release) -> None:
+        super().__init__(release)
         self.patches = SReleaseSet()
-        self.base_mreleases = SReleaseSet[MainRelease]()
-        self.base_mrelease: MainRelease = None
 
-    @property
-    def cycle(self) -> datetime.timedelta:
-        if self.base_mrelease:
-            return self.time - self.base_mrelease.time
-        else:
-            return None
 
 class Patch(FinalRelease):
-    def __init__(self, project: Project, release: Release) -> None:
-        super().__init__(project, release)   
+    def __init__(self, release: Release) -> None:
+        super().__init__(release)   
         self.main_release: MainRelease = None
 
 

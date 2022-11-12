@@ -29,3 +29,8 @@ class BaseReleaseMiner(AbstractMiner):
                 for base_release in self.c2r[release.head]:
                     if base_release != release:
                             release.base_releases.add(base_release)
+
+        for release in self.project.releases:
+            if release.base_releases:
+                #FIX use version diff
+                release.base_release = release.base_releases[0]

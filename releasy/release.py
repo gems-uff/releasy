@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ast import List
 from collections import OrderedDict
 from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
@@ -24,6 +25,7 @@ class Release:
             self.head = tag.commit
         self.commits = CommitSet()
         self.tails = set[Commit]()
+        self.base_release: Release = None
         self.base_releases = ReleaseSet()
         self.version = ReleaseVersion(name)
     
@@ -86,6 +88,8 @@ class ReleaseVersion():
             self.numbers.append(0)
         if len(self.numbers) == 2:
             self.numbers.append(0)
+        #TODO handle dinamic
+        self.number = '.'.join([str(v) for v in self.numbers])
 
     def __lt__(self, other):
         return self.__cmp(self, other) < 0
@@ -151,6 +155,12 @@ class ReleaseVersion():
         else:
             return False
 
+    #TODO return ReleaseVersion
+    def normalize(n: int):
+        """ Return a version str with size n. If n is greater than the actual
+        version len, it append [0] to the right."""
+        pass
+    
 
 class ReleaseSet():
     def __init__(self, releases: Set[Release] = None) -> None:
@@ -215,9 +225,8 @@ class ReleaseSet():
         else:
             return None
 
-    @property
-    def all(self) -> Set[Release]:
-        return set(self._releases.values())
+    def all(self) -> List[Release]:
+        return list(self._releases.values())
 
     def add(self, release: Release):
         if release:
