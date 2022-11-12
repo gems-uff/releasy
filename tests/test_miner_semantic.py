@@ -226,9 +226,9 @@ class describe_semantic_release_set:
 
     def it_has_commits(self):
         assert self.project.main_releases.commits().ids \
-            == set(['15', '14', '12', '11', '2', '1', '0',
+            == set(['14', '12', '11', '2', '1', '0',
                     '10', '9', '8', '6', '5', '3'])
         assert self.project.patches.commits().ids \
-            == set(['20', '19', '17', '14', '13', '12', '11', '2', '10', '9',
+            == set(['20', '19', '17', '15', '14', '13', '12', '11', '2', '10', '9',
                     '8', '7', '4', '18', '16'])
 
