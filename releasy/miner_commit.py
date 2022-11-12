@@ -78,27 +78,30 @@ class HistoryCommitMiner(AbstractMiner):
             commits = CommitSet()
             tails = CommitSet()
             loop_detector = set()
-            commits_to_track: List[Commit] = [release.head]
             if release.head not in self.c2r:
-                while commits_to_track:
-                    commit = commits_to_track.pop()
-                    commits.add(commit)
-                    loop_detector.add(commit)
+                commits_to_track: List[Commit] = [release.head]
+            else:
+                commits_to_track: List[Commit] = []
+                
+            while commits_to_track:
+                commit = commits_to_track.pop()
+                commits.add(commit)
+                loop_detector.add(commit)
 
-                    if commit not in self.c2r:
-                        self.c2r[commit] = set()
-                    self.c2r[commit].add(release)
+                if commit not in self.c2r:
+                    self.c2r[commit] = set()
+                self.c2r[commit].add(release)
 
-                    if commit.parents:
-                        for parent in commit.parents:
-                            if parent not in release_commits \
-                                    and not parent in self.c2r:
-                                if parent not in loop_detector:
-                                    commits_to_track.append(parent)
-                            else:
-                                tails.add(commit)
-                    else:
-                        tails.add(commit)
+                if commit.parents:
+                    for parent in commit.parents:
+                        if parent not in release_commits \
+                                and not parent in self.c2r:
+                            if parent not in loop_detector:
+                                commits_to_track.append(parent)
+                        else:
+                            tails.add(commit)
+                else:
+                    tails.add(commit)
 
             release.tails = tails
             release.commits = commits
