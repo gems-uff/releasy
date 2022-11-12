@@ -53,7 +53,7 @@ class SemanticReleaseMiner(AbstractMiner):
     def _mine_semantic_releases(self) -> SReleaseSet:
         #TODO implement in ReleaseSet
         for release in sorted(self.project.releases.all(), 
-                              key = lambda r: r.time):
+                              key = lambda r: (r.time, r.version)):
             if ((release.version.is_main_release() 
                         and release.version.number not in self.versions)
                     or not release.base_releases):
