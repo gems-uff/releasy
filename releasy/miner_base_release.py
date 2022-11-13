@@ -34,6 +34,7 @@ class BaseReleaseMiner(AbstractMiner):
             if len(release.base_releases) == 1:
                 release.base_release = release.base_releases[0]
             elif len(release.base_releases) > 1:
+                #TODO handle v2.0.0, v2.0.1, and 2,0
                 releases = [release]
                 releases.extend(release.base_releases)
                 releases = sorted(releases, key = lambda r: r.version)
