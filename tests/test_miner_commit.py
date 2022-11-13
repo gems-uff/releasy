@@ -32,10 +32,12 @@ class describe_mix_history_commit_miner:
             == project.releases['v2.0.1'].commits
         assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
         assert project.releases['v2.1'].commits.ids == set(['20', '18', '16'])
+        assert project.releases['v3.1.0'].commits.ids \
+            == set(['22'])
         assert project.releases['v3.1.1'].commits.ids \
             == set(['19'])
         assert project.releases['v4.0.0'].commits.ids \
-            == set(['22', '21', '18', '16'])
+            == set(['21', '18', '16'])
 
 
 class describe_history_commit_miner:
@@ -63,10 +65,12 @@ class describe_history_commit_miner:
         assert project.releases['2.0'].commits.ids == set(['15'])
         assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
         assert project.releases['v2.1'].commits.ids == set(['20', '18', '16'])
+        assert project.releases['v3.1.0'].commits.ids \
+            == set(['22'])
         assert project.releases['v3.1.1'].commits.ids \
             == set(['19'])
         assert project.releases['v4.0.0'].commits.ids \
-            == set(['22', '21'])
+            == set(['21'])
 
 
 class describe_commit_set:

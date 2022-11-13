@@ -26,8 +26,9 @@ class MockRepositoryProxy(RepositoryProxy):
             "rel2.1.1pre":   '17',
             "v2.1":          '20',
             "non":           '18',
+            "v3.1.0":        '22',
             "v3.1.1":        '19',
-            "v4.0.0":        '22'
+            "v4.0.0":        '21'
         }
 
         tags: Set[Tag] = set()
@@ -99,8 +100,8 @@ class MockRepositoryProxy(RepositoryProxy):
             '19': ['17'],
             '20': ['18'],
             '21': ['19', '18'],
-            '22': ['21'],
-            '23': ['22'],
+            '22': ['20'],
+            '23': ['21'],
         }
 
         parents = CommitSet()

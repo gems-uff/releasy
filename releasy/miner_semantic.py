@@ -49,32 +49,39 @@ class SemanticReleaseMiner(AbstractMiner):
         #TODO implement in ReleaseSet
         for release in sorted(self.project.releases.all(), 
                               key = lambda r: (r.time, r.version)):
-            if ((release.version.is_main_release() 
-                        and release.version.number not in self.versions)
-                    or not release.base_releases):
+            duplicated_release \
+                = True if release.version.number in self.versions else False
+            if release.version.is_main_release() and not duplicated_release:
                 srelease = MainRelease(release)
                 self.mreleases.add(srelease)
                 self.versions.add(release.version.number)
             else:
                 srelease = Patch(release)
                 self.patches.add(srelease)  
+                if duplicated_release:
+                    srelease.was_main_release = True
+
             self.r2s[release] = srelease
     
     def _assign_patches_to_mreleases(self):
         for patch in self.patches:
             main_release = self._track_patch_main_release(patch)
-            main_release.patches.add(patch)
-            patch.main_release = main_release
+            if main_release:
+                main_release.patches.add(patch)
+                patch.main_release = main_release
+            else:
+                patch.is_orphan = True
 
     def _track_patch_main_release(self, patch: Patch):
         patch_to_track = [patch]
         while patch_to_track:
             patch = patch_to_track.pop()
-            sbase_release = self.r2s[patch.release.base_release]
-            if isinstance(sbase_release, MainRelease):
-                return sbase_release
-            else:
-                patch_to_track.append(sbase_release)
+            if patch.release.base_release:
+                sbase_release = self.r2s[patch.release.base_release]
+                if isinstance(sbase_release, MainRelease):
+                    return sbase_release
+                else:
+                    patch_to_track.append(sbase_release)
 
     def _assign_base_releases(self):
         for srelease in (self.mreleases | self.patches):
@@ -89,9 +96,19 @@ class SemanticReleaseMiner(AbstractMiner):
             srelease.main_base_release = main_base_release
 
     def _assign_prev_semantic_releases(self):
-        mreleases = sorted(self.mreleases, key=lambda r: (r.time, r.release.version))
-        for i in range(2, len(mreleases)):
-            mreleases[i].prev_semantic_release = mreleases[i-1]
+        mreleases = sorted(self.mreleases, 
+            key=lambda r: (r.release.version, r.time))
+        for i in range(1, len(mreleases)):
+            mrelease = mreleases[i]
+            prev_mrelease_pos = i-1
+
+            while prev_mrelease_pos >= 0 \
+                    and mreleases[prev_mrelease_pos].time > mrelease.time:
+                prev_mrelease_pos -= 1
+            
+            if prev_mrelease_pos >= 0:
+                prev_mrelease = mreleases[prev_mrelease_pos]
+                mrelease.prev_semantic_release = prev_mrelease
 
     # def _assign_main_base_release(self):
     #     for mrelease in self.mreleases:

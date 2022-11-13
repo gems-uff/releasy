@@ -85,10 +85,10 @@ class MainRelease(SemanticRelease):
 
     @property
     def delay(self) -> datetime.timedelta:
-        if self.base_release:
+        if self.prev_semantic_release:
             ref = self.release.commits.first(
                 lambda c: c.committer_time).committer_time
-            return ref - self.main_base_release.time
+            return ref - self.prev_semantic_release.time
         else:
             return datetime.timedelta(0)
 
@@ -97,6 +97,8 @@ class Patch(FinalRelease):
     def __init__(self, release: Release) -> None:
         super().__init__(release)   
         self.main_release: MainRelease = None
+        self.is_orphan = False
+        self.was_main_release = False
 
     @property
     def cycle(self) -> datetime.timedelta:

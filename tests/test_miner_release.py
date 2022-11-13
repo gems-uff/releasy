@@ -14,7 +14,7 @@ class describe_release_miner:
         ).mine()
 
     def it_mine_releases(self):
-        assert len(self.project.releases) == 16
+        assert len(self.project.releases) == 17
         assert self.project.releases['0.0.0-alpha1']
         assert self.project.releases['v0.9.0']
         assert self.project.releases['0.10.1']
@@ -29,6 +29,7 @@ class describe_release_miner:
         assert self.project.releases['v2.0.1']
         assert self.project.releases['rel2.1.1pre']
         assert self.project.releases['v2.1']
+        assert self.project.releases['v3.1.0']
         assert self.project.releases['v3.1.1']
         assert self.project.releases['v4.0.0']
 
@@ -41,7 +42,7 @@ class describe_final_release_miner:
         ).mine()
 
     def it_mine_releases(self):
-        assert len(self.project.releases) == 12
+        assert len(self.project.releases) == 13
         assert self.project.releases['v0.9.0']
         assert self.project.releases['0.10.1']
         assert self.project.releases['v1.0.0']
@@ -52,6 +53,7 @@ class describe_final_release_miner:
         assert self.project.releases['2.0']
         assert self.project.releases['v2.0.1']
         assert self.project.releases['v2.1']
+        assert self.project.releases['v3.1.0']
         assert self.project.releases['v3.1.1']
         assert self.project.releases['v4.0.0']
 
