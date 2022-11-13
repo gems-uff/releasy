@@ -24,22 +24,23 @@ class describe_release_miner:
 
     def it_mine_main_releases(self):
         mreleases = self.project.main_releases
-        assert len(mreleases) == 5
+        assert len(mreleases) == 7
         assert mreleases['v0.9.0']
         assert mreleases['0.10.1']
         assert mreleases['v1.0.0']
         assert mreleases['1.1.0']
         assert mreleases['v2.0.0']
+        assert mreleases['v2.1']
+        assert mreleases['v4.0.0']
 
     def it_mine_patches(self):
         patches = self.project.patches
-        assert len(patches) == 6
+        assert len(patches) == 5
         assert patches['r-1.0.2']
         assert patches['1.1.1']
         assert patches['2.0']
         assert patches['v2.0.1']
-        assert patches['v2.1.1']
-        assert patches['v2.1.2']
+        assert patches['v3.1.1'] #FIX
 
     def it_mine_main_release_patches(self):
         mreleases = self.project.main_releases
@@ -48,7 +49,9 @@ class describe_release_miner:
         assert mreleases['v1.0.0'].patches.names == set(['r-1.0.2'])
         assert mreleases['1.1.0'].patches.names == set(['1.1.1'])
         assert mreleases['v2.0.0'].patches.names \
-            == set(['v2.0.1', '2.0', 'v2.1.1', 'v2.1.2'])
+            == set(['v2.0.1', '2.0', 'v3.1.1'])
+        assert not mreleases['v2.1'].patches
+        assert not mreleases['v4.0.0'].patches
 
     def it_mine_main_release_commits(self):
         mreleases = self.project.main_releases
@@ -58,6 +61,9 @@ class describe_release_miner:
         assert mreleases['1.1.0'].commits.ids == set(['6'])
         assert mreleases['v2.0.0'].commits.ids \
             == set(['14', '12', '11', '10', '9', '8']) 
+        assert mreleases['v2.1'].commits.ids == set(['20', '18', '16'])
+        assert mreleases['v4.0.0'].commits.ids == set(['22', '21'])
+         
 
     def it_mine_patches_commits(self):
         patches = self.project.patches
@@ -65,10 +71,8 @@ class describe_release_miner:
         assert patches['1.1.1'].commits.ids == set(['7', '4'])
         assert patches['2.0'].commits.ids == set(['15'])
         assert patches['v2.0.1'].commits.ids == set()
-        assert patches['v2.1.1'].commits.ids == \
+        assert patches['v3.1.1'].commits.ids == \
             set(['19', '17'])
-        assert patches['v2.1.2'].commits.ids == \
-            set(['20', '18', '16'])
 
     def it_mine_base_mreleases(self):
         mreleases = self.project.main_releases
@@ -90,6 +94,10 @@ class describe_release_miner:
             == MockRepository.ref_dt + timedelta(days=6)
         assert mreleases['v2.0.0'].time \
             == MockRepository.ref_dt + timedelta(days=14)
+        assert mreleases['v2.1'].time \
+            == MockRepository.ref_dt + timedelta(days=20)
+        assert mreleases['v4.0.0'].time \
+            == MockRepository.ref_dt + timedelta(days=22)
 
     def it_mine_main_release_cycle(self):
         mreleases = self.project.main_releases
@@ -99,6 +107,8 @@ class describe_release_miner:
         assert mreleases['v1.0.0'].cycle == timedelta(days=2)
         assert mreleases['1.1.0'].cycle == timedelta(days=3)
         assert mreleases['v2.0.0'].cycle == timedelta(days=8)
+        assert mreleases['v2.1'].cycle == timedelta(days=6)
+        assert mreleases['v4.0.0'].cycle == timedelta(days=2)
 
     def it_mine_patch_cycle(self):
         patches = self.project.patches
@@ -116,6 +126,8 @@ class describe_release_miner:
         assert mreleases['v1.0.0'].delay == timedelta(days=1)
         assert mreleases['1.1.0'].delay == timedelta(days=3)
         assert mreleases['v2.0.0'].delay == timedelta(days=2)
+        assert mreleases['v2.1'].delay == timedelta(days=2)
+        assert mreleases['v4.0.0'].delay == timedelta(days=1)
 
 
 class describe_semantic_release_set:
@@ -123,7 +135,7 @@ class describe_semantic_release_set:
     def project(self) -> None:
         project = releasy.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
-            MixedHistoryCommitMiner(),
+            HistoryCommitMiner(),
             BaseReleaseMiner(),
             SemanticReleaseMiner()
         ).mine()
@@ -131,9 +143,8 @@ class describe_semantic_release_set:
 
     def it_has_commits(self):
         assert self.project.main_releases.commits().ids \
-            == set(['14', '12', '11', '2', '1', '0',
-                    '10', '9', '8', '6', '5', '3'])
+            == set(['22', '21', '20', '18', '16', '14', '12', '11',
+                    '2', '1', '0', '10', '9', '8', '6', '5', '3'])
         assert self.project.patches.commits().ids \
-            == set(['20', '19', '17', '15', '14', '13', '12', '11', '2', '10', '9',
-                    '8', '7', '4', '18', '16'])
+            == set(['19', '17', '15', '13', '7', '4'])
 

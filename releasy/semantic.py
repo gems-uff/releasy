@@ -16,6 +16,7 @@ class SemanticRelease:
         self.release = release
         self.main_base_release: MainRelease = None
         self.base_release: SemanticRelease = None
+        self.prev_semantic_release = None
         
     @property
     def name(self):
@@ -76,8 +77,8 @@ class MainRelease(SemanticRelease):
 
     @property
     def cycle(self) -> datetime.timedelta:
-        if self.base_release:
-            ref = self.main_base_release.time
+        if self.prev_semantic_release:
+            ref = self.prev_semantic_release.time
         else:
             ref = self.commits.first(lambda c: c.committer_time).committer_time
         return self.time - ref

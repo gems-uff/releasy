@@ -31,10 +31,11 @@ class describe_mix_history_commit_miner:
         assert project.releases['v2.0.0'].commits \
             == project.releases['v2.0.1'].commits
         assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
-        assert project.releases['v2.1.1'].commits.ids \
+        assert project.releases['v2.1'].commits.ids == set(['20', '18', '16'])
+        assert project.releases['v3.1.1'].commits.ids \
             == set(['19'])
-        assert project.releases['v2.1.2'].commits.ids \
-            == set(['20', '18', '16'])
+        assert project.releases['v4.0.0'].commits.ids \
+            == set(['22', '21', '18', '16'])
 
 
 class describe_history_commit_miner:
@@ -61,10 +62,11 @@ class describe_history_commit_miner:
         assert project.releases['v2.0.1'].commits.ids == set()
         assert project.releases['2.0'].commits.ids == set(['15'])
         assert project.releases['rel2.1.1pre'].commits.ids == set(['17'])
-        assert project.releases['v2.1.1'].commits.ids \
+        assert project.releases['v2.1'].commits.ids == set(['20', '18', '16'])
+        assert project.releases['v3.1.1'].commits.ids \
             == set(['19'])
-        assert project.releases['v2.1.2'].commits.ids \
-            == set(['20', '18', '16'])
+        assert project.releases['v4.0.0'].commits.ids \
+            == set(['22', '21'])
 
 
 class describe_commit_set:
@@ -84,7 +86,7 @@ class describe_commit_set:
             == set(['bob', 'alice'])
         assert project.releases['v2.0.0'].commits.authors \
             == set(['bob', 'alice'])
-        assert project.releases['v2.1.1'].commits.authors \
+        assert project.releases['v3.1.1'].commits.authors \
             == set(['alice'])
     
     def it_has_committers(self):
@@ -95,6 +97,6 @@ class describe_commit_set:
             == set(['alice', 'charlie'])
         assert project.releases['v2.0.0'].commits.committers \
             == set(['bob', 'alice'])
-        assert project.releases['v2.1.1'].commits.committers \
+        assert project.releases['v3.1.1'].commits.committers \
             == set(['alice'])
 
