@@ -85,7 +85,7 @@ class MainRelease(SemanticRelease):
 
     @property
     def delay(self) -> datetime.timedelta:
-        if self.prev_semantic_release:
+        if self.prev_semantic_release and self.commits:
             ref = self.release.commits.first(
                 lambda c: c.committer_time).committer_time
             return ref - self.prev_semantic_release.time
