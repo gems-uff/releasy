@@ -29,8 +29,8 @@ class Repository:
         parents = self.proxy.fetch_commit_parents(commit)
         return parents
 
-    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
-        diff_delta = self.proxy.diff(commit_a, commit_b)
+    def diff(self, commit_a: Commit, commit_b: Commit, parse_files: bool) -> DiffDelta:
+        diff_delta = self.proxy.diff(commit_a, commit_b, parse_files)
         return diff_delta
 
 
@@ -71,7 +71,7 @@ class RepositoryProxy(ABC):
         pass
 
     @abstractclassmethod
-    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
+    def diff(self, commit_a: Commit, commit_b: Commit, parse_files:bool) -> DiffDelta:
         pass
 
 
@@ -145,8 +145,8 @@ class Commit:
     def __repr__(self) -> str:
         return self.id[0:8]
 
-    def diff(self, commit: Commit) -> DiffDelta:
-        delta = self.repository.diff(self, commit)
+    def diff(self, commit: Commit, parse_files:bool = False) -> DiffDelta:
+        delta = self.repository.diff(self, commit, parse_files)
         return delta
     
     # TODO commit.history_until(release_commits)
@@ -155,10 +155,12 @@ class Commit:
 
 
 class DiffDelta:
-    def __init__(self, insertions: int, deletions: int, files_changed: int):
+    def __init__(self, insertions: int, deletions: int, files_changed: int, 
+            files: Set[str]):
         self.insertions = insertions
         self.deletions = deletions
         self.files_changed = files_changed
+        self.files = files
    
     @property
     def churn(self) -> int:

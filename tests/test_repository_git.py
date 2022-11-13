@@ -62,9 +62,22 @@ class describe_git_repository:
     def it_mine_diff(self):
         commit_a = self.repository.get_commit('18a0198d91cfa21b27ea6fa60353a606ba76c7db')
         commit_b = self.repository.get_commit('f45fb10eb1354c7a4ff421b07598e008e8ad427b')
-        diff_delta = commit_a.diff(commit_b)
+        delta = commit_a.diff(commit_b)
 
-        assert diff_delta.insertions == 180
-        assert diff_delta.deletions == 190
-        assert diff_delta.files_changed == 4
-        assert diff_delta.churn == 370
+        assert delta.insertions == 180
+        assert delta.deletions == 190
+        assert delta.files_changed == 4
+        assert delta.churn == 370
+        assert not delta.files
+
+    def it_mine_diff_files(self):
+        commit_a = self.repository.get_commit('7d99f1b0930fe0817ad5b8964361a35b8f5c98a1')
+        commit_b = self.repository.get_commit('8d2d89453796172be92991961f9d30db360c057b')
+        delta = commit_a.diff(commit_b, True)
+
+        assert delta.insertions == 53
+        assert delta.deletions == 69
+        assert delta.files_changed == 5
+        assert delta.churn == 122
+        assert 'releasy/semantic.py' in delta.files
+        assert 'tests/test_miner_semantic.py' in delta.files

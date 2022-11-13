@@ -2,7 +2,6 @@
 
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set, Tuple
-from xmlrpc.client import Boolean
 import pygit2
 
 from releasy.repository import Commit, CommitSet, DiffDelta, Repository, RepositoryProxy, Tag
@@ -89,11 +88,23 @@ class GitRepository(RepositoryProxy):
             parents.add(parent)
         return parents
 
-    def diff(self, commit_a: Commit, commit_b: Commit) -> DiffDelta:
-        delta = self.git.diff(commit_a.id, commit_b.id)
-        diff_delta = DiffDelta(delta.stats.insertions, delta.stats.deletions, 
-                               delta.stats.files_changed)
-        return diff_delta
+    def diff(self, commit_a: Commit, commit_b: Commit, parse_delta:bool = False) -> DiffDelta:
+        diff_result = self.git.diff(commit_a.id, commit_b.id)
+
+        files = set()
+        if parse_delta:
+            for delta in diff_result.deltas:
+                if delta.new_file.path:
+                    files.add(delta.new_file.path)
+                if delta.old_file.path:
+                    files.add(delta.old_file.path)
+
+        delta = DiffDelta(
+            diff_result.stats.insertions, 
+            diff_result.stats.deletions,
+            diff_result.stats.files_changed,
+            files)
+        return delta
 
 class CommitCache:
     """
