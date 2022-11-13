@@ -78,10 +78,15 @@ class HistoryCommitMiner(AbstractMiner):
             commits = CommitSet()
             tails = CommitSet()
             loop_detector = set()
+            commit = release.head
+            
             if release.head not in self.c2r:
-                commits_to_track: List[Commit] = [release.head]
+                commits_to_track: List[Commit] = [commit]
             else:
                 commits_to_track: List[Commit] = []
+                if commit not in self.c2r:
+                    self.c2r[commit] = set()
+                self.c2r[commit].add(release)
                 
             while commits_to_track:
                 commit = commits_to_track.pop()

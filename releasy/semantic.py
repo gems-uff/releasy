@@ -60,6 +60,20 @@ class SemanticRelease:
     def time(self) -> datetime.datetime:
         return self.release.time
 
+
+class FinalRelease(SemanticRelease):
+    pass
+
+#TODO implement pre release logic
+class PreRelease(SemanticRelease):
+    pass
+
+
+class MainRelease(SemanticRelease):
+    def __init__(self, release: Release) -> None:
+        super().__init__(release)
+        self.patches = SReleaseSet()
+
     @property
     def cycle(self) -> datetime.timedelta:
         if self.base_release:
@@ -78,24 +92,27 @@ class SemanticRelease:
             return datetime.timedelta(0)
 
 
-class FinalRelease(SemanticRelease):
-    pass
-
-#TODO implement pre release logic
-class PreRelease(SemanticRelease):
-    pass
-
-
-class MainRelease(SemanticRelease):
-    def __init__(self, release: Release) -> None:
-        super().__init__(release)
-        self.patches = SReleaseSet()
-
-
 class Patch(FinalRelease):
     def __init__(self, release: Release) -> None:
         super().__init__(release)   
         self.main_release: MainRelease = None
+
+    @property
+    def cycle(self) -> datetime.timedelta:
+        if self.base_release:
+            ref = self.base_release.time
+        else:
+            ref = self.commits.first(lambda c: c.committer_time).committer_time
+        return self.time - ref
+
+    @property
+    def delay(self) -> datetime.timedelta:
+        if self.base_release:
+            ref = self.release.commits.first(
+                lambda c: c.committer_time).committer_time
+            return ref - self.base_release.time
+        else:
+            return datetime.timedelta(0)
 
 
 SR = TypeVar('SR')
