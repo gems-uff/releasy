@@ -38,14 +38,14 @@ class SemanticRelease:
     def __repr__(self) -> str:
         return self.name
 
-    def __lt__(self, other):
-        return self.release.version < other.release.version < 0
-    def __gt__(self, other):
-        return self.release.version > other.release.version
-    def __le__(self, other):
-        return self.release.version <= other.release.version
-    def __ge__(self, other):
-        return self.release.version >= other.release.version
+    # def __lt__(self, other):
+    #     return self.release.version < other.release.version < 0
+    # def __gt__(self, other):
+    #     return self.release.version > other.release.version
+    # def __le__(self, other):
+    #     return self.release.version <= other.release.version
+    # def __ge__(self, other):
+    #     return self.release.version >= other.release.version
 
     @property
     def time(self) -> datetime.datetime:
