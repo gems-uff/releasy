@@ -69,8 +69,10 @@ class MainRelease(SemanticRelease):
     def cycle(self) -> datetime.timedelta:
         if self.prev_semantic_release:
             ref = self.prev_semantic_release.time
-        else:
+        elif self.commits:
             ref = self.commits.first(lambda c: c.committer_time).committer_time
+        else:
+            return datetime.timedelta(0)
         return self.time - ref
 
     @property
