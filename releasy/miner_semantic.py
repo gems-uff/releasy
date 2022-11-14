@@ -74,14 +74,17 @@ class SemanticReleaseMiner(AbstractMiner):
 
     def _track_patch_main_release(self, patch: Patch):
         patch_to_track = [patch]
+        loop_control = set()
         while patch_to_track:
             patch = patch_to_track.pop()
             if patch.release.base_release:
                 sbase_release = self.r2s[patch.release.base_release]
                 if isinstance(sbase_release, MainRelease):
                     return sbase_release
-                else:
+                elif sbase_release not in loop_control:
+                    loop_control.add(patch)
                     patch_to_track.append(sbase_release)
+        return None
 
     def _assign_base_releases(self):
         for srelease in (self.mreleases | self.patches):
