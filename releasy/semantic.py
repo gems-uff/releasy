@@ -70,7 +70,7 @@ class MainRelease(SemanticRelease):
         if self.prev_semantic_release:
             ref = self.prev_semantic_release.time
         elif self.commits:
-            ref = self.commits.first(lambda c: c.committer_time).committer_time
+            ref = self.commits.first(lambda c: c.author_time).author_time
         else:
             return datetime.timedelta(0)
         return self.time - ref
@@ -79,7 +79,7 @@ class MainRelease(SemanticRelease):
     def delay(self) -> datetime.timedelta:
         if self.prev_semantic_release and self.commits:
             ref = self.release.commits.first(
-                lambda c: c.committer_time).committer_time
+                lambda c: c.author_time).author_time
             return ref - self.prev_semantic_release.time
         else:
             return datetime.timedelta(0)
@@ -97,14 +97,14 @@ class Patch(FinalRelease):
         if self.base_release:
             ref = self.base_release.time
         else:
-            ref = self.commits.first(lambda c: c.committer_time).committer_time
+            ref = self.commits.first(lambda c: c.author_time).author_time
         return self.time - ref
 
     @property
     def delay(self) -> datetime.timedelta:
         if self.base_release:
             ref = self.release.commits.first(
-                lambda c: c.committer_time).committer_time
+                lambda c: c.author_time).author_time
             return ref - self.base_release.time
         else:
             return datetime.timedelta(0)
