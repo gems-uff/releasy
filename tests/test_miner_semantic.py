@@ -82,6 +82,7 @@ class describe_release_miner:
         assert mreleases['1.1.0'].main_base_release.name == 'v1.0.0'
         assert mreleases['v2.0.0'].main_base_release.name == '1.1.0'
         assert mreleases['v2.1'].main_base_release.name == 'v2.0.0'
+        assert mreleases['v3.1.0'].main_base_release.name == 'v2.1'
         assert mreleases['v4.0.0'].main_base_release.name == 'v2.0.0'
 
     def it_mines_previous_semantic_release(self):
@@ -91,6 +92,7 @@ class describe_release_miner:
         assert mreleases['1.1.0'].prev_semantic_release.name == 'v1.0.0'
         assert mreleases['v2.0.0'].prev_semantic_release.name == '1.1.0'
         assert mreleases['v2.1'].prev_semantic_release.name == 'v2.0.0'
+        assert mreleases['v3.1.0'].prev_semantic_release.name == 'v2.1'
         assert mreleases['v4.0.0'].prev_semantic_release.name == 'v2.1'
 
     def it_mine_main_release_time(self):

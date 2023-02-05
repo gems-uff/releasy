@@ -17,7 +17,7 @@ from .miner_base import AbstractMiner
 
 
 class SemanticReleaseMiner(AbstractMiner):
-    """Categorize releases into major, minor and patch"""
+    """Assign semantic to releases"""
     def __init__(self) -> None:
         super().__init__()
         self.mreleases = SReleaseSet[MainRelease]()
@@ -41,55 +41,56 @@ class SemanticReleaseMiner(AbstractMiner):
         return (self.project, [])
 
     def _remove_pre_releases(self):
-        self.releases = [release for release in 
-                                 self.releases 
-                                 if not release.version.is_pre_release()]
+        #TODO implement pre release logic in the future
+        self.releases = [
+            release for release in self.releases 
+                if not release.version.is_pre_release()
+        ]
 
     def _mine_semantic_releases(self) -> SReleaseSet:
         #TODO implement in ReleaseSet
-        for release in sorted(self.project.releases.all(), 
-                              key = lambda r: (r.time, r.version)):
-            duplicated_release \
-                = True if release.version.number in self.versions else False
-            if release.version.is_main_release() and not duplicated_release:
+        for release in sorted(
+                self.project.releases.all(), 
+                key = lambda r: (r.time, r.version)):
+
+            is_duplicated = release.version.number in self.versions
+            if release.version.is_main_release() and not is_duplicated:
                 srelease = MainRelease(release)
                 self.mreleases.add(srelease)
                 self.versions.add(release.version.number)
             else:
                 srelease = Patch(release)
                 self.patches.add(srelease)  
-                if duplicated_release:
-                    srelease.was_main_release = True
-
+                srelease.was_main_release = is_duplicated
             self.r2s[release] = srelease
     
     def _assign_patches_to_mreleases(self):
         for patch in self.patches:
-            main_release = self._track_patch_main_release(patch)
+            main_release = self._find_patch_main_release(patch)
             if main_release:
                 main_release.patches.add(patch)
                 patch.main_release = main_release
             else:
                 patch.is_orphan = True
 
-    def _track_patch_main_release(self, patch: Patch):
-        patch_to_track = [patch]
+    def _find_patch_main_release(self, patch: Patch):
         loop_control = set()
+        patch_to_track = [patch]
         while patch_to_track:
             patch = patch_to_track.pop()
-            if patch.release.base_release:
-                sbase_release = self.r2s[patch.release.base_release]
-                if isinstance(sbase_release, MainRelease):
-                    return sbase_release
-                elif sbase_release not in loop_control:
-                    loop_control.add(patch)
-                    patch_to_track.append(sbase_release)
+            base_srelease = self._get_srelease(patch.release.base_release)
+            if isinstance(base_srelease, MainRelease):
+                return base_srelease
+            elif base_srelease and base_srelease not in loop_control:
+                patch_to_track.append(base_srelease)
+                loop_control.add(base_srelease)
+
         return None
 
     def _assign_base_releases(self):
         for srelease in (self.mreleases | self.patches):
-            if srelease.release.base_release:
-                srelease.base_release = self.r2s[srelease.release.base_release]
+            srelease.base_release = \
+                self._get_srelease(srelease.release.base_release)
 
     def _assign_main_base_releases(self):
         for srelease in (self.mreleases | self.patches):
@@ -112,6 +113,12 @@ class SemanticReleaseMiner(AbstractMiner):
             if prev_mrelease_pos >= 0:
                 prev_mrelease = mreleases[prev_mrelease_pos]
                 mrelease.prev_semantic_release = prev_mrelease
+
+    def _get_srelease(self, release: Release) -> SemanticRelease:
+        if release not in self.r2s:
+            return None
+
+        return self.r2s[release]
 
     # def _assign_main_base_release(self):
     #     for mrelease in self.mreleases:
