@@ -38,6 +38,7 @@ class describe_git_repository:
     def it_mine_annotated_tags(self):
         tags = sorted(self.repository.get_tags(), key=lambda tag: tag.time)
         assert tags[0].is_annotated #1.0.0
+        assert tags[1].is_annotated #1.0.1
         assert not tags[16].is_annotated #3.0.1
 
     def it_mine_tag_commits(self):

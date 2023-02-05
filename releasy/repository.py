@@ -240,4 +240,4 @@ class CommitSet:
                 ordered_commits = list(self._commits.values())
             return ordered_commits[-1]
         else:
-            return None
+            return None 
