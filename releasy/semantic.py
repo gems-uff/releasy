@@ -11,6 +11,11 @@ from .repository import CommitSet
 
 
 class SemanticRelease:
+    """
+    Represent a release with semantic
+    
+    
+    """
     def __init__(self, release: Release):
         self.project = release.project #TODO may be removed?
         self.release = release

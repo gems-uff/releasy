@@ -64,7 +64,6 @@ class describe_release_miner:
         assert mreleases['v3.1.0'].commits.ids == set(['22'])
         assert mreleases['v4.0.0'].commits.ids == set(['21'])
          
-
     def it_mine_patches_commits(self):
         patches = self.project.patches
         assert patches['0.10.1'].commits.ids == set(['5'])

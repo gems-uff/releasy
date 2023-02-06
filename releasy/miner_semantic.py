@@ -117,7 +117,6 @@ class SemanticReleaseMiner(AbstractMiner):
     def _get_srelease(self, release: Release) -> SemanticRelease:
         if release not in self.r2s:
             return None
-
         return self.r2s[release]
 
     # def _assign_main_base_release(self):
