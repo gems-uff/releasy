@@ -17,6 +17,17 @@ from .repository import (
 
 
 class Release:
+    """Represent a software release.
+
+    Attributes:
+      - name: the release name
+      - version: the release version
+      - tag: the release tag
+      - commits: all the release commits
+      - head: the last commit of a release
+      - tails: the first commits of a release
+      - base_releases: the imediatelly reacheable releases
+    """
     def __init__(self, project: Project, name: str, tag: Tag) -> None:
         self.project = project
         self.name = name

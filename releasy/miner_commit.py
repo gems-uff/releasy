@@ -59,6 +59,7 @@ class MixedHistoryCommitMiner(AbstractMiner):
 
 
 class HistoryCommitMiner(AbstractMiner):
+    
     def __init__(self) -> None:
         super().__init__()
         self.c2r = dict[Commit, Release]()
@@ -68,12 +69,15 @@ class HistoryCommitMiner(AbstractMiner):
         self._mine_commits()
         return (self.project, [self.c2r])
 
-    def _mine_commits(self) -> None:
-        release_commits = set(map(lambda release: release.tag.commit, 
-                              self.project.releases))
+    def _is_unassigned_commit(commit: Commit) -> bool:
+        pass
 
-        releases = sorted(self.project.releases, 
-                          key=lambda r: (r.time, r.version))
+    def _mine_commits(self) -> None:
+        release_commits = set(
+            map(lambda release: release.tag.commit, self.project.releases))
+
+        releases = sorted(
+            self.project.releases, key=lambda r: (r.time, r.version))
         for release in releases:
             commits = CommitSet()
             tails = CommitSet()
