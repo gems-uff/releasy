@@ -49,7 +49,7 @@ class describe_release_miner:
         assert mreleases['v1.0.0'].patches.names == set(['r-1.0.2'])
         assert mreleases['1.1.0'].patches.names == set(['1.1.1'])
         assert mreleases['v2.0.0'].patches.names \
-            == set(['v2.0.1', '2.0', 'v3.1.1'])
+            == set(['2.0', 'v3.1.1'])
         assert not mreleases['v2.1'].patches
         assert not mreleases['v4.0.0'].patches
 

@@ -69,7 +69,7 @@ class SemanticReleaseMiner(AbstractMiner):
             if main_release:
                 main_release.patches.add(patch)
                 patch.main_release = main_release
-            else:
+            elif patch.commits:
                 patch.is_orphan = True
 
     def _track_patch_main_release(self, patch: Patch):
