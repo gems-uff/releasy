@@ -7,6 +7,7 @@ For each release, it assigns:
 - its tail commits: the first commits of each release branch
 """
 
+from ast import Set
 from typing import Any, List, Tuple
 from releasy.release import Release
 
@@ -62,55 +63,60 @@ class HistoryCommitMiner(AbstractMiner):
     
     def __init__(self) -> None:
         super().__init__()
-        self.c2r = dict[Commit, Release]()
+        self.c2r = dict[Commit, Set]()
 
     def mine(self, project: Project, *args) -> Tuple[Project, Any]:
         self.project = project
-        self._mine_commits()
-        return (self.project, [self.c2r])
+        self._assign_heads()
+        self._mine_releases()
+        return (self.project, [self.c2r]) 
 
-    def _is_unassigned_commit(commit: Commit) -> bool:
-        pass
+    def _get_release(self, commit: Commit) -> bool:
+        return self.c2r.get(commit)
 
-    def _mine_commits(self) -> None:
-        release_commits = set(
-            map(lambda release: release.tag.commit, self.project.releases))
+    def _assign_heads(self):
+        for release in sorted(
+                self.project.releases, 
+                key=lambda r: (r.time, r.version)):
+            if not self._get_release(release.head):
+                self._assign_commit(release.head, release)
 
-        releases = sorted(
-            self.project.releases, key=lambda r: (r.time, r.version))
-        for release in releases:
-            commits = CommitSet()
-            tails = CommitSet()
-            loop_detector = set()
-            commit = release.head
+    def _assign_commit(self, commit: Commit, release: Release):
+        if commit not in self.c2r:
+            self.c2r[commit] = set() 
+        self.c2r.get(commit).add(release)
+
+    def _mine_releases(self) -> None:
+        for release in sorted(
+                self.project.releases, 
+                key=lambda r: (r.time, r.version)):
+            commits, tails = self._mine_commits(release)
+            release.commits = commits
+            release.tails = tails
+
+    def _mine_commits(self, release):
+        commit = release.head
+
+        commit_release = self._get_release(commit) 
+        if commit_release and release not in commit_release:
+            return CommitSet(), CommitSet()
+        
+        commits = CommitSet()
+        tails = CommitSet()
+        commits_to_track: List[Commit] = [commit]    
+        while commits_to_track:
+            commit = commits_to_track.pop()
             
-            if release.head not in self.c2r:
-                commits_to_track: List[Commit] = [commit]
-            else:
-                commits_to_track: List[Commit] = []
-                if commit not in self.c2r:
-                    self.c2r[commit] = set()
-                self.c2r[commit].add(release)
-                
-            while commits_to_track:
-                commit = commits_to_track.pop()
-                commits.add(commit)
-                loop_detector.add(commit)
+            self._assign_commit(commit, release)
+            commits.add(commit)
 
-                if commit not in self.c2r:
-                    self.c2r[commit] = set()
-                self.c2r[commit].add(release)
+            if not commit.parents:
+                tails.add(commit)
 
-                if commit.parents:
-                    for parent in commit.parents:
-                        if parent not in release_commits \
-                                and not parent in self.c2r:
-                            if parent not in loop_detector:
-                                commits_to_track.append(parent)
-                        else:
-                            tails.add(commit)
+            for parent in commit.parents:
+                if not self._get_release(parent):
+                    commits_to_track.append(parent)
                 else:
                     tails.add(commit)
-
-            release.tails = tails
-            release.commits = commits
+                    
+        return commits, tails
