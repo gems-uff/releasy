@@ -25,16 +25,15 @@ class BaseReleaseMiner(AbstractMiner):
 
     def _mine_base_releases(self) -> None:
         for release in self.project.releases:
-            self._mine_base_release(release)
+            self._mine_release_base_release(release)
 
-    def _mine_base_release(self, release: Release):
-        base_releases = [
-            self.c2r.get_release(parent) 
-            for tail in release.tails for parent in tail.parents]
+    def _mine_release_base_release(self, release: Release):
+        base_releases = ReleaseSet(
+            release
+            for tail in release.tails 
+            for parent in tail.parents 
+            for release in self.c2r.get_release(parent))
 
-        base_releases = set(list(base_releases))
-
-        base_releases = ReleaseSet(base_releases)
         base_releases.remove(release)
         release.base_releases = base_releases
         

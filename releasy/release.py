@@ -286,3 +286,10 @@ class Commit2ReleaseMapper():
         if commit not in self.mapper:
             self.mapper[commit] = set() 
         self.mapper.get(commit).add(release)
+
+
+class BaseReleaseSet():
+    """"""
+    def __init__(self, release: Release, base_releases: ReleaseSet) -> None:
+        self.release = release
+        self.base_releases = base_releases
