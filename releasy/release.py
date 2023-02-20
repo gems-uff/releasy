@@ -272,3 +272,17 @@ class ReleaseSet():
 
     def __len__(self):
         return len(self._releases)
+
+
+class Commit2ReleaseMapper():
+    """Map a commit to a release"""
+    def __init__(self) -> None:
+        self.mapper = dict[Commit, ReleaseSet]()
+
+    def get_release(self, commit: Commit) -> bool:
+        return self.mapper.get(commit)
+
+    def assign_commit(self, commit: Commit, release: Release):
+        if commit not in self.mapper:
+            self.mapper[commit] = set() 
+        self.mapper.get(commit).add(release)

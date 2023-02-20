@@ -72,6 +72,20 @@ class describe_history_commit_miner:
         assert project.releases['v4.0.0'].commits.ids \
             == set(['21'])
 
+    def it_handle_releases_referencing_the_same_head(self):
+        """
+        The history commit miner does not assign commits to releases which its
+        head have been already assigned to another release.
+
+        It considers only the first release.
+        """
+        project = self.project
+        assert project.releases['v2.0.0'].head.id == '14'
+        assert project.releases['v2.0.0'].commits.ids == set(['14', '12', '11'])
+        
+        assert project.releases['v2.0.1'].head.id == '14'
+        assert project.releases['v2.0.1'].commits.ids == set()
+
 
 class describe_commit_set:
     @pytest.fixture(autouse=True)

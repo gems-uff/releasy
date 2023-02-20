@@ -71,9 +71,8 @@ class describe_base_release_miner_with_history():
             ['v2.0.0-alpha1'])
         assert releases['v2.0.0'].base_releases.names == set(
             ['r-1.0.2', 'v1.0.0', 'v2.0.0-beta1'])
-        assert releases['v2.0.1'].base_releases.names == set(['v2.0.0'])
-        assert releases['2.0'].base_releases.names == set(
-            ['v2.0.0', 'v2.0.1'])
+        assert not releases['v2.0.1'].base_releases
+        assert releases['2.0'].base_releases.names == set(['v2.0.0'])
         assert releases['v2.1'].base_releases.names == set(['2.0', 'v2.0.0-beta1'])
         assert releases['v3.1.1'].base_releases.names == set(['rel2.1.1pre'])
         assert releases['v4.0.0'].base_releases.names == set(
@@ -91,10 +90,9 @@ class describe_base_release_miner_with_history():
         assert releases['v2.0.0-alpha1'].base_release.name == '1.1.1'
         assert releases['v2.0.0-beta1'].base_release.name == 'v2.0.0-alpha1'
         assert releases['v2.0.0'].base_release.name == 'v2.0.0-beta1'
-        assert releases['v2.0.1'].base_release.name == 'v2.0.0'
-        #FIX 2.0 base release could be v2.0.1
-        assert releases['2.0'].base_release.name == 'v2.0.0' 
-        assert releases['rel2.1.1pre'].base_release.name == 'v2.0.1'
+        assert not releases['v2.0.1'].base_release
+        assert releases['2.0'].base_release.name == 'v2.0.0'
+        assert releases['rel2.1.1pre'].base_release.name == 'v2.0.0'
         assert releases['v2.1'].base_release.name == '2.0'
         assert releases['v3.1.1'].base_release.name == 'rel2.1.1pre'
         assert releases['v4.0.0'].base_release.name == 'v3.1.1'

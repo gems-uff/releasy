@@ -9,7 +9,7 @@ For each release, it assigns:
 
 from ast import Set
 from typing import Any, List, Tuple
-from releasy.release import Release
+from releasy.release import Commit2ReleaseMapper, Release
 
 from releasy.repository import Commit, CommitSet
 from .miner_base import AbstractMiner
@@ -63,7 +63,7 @@ class HistoryCommitMiner(AbstractMiner):
     
     def __init__(self) -> None:
         super().__init__()
-        self.c2r = dict[Commit, Set]()
+        self.c2r = Commit2ReleaseMapper()
 
     def mine(self, project: Project, *args) -> Tuple[Project, Any]:
         self.project = project
@@ -71,20 +71,12 @@ class HistoryCommitMiner(AbstractMiner):
         self._mine_releases()
         return (self.project, [self.c2r]) 
 
-    def _get_release(self, commit: Commit) -> bool:
-        return self.c2r.get(commit)
-
     def _assign_heads(self):
         for release in sorted(
                 self.project.releases, 
                 key=lambda r: (r.time, r.version)):
-            if not self._get_release(release.head):
-                self._assign_commit(release.head, release)
-
-    def _assign_commit(self, commit: Commit, release: Release):
-        if commit not in self.c2r:
-            self.c2r[commit] = set() 
-        self.c2r.get(commit).add(release)
+            if not self.c2r.get_release(release.head):
+                self.c2r.assign_commit(release.head, release)
 
     def _mine_releases(self) -> None:
         for release in sorted(
@@ -97,7 +89,7 @@ class HistoryCommitMiner(AbstractMiner):
     def _mine_commits(self, release):
         commit = release.head
 
-        commit_release = self._get_release(commit) 
+        commit_release = self.c2r.get_release(commit) 
         if commit_release and release not in commit_release:
             return CommitSet(), CommitSet()
         
@@ -107,14 +99,14 @@ class HistoryCommitMiner(AbstractMiner):
         while commits_to_track:
             commit = commits_to_track.pop()
             
-            self._assign_commit(commit, release)
+            self.c2r.assign_commit(commit, release)
             commits.add(commit)
 
             if not commit.parents:
                 tails.add(commit)
 
             for parent in commit.parents:
-                if not self._get_release(parent):
+                if not self.c2r.get_release(parent):
                     commits_to_track.append(parent)
                 else:
                     tails.add(commit)
