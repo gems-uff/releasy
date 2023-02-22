@@ -43,6 +43,11 @@ class describe_release_miner:
         assert patches['v2.0.1']
         assert patches['v3.1.1']
 
+    def it_handle_second_release_as_patch(self):
+        patches = self.project.patches
+        assert patches['2.0']
+        assert patches['2.0'].was_main_release
+
     def it_mine_main_release_patches(self):
         mreleases = self.project.main_releases
         assert not mreleases['v0.9.0'].patches
@@ -64,7 +69,6 @@ class describe_release_miner:
         assert mreleases['v3.1.0'].commits.ids == set(['22'])
         assert mreleases['v4.0.0'].commits.ids == set(['21'])
          
-
     def it_mine_patches_commits(self):
         patches = self.project.patches
         assert patches['0.10.1'].commits.ids == set(['5'])
@@ -82,7 +86,7 @@ class describe_release_miner:
         assert mreleases['1.1.0'].main_base_release.name == 'v1.0.0'
         assert mreleases['v2.0.0'].main_base_release.name == '1.1.0'
         assert mreleases['v2.1'].main_base_release.name == 'v2.0.0'
-        assert mreleases['v4.0.0'].main_base_release.name == 'v2.0.0'
+        assert mreleases['v4.0.0'].main_base_release.name == 'v2.1'
 
     def it_mines_previous_semantic_release(self):
         mreleases = self.project.main_releases
@@ -92,6 +96,7 @@ class describe_release_miner:
         assert mreleases['v2.0.0'].prev_semantic_release.name == '1.1.0'
         assert mreleases['v2.1'].prev_semantic_release.name == 'v2.0.0'
         assert mreleases['v4.0.0'].prev_semantic_release.name == 'v2.1'
+        assert mreleases['v3.1.0'].prev_semantic_release.name == 'v2.1'
 
     def it_mine_main_release_time(self):
         mreleases = self.project.main_releases

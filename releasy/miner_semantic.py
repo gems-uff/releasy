@@ -22,6 +22,7 @@ class SemanticReleaseMiner(AbstractMiner):
         super().__init__()
         self.mreleases = SReleaseSet[MainRelease]()
         self.patches = SReleaseSet[Patch]()
+        self.sreleases = SReleaseSet[SemanticRelease]()
         self.r2s = dict[Release, SemanticRelease]()
         self.versions = set[str]()
         self.project = None
@@ -62,6 +63,7 @@ class SemanticReleaseMiner(AbstractMiner):
                     srelease.was_main_release = True
 
             self.r2s[release] = srelease
+            self.sreleases = SReleaseSet(self.mreleases | self.patches)
     
     def _assign_patches_to_mreleases(self):
         for patch in self.patches:
@@ -87,18 +89,37 @@ class SemanticReleaseMiner(AbstractMiner):
         return None
 
     def _assign_base_releases(self):
-        for srelease in (self.mreleases | self.patches):
+        for srelease in self.sreleases:
             if srelease.release.base_release:
                 srelease.base_release = self.r2s[srelease.release.base_release]
+            for base_release in srelease.release.base_releases:
+                srelease.base_releases.add(self.r2s[base_release])
 
     def _assign_main_base_releases(self):
-        for srelease in (self.mreleases | self.patches):
-            main_base_release = srelease.base_release
-            if isinstance(main_base_release, Patch):
-                main_base_release = main_base_release.main_release
-            srelease.main_base_release = main_base_release
+        for srelease in self.sreleases:
+            self._assign_release_main_base_release(srelease)
+    
+    def _assign_release_main_base_release(self, release: SemanticRelease) -> None:
+        main_base_releases = SReleaseSet[SemanticRelease]()
+        for srelease in release.base_releases:
+            if isinstance(srelease, MainRelease):
+                main_base_releases.add(srelease)
+            else:
+                main_base_releases.add(srelease.main_release)
+                
+        if len(main_base_releases) == 1:
+            release.main_base_release = main_base_releases[0]
+        elif len(release.base_releases) > 1:
+            releases = [release]
+            releases.extend(main_base_releases)
+            releases = sorted(releases, key = lambda r: r.release.version)
+            pos = releases.index(release)
+            if pos > 0:
+                release.main_base_release = releases[pos-1]
+            else:
+                release.main_base_release = releases[1]
 
-    def _assign_prev_semantic_releases(self):
+    def _assign_prev_semantic_releases(self):        
         mreleases = sorted(self.mreleases, 
             key=lambda r: (r.release.version, r.time))
         for i in range(1, len(mreleases)):
@@ -113,13 +134,3 @@ class SemanticReleaseMiner(AbstractMiner):
                 prev_mrelease = mreleases[prev_mrelease_pos]
                 mrelease.prev_semantic_release = prev_mrelease
 
-    # def _assign_main_base_release(self):
-    #     for mrelease in self.mreleases:
-    #         if len(mrelease.base_mreleases) == 1:
-    #             mrelease.base_mrelease = mrelease.base_mreleases[0]
-    #         elif len(mrelease.base_mreleases) > 1:
-    #             releases = sorted(mrelease.base_mreleases.all | set([mrelease])) #FIX version instead of string
-    #             mrelease_pos = releases.index(mrelease)
-    #             mbase_pos = mrelease_pos - 1
-    #             if mbase_pos >= 0:
-    #                 mrelease.base_mrelease = releases[mbase_pos]

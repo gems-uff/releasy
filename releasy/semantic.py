@@ -16,6 +16,7 @@ class SemanticRelease:
         self.release = release
         self.main_base_release: MainRelease = None
         self.base_release: SemanticRelease = None
+        self.base_releases: SReleaseSet = SReleaseSet()
         self.prev_semantic_release = None
         
     @property
