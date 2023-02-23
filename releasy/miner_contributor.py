@@ -2,7 +2,7 @@
 from typing import Any, Tuple
 from releasy.miner_base import AbstractMiner
 from releasy.project import Project
-from tests.contributor import ContributorSet
+from releasy.contributor import ContributorSet
 
 
 class ContributorMiner(AbstractMiner):

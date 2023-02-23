@@ -4,7 +4,7 @@ from collections import OrderedDict
 from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
 
-from tests.contributor import ContributorSet
+from releasy.contributor import ContributorSet
 if TYPE_CHECKING:
     from releasy.project import Project
 

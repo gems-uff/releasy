@@ -46,14 +46,6 @@ class ContributorSet():
         
         return contributors_frequency
 
-    def top_percent(self, percent: int) -> Set[str]:
-        """return the main_contributors of most commits"""
-        top_contributors = set[str]()
-        for contributor, frequency in self.frequency().items():
-            if frequency >= percent:
-                top_contributors.add(contributor)
-        return top_contributors
-
     def top(self, top: int = None, percent: int = None) -> Tuple[str, int]:
         if top and percent:
             raise ValueError("must use top or percent argument")
