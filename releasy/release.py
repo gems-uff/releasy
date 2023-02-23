@@ -3,6 +3,8 @@ from ast import List
 from collections import OrderedDict
 from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
+
+from tests.contributor import ContributorSet
 if TYPE_CHECKING:
     from releasy.project import Project
 
@@ -39,6 +41,7 @@ class Release:
         self.base_release: Release = None
         self.base_releases = ReleaseSet()
         self.version = ReleaseVersion(name)
+        self.contributors: ContributorSet = ContributorSet()
     
     def __hash__(self):
         return hash((self.project, self.name))

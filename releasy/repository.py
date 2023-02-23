@@ -206,6 +206,9 @@ class CommitSet:
         for commit in commits:
             self.add(commit)
 
+    def __sub__(self, other):
+        return self.all - other.all
+
     @property
     def ids(self) -> Set[str]:
         return set(commit.id for commit in self._commits.values())

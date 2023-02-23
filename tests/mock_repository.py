@@ -54,12 +54,13 @@ class MockRepositoryProxy(RepositoryProxy):
         committer_date = self.ref_dt + timedelta(days=1) * pos
 
         authors = {
-            '1': 'bob',
-            '2': 'bob',
-            '3': 'bob',
-            '7': 'bob',
-            '8': 'charlie',
-            '9': 'bob'
+            '1':  'bob',
+            '2':  'bob',
+            '3':  'bob',
+            '7':  'bob',
+            '8':  'charlie',
+            '9':  'bob',
+            '12': 'bob'
         }
         if id in authors:
             author = authors[id]

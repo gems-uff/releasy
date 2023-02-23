@@ -7,7 +7,6 @@ For each release, it assigns:
 - its tail commits: the first commits of each release branch
 """
 
-from ast import Set
 from typing import Any, List, Tuple
 from releasy.release import Commit2ReleaseMapper, Release
 
@@ -112,3 +111,4 @@ class HistoryCommitMiner(AbstractMiner):
                     tails.add(commit)
                     
         return commits, tails
+    
