@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "releasy-lib"
+version = "4.1.0"
+description = "A library to mine release data"
+authors = ["Felipe Curty <felipecrp@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+repository = "https://github.com/gems-uff/releasy"
+
+packages = [
+    { include = "releasy" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pygit2 = "^1.11.1"
+pyyaml = "^6.0"
+python-dateutil = "^2.8.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pylint = "^2.16.2"
+pytest = "^7.2.1"
+pytest-cov = "^4.0.0"
+pytest-profiling = "^1.7.0"
+pytest-spec = "^3.2.0"
+pytest-pyspec = "^0.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
