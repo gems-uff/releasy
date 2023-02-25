@@ -73,7 +73,8 @@ class describe_history_commit_miner:
             == set(['21'])
 
     def it_handle_releases_referencing_the_same_head(self):
-        """
+        """it handles releases referencing the same head
+        
         The history commit miner does not assign commits to releases which its
         head have been already assigned to another release.
 

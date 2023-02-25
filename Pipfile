@@ -14,10 +14,11 @@ pytest = "*"
 pytest-cov = "*"
 pytest-profiling = "*"
 pytest-spec = "*"
+pytest-pyspec = "*"
 
 [requires]
 python_version = "3.11"
 
 [scripts]
 test = "pytest"
-test-cov = "pytest --cov-report html --cov=releasy" 
+test-cov = "pytest --cov-report html --cov=releasy"
