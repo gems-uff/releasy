@@ -109,7 +109,7 @@ class SemanticReleaseMiner(AbstractMiner):
                 
         if len(main_base_releases) == 1:
             release.main_base_release = main_base_releases[0]
-        elif len(release.base_releases) > 1:
+        elif len(main_base_releases) > 1:
             releases = [release]
             releases.extend(main_base_releases)
             releases = sorted(releases, key = lambda r: r.release.version)
