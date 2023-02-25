@@ -8,12 +8,14 @@ __all__ = [
     'FinalReleaseMiner',
     'HistoryCommitMiner',
     'MixedHistoryCommitMiner',
+    'ContributorMiner',
     'BaseReleaseMiner',
     'SemanticReleaseMiner']
 
 from .miner_release import *
 from .miner_commit import *
 from .miner_base_release import *
+from .miner_contributor import *
 from .miner_semantic import *
 
 from .project import Project
