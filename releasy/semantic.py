@@ -17,7 +17,7 @@ class SemanticRelease:
         self.main_base_release: MainRelease = None
         self.base_release: SemanticRelease = None
         self.base_releases: SReleaseSet = SReleaseSet()
-        self.prev_semantic_release = None
+        self.prev_main_release = None
         
     @property
     def name(self):
@@ -68,8 +68,8 @@ class MainRelease(SemanticRelease):
 
     @property
     def cycle(self) -> datetime.timedelta:
-        if self.prev_semantic_release:
-            ref = self.prev_semantic_release.time
+        if self.prev_main_release:
+            ref = self.prev_main_release.time
         elif self.commits:
             ref = self.commits.first(lambda c: c.author_time).author_time
         else:
@@ -78,10 +78,10 @@ class MainRelease(SemanticRelease):
 
     @property
     def delay(self) -> datetime.timedelta:
-        if self.prev_semantic_release and self.commits:
+        if self.prev_main_release and self.commits:
             ref = self.release.commits.first(
                 lambda c: c.author_time).author_time
-            return ref - self.prev_semantic_release.time
+            return ref - self.prev_main_release.time
         else:
             return datetime.timedelta(0)
 

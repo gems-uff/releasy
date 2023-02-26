@@ -35,7 +35,7 @@ class SemanticReleaseMiner(AbstractMiner):
         self._assign_patches_to_mreleases()
         self._assign_base_releases()
         self._assign_main_base_releases()
-        self._assign_prev_semantic_releases()
+        self._assign_prev_main_releases()
   
         self.project.main_releases = self.mreleases
         self.project.patches = self.patches
@@ -119,7 +119,7 @@ class SemanticReleaseMiner(AbstractMiner):
             else:
                 release.main_base_release = releases[1]
 
-    def _assign_prev_semantic_releases(self):        
+    def _assign_prev_main_releases(self):        
         mreleases = sorted(self.mreleases, 
             key=lambda r: (r.release.version, r.time))
         for i in range(1, len(mreleases)):
@@ -132,5 +132,5 @@ class SemanticReleaseMiner(AbstractMiner):
             
             if prev_mrelease_pos >= 0:
                 prev_mrelease = mreleases[prev_mrelease_pos]
-                mrelease.prev_semantic_release = prev_mrelease
+                mrelease.prev_main_release = prev_mrelease
 

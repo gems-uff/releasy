@@ -88,15 +88,15 @@ class describe_release_miner:
         assert mreleases['v2.1'].main_base_release.name == 'v2.0.0'
         assert mreleases['v4.0.0'].main_base_release.name == 'v2.1'
 
-    def it_mines_previous_semantic_release(self):
+    def it_mines_previous_main_release(self):
         mreleases = self.project.main_releases
-        assert not mreleases['v0.9.0'].prev_semantic_release
-        assert mreleases['v1.0.0'].prev_semantic_release.name == 'v0.9.0'
-        assert mreleases['1.1.0'].prev_semantic_release.name == 'v1.0.0'
-        assert mreleases['v2.0.0'].prev_semantic_release.name == '1.1.0'
-        assert mreleases['v2.1'].prev_semantic_release.name == 'v2.0.0'
-        assert mreleases['v4.0.0'].prev_semantic_release.name == 'v2.1'
-        assert mreleases['v3.1.0'].prev_semantic_release.name == 'v2.1'
+        assert not mreleases['v0.9.0'].prev_main_release
+        assert mreleases['v1.0.0'].prev_main_release.name == 'v0.9.0'
+        assert mreleases['1.1.0'].prev_main_release.name == 'v1.0.0'
+        assert mreleases['v2.0.0'].prev_main_release.name == '1.1.0'
+        assert mreleases['v2.1'].prev_main_release.name == 'v2.0.0'
+        assert mreleases['v4.0.0'].prev_main_release.name == 'v2.1'
+        assert mreleases['v3.1.0'].prev_main_release.name == 'v2.1'
 
     def it_mine_main_release_time(self):
         mreleases = self.project.main_releases
