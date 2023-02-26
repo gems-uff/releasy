@@ -10,7 +10,7 @@ class ContributorSet():
         self.authors = set[str]()
         self.contributors = set[str]()
         self.newcomers = set[str]()
-
+  
         if commits:
             self._commits = commits
             self.committers = set[str](commit.committer for commit in commits)
@@ -65,6 +65,8 @@ class ContributorSet():
             contributions += frequency
             if contributions >= percent:
                 return contributors[0:pos+1] 
+            
+        return []
 
     @property
     def all(self):
