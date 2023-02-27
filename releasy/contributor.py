@@ -1,4 +1,4 @@
-from typing import Set, Tuple
+from typing import List, Set, Tuple
 from releasy.repository import CommitSet
 
 class ContributorSet():
@@ -71,3 +71,11 @@ class ContributorSet():
     @property
     def all(self):
         return self.contributors
+    
+    def commits(self, contributors: List[str]) -> CommitSet:
+        contributors = set(contributors)
+        commits = [commit for commit in self._commits
+            if commit.author in contributors 
+                or commit.committer in contributors]
+        commits = CommitSet(commits)
+        return commits

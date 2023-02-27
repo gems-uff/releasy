@@ -82,4 +82,16 @@ class TestRelease:
             assert self.releases['v2.1'].contributors.top(percent=50) \
                 == [('alice', 100)]
             assert self.releases['v2.1'].contributors.top(percent=100) \
-                == [('alice', 100)]
+
+        def test_contributors_commits(self):
+            "it store the commits from a group of contributors"
+            assert self.releases['2.0'].contributors.commits(['alice']).ids \
+                == set(['15'])
+            assert not self.releases['2.0'].contributors.commits(['bob']).ids
+            assert self.releases['v2.0.0-beta1'].contributors.commits(['alice']).ids \
+                == set(['10', '9'])
+            assert self.releases['v2.0.0-beta1'].contributors.commits(['bob']).ids \
+                == set(['9'])
+            assert self.releases['v2.0.0-beta1'].contributors.commits(['alice', 'bob']).ids \
+                == set(['10', '9'])
+            
