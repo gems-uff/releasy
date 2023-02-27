@@ -73,7 +73,14 @@ class ContributorSet():
         return self.contributors
     
     def commits(self, contributors: List[str]) -> CommitSet:
-        contributors = set(contributors)
+        def get_contributor(contributor):
+            if isinstance(contributor, tuple):
+                return contributor[0]
+            return contributor
+        
+        contributors = set(
+            get_contributor(contributor) for contributor in contributors)
+        
         commits = [commit for commit in self._commits
             if commit.author in contributors 
                 or commit.committer in contributors]
