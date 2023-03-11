@@ -520,14 +520,14 @@ tests = ["pytest-virtualenv"]
 
 [[package]]
 name = "pytest-pyspec"
-version = "0.4.0"
-description = "A python test spec based on pytest"
+version = "0.5.0"
+description = "A plugin that transforms the pytest output into a result similar to the RSpec. It enables the use of docstrings to display results and also enables the use of the prefixes \"describe\", \"with\" and \"it\"."
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "pytest_pyspec-0.4.0-py3-none-any.whl", hash = "sha256:eb37ab04f194dd1a1d23eb54fd51b4463ce1a2e0ada1d91b871e7644e96d50da"},
-    {file = "pytest_pyspec-0.4.0.tar.gz", hash = "sha256:80fdd9dba04a60c417d1afd57d7cf3cf4474154b171408e77ccd91893c00bad9"},
+    {file = "pytest_pyspec-0.5.0-py3-none-any.whl", hash = "sha256:9b3a130273426205b1350dc4da0fa99030af59f26faa6566a10d3fbefa6a4451"},
+    {file = "pytest_pyspec-0.5.0.tar.gz", hash = "sha256:7fe793f5dcd8efc5009bab369cfd95580c5e42dff37e461c517d9fe4b7d71b35"},
 ]
 
 [package.dependencies]
@@ -723,4 +723,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "97448d28bb424900e058b0cf79b7f1e0aa771623fe5569b1b2e250f79ab8e042"
+content-hash = "42240348068422c71e218046cd0c300520fed2a5fd9893e4be93fed1f77c0252"
