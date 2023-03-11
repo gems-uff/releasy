@@ -520,33 +520,18 @@ tests = ["pytest-virtualenv"]
 
 [[package]]
 name = "pytest-pyspec"
-version = "0.2.2"
+version = "0.4.0"
 description = "A python test spec based on pytest"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "pytest_pyspec-0.2.2-py3-none-any.whl", hash = "sha256:f5cb992c8f211f2579cd48ef5e48567d0d84bca2e0c44ebba96f2732ec5872d1"},
-    {file = "pytest_pyspec-0.2.2.tar.gz", hash = "sha256:58ac44b9d6c89e9d5336429758982f4c7dd4c7dde3de989eacd55687ab501da6"},
+    {file = "pytest_pyspec-0.4.0-py3-none-any.whl", hash = "sha256:eb37ab04f194dd1a1d23eb54fd51b4463ce1a2e0ada1d91b871e7644e96d50da"},
+    {file = "pytest_pyspec-0.4.0.tar.gz", hash = "sha256:80fdd9dba04a60c417d1afd57d7cf3cf4474154b171408e77ccd91893c00bad9"},
 ]
 
 [package.dependencies]
 pytest = ">=7.2.1,<8.0.0"
-
-[[package]]
-name = "pytest-spec"
-version = "3.2.0"
-description = "Library pytest-spec is a pytest plugin to display test execution output like a SPECIFICATION."
-category = "dev"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pytest-spec-3.2.0.tar.gz", hash = "sha256:4af154588195f4bb6c62d6ca030a20218db7d80b675a08897d9a99239ea3d087"},
-    {file = "pytest_spec-3.2.0-py2.py3-none-any.whl", hash = "sha256:128dd1e133c72d6a18b28ed96d0af0fc43aece8f796ebcfcd81c850f0094b62e"},
-]
-
-[package.dependencies]
-six = "*"
 
 [[package]]
 name = "python-dateutil"
@@ -738,4 +723,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "64c878f13709888cddb169707242e3c9aa638d45fd5a71ecb1b476623d821b54"
+content-hash = "97448d28bb424900e058b0cf79b7f1e0aa771623fe5569b1b2e250f79ab8e042"
