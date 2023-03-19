@@ -43,10 +43,6 @@ class TestRelease:
             ).mine()
             self.releases = project.releases
 
-        def it_has_contributors(self):
-            assert len(self.releases['v1.0.0'].contributors) == 1
-            assert len(self.releases['1.1.1'].contributors) == 3
-
         def it_has_committers(self):
             assert len(self.releases['v1.0.0'].contributors.committers) == 1
             assert len(self.releases['1.1.1'].contributors.committers) == 2
@@ -56,29 +52,31 @@ class TestRelease:
             assert len(self.releases['1.1.1'].contributors.authors) == 2
 
         def it_has_newcomers(self):
+            assert len(self.releases['0.0.0-alpha1'].contributors.newcomers) == 0
             assert len(self.releases['v0.9.0'].contributors.newcomers) == 1
             assert len(self.releases['v1.0.0'].contributors.newcomers) == 0
-            assert len(self.releases['1.1.1'].contributors.newcomers) == 1
+            assert len(self.releases['1.1.1'].contributors.newcomers) == 0
+            assert len(self.releases['v2.0.0-alpha1'].contributors.newcomers) == 1
 
         def it_has_top_contributors_by_top(self):
             #FIX order on draw
-            assert self.releases['1.1.1'].contributors.top(1)[0][1] == 33
+            assert self.releases['1.1.1'].contributors.top(1)[0][1] == 50
             assert self.releases['v2.0.0'].contributors.top(1) \
-                == [('alice', 75)]
+                == [('alice', 66)]
             assert self.releases['v2.0.0'].contributors.top() \
-                == [('alice', 75), ('bob', 25)]
+                == [('alice', 66), ('bob', 33)]
             assert self.releases['v2.1'].contributors.top(1) \
                 == [('alice', 100)]
             assert self.releases['v2.1'].contributors.top(10) \
                 == [('alice', 100)]
 
         def it_has_top_contributors_by_percent(self):
-            assert self.releases['1.1.1'].contributors.top(percent=50) \
-                == [('alice', 33), ('bob', 33)]
-            assert self.releases['1.1.1'].contributors.top(percent=80) \
-                == [('alice', 33), ('bob', 33), ('charlie', 33)]
             assert self.releases['v2.0.0'].contributors.top(percent=50) \
-                == [('alice', 75)]
+                == [('alice', 66)]
+            assert self.releases['v2.0.0'].contributors.top(percent=75) \
+                == [('alice', 66), ('bob', 33)]
+            assert self.releases['v2.0.0'].contributors.top(percent=100) \
+                == [('alice', 66), ('bob', 33)]
             assert self.releases['v2.1'].contributors.top(percent=50) \
                 == [('alice', 100)]
             assert self.releases['v2.1'].contributors.top(percent=100) \

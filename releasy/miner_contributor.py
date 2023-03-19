@@ -10,14 +10,14 @@ class ContributorMiner(AbstractMiner):
         super().__init__()
 
     def mine(self, project: Project, *args) -> Tuple[Project, Any]:
-        previous_contributors = set[str]()
+        previous_authors = set[str]()
         for release in sorted(
                 project.releases, key = lambda r: (r.time, r.version)):
 
             release.contributors = ContributorSet(
                 release.commits, 
-                previous_contributors
+                previous_authors
             )
-            previous_contributors.update(release.contributors.all)
+            previous_authors.update(release.contributors.authors)
         
         return project, []
