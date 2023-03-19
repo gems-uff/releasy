@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "releasy_lib"
-version = "4.2.2"
+version = "4.2.3"
 description = "A library to mine release data"
 authors = ["Felipe Curty <felipecrp@gmail.com>"]
 license = "MIT"

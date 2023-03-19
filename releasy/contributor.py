@@ -31,9 +31,11 @@ class ContributorSet():
 
         for contributor, contributions in contributors_frequency.items():
             contributors_frequency[contributor] \
-                = int(contributors_frequency[contributor] \
+                = round(
+                    contributors_frequency[contributor] \
                     * 100 \
-                    / total_contributions)
+                    / total_contributions,
+                    2)
         
         return contributors_frequency
 
@@ -50,9 +52,6 @@ class ContributorSet():
         
         if top:
             return contributors[0:top]
-
-        if percent == 100:
-            return contributors
         
         contributions = 0
         for pos, (contributor, frequency) in enumerate(contributors):

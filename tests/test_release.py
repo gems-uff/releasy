@@ -62,9 +62,9 @@ class TestRelease:
             #FIX order on draw
             assert self.releases['1.1.1'].contributors.top(1)[0][1] == 50
             assert self.releases['v2.0.0'].contributors.top(1) \
-                == [('alice', 66)]
+                == [('alice', 66.67)]
             assert self.releases['v2.0.0'].contributors.top() \
-                == [('alice', 66), ('bob', 33)]
+                == [('alice', 66.67), ('bob', 33.33)]
             assert self.releases['v2.1'].contributors.top(1) \
                 == [('alice', 100)]
             assert self.releases['v2.1'].contributors.top(10) \
@@ -72,11 +72,11 @@ class TestRelease:
 
         def it_has_top_contributors_by_percent(self):
             assert self.releases['v2.0.0'].contributors.top(percent=50) \
-                == [('alice', 66)]
+                == [('alice', 66.67)]
             assert self.releases['v2.0.0'].contributors.top(percent=75) \
-                == [('alice', 66), ('bob', 33)]
+                == [('alice', 66.67), ('bob', 33.33)]
             assert self.releases['v2.0.0'].contributors.top(percent=100) \
-                == [('alice', 66), ('bob', 33)]
+                == [('alice', 66.67), ('bob', 33.33)]
             assert self.releases['v2.1'].contributors.top(percent=50) \
                 == [('alice', 100)]
             assert self.releases['v2.1'].contributors.top(percent=100) \
