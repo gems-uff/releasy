@@ -1,9 +1,10 @@
 from typing import Self, Set
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from datetime import datetime, timedelta
 
-from .change import Change
+from releasy.version import ReleaseVersioningSchema, SimpleVersioningSchema
+from releasy.change import Change
 
 
 class Release(ABC):
@@ -72,14 +73,31 @@ class ReleaseDeliveryLifeCycle:
 
 
 class ReleaseBuilder:
-    def __init__(self) -> None:
-        self.release: Release = Release()
+    def __init__(self, 
+                 versioning_schema: ReleaseVersioningSchema = None) -> None:
+        if versioning_schema:
+            self._version_schema = versioning_schema
+        else:
+            self._version_schema = SimpleVersioningSchema()
+        self.reset()
     
+    def reset(self):
+        self._name = ""
+        
     def name(self, name: str) -> Self:
-        self.release.name = name
+        self.name = name
         return self
         
     def build(self) -> Release:
-        release = self.release
-        self.release = Release()
+        version, factory = self._version_schema.parse(self._name)
+        release = factory.create(self.name, version)
         return release
+
+
+class ReleaseFactory():
+    def create(self, name, version) -> Release:
+        match version:
+            case "Major":
+                return MajorRelease(name, version)
+            case _:
+                return MainRelease(name, version)

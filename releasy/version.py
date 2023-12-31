@@ -2,11 +2,12 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 import re
-from typing import Tuple
+from typing import List, Tuple
+
 
 class ReleaseVersioningSchema(ABC):
     @abstractmethod
-    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
+    def parse(self, name: str) -> Tuple[ReleaseVersion, ReleaseFactory]:
         pass
 
 
@@ -18,11 +19,18 @@ class SemanticVersioningSchema(ReleaseVersioningSchema):
 
 class SimpleVersioningSchema(ReleaseVersioningSchema):
     def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
-        return super().parse(name)
+        return SimpleReleaseVersion(name)
+
 
 class ReleaseVersion(ABC):
     pass
 
+
+class SimpleReleaseVersion(ReleaseVersion):
+    def __init__(self, name) -> None:
+        self.numbers: List[int] = []
+
+    
 class SemanticVersioning(ReleaseVersion):
     def __init__(self, name) -> None:
         self.prefix = ''

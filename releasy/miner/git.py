@@ -11,7 +11,7 @@ class GitRepository:
 
 
 class GitReleaseMiner(ReleaseMiner):
-    def __init__(self, repository: GitRepository) -> None:
+    def __init__(self, repository: GitRepository, ) -> None:
         super().__init__()
         self.git = repository
 
