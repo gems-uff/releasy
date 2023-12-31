@@ -1,40 +1,62 @@
-from releasy.release2 import MainRelease, MajorRelease, MinorRelease, Patch, ReleaseBuilder, SemanticVersioningSchema
+import pytest
+from releasy.release2 import MainRelease, MajorRelease, MinorRelease, Patch, ReleaseBuilder, SemanticVersioningSchema, SimpleVersioningSchema
 
 
-class TestReleaseBuilder:
-    class WithSimpleRelease:
-        def it_build_releases(self):
-            builder = ReleaseBuilder()
-            builder.name("1.0.1")
-            release = builder.build()
+class TestSimpleVersioningSchema:
+    def it_build_releases(self):
+        release = SimpleVersioningSchema().apply("1.2.3")
 
-            assert release.name == "1.0.1"
-            assert isinstance(release, MainRelease)
-            
-
-    class WithSemanticVersioning:
-        def it_build_major_releases(self):
-            builder = ReleaseBuilder(SemanticVersioningSchema())
-            builder.name("1.0.0")
-            release = builder.build()
-            
-            assert release.name == "1.0.0"
-            assert isinstance(release, MajorRelease)
+        assert release.name == "1.2.3"
+        assert isinstance(release, MainRelease)
 
 
-        def it_build_minor_releases(self):
-            builder = ReleaseBuilder(SemanticVersioningSchema())
-            builder.name("1.1.0")
-            release = builder.build()
-            
-            assert release.name == "1.1.0"
-            assert isinstance(release, MinorRelease)
+    def it_match_prefix(self):
+        release = SimpleVersioningSchema().apply("prefix1.2.3")
+
+        assert release.name == "prefix1.2.3"
+        assert release.version.prefix == "prefix"
+        assert isinstance(release, MainRelease)
 
 
-        def it_build_patches(self):
-            builder = ReleaseBuilder(SemanticVersioningSchema())
-            builder.name("1.1.1")
-            release = builder.build()
-            
-            assert release.name == "1.1.1"
-            assert isinstance(release, Patch)
+    def it_match_suffix(self):
+        release = SimpleVersioningSchema().apply("1.2.3suffix")
+
+        assert release.name == "1.2.3suffix"
+        assert release.version.suffix == "suffix"
+        assert isinstance(release, MainRelease)
+        
+
+    def it_skip_invalid_references(self):
+        with pytest.raises(ValueError):
+            release = SimpleVersioningSchema().apply("invalid")
+
+
+class TestSemanticVersioningSchema:
+    def it_build_major_releases(self):
+        release = SemanticVersioningSchema().apply("1.0.0")
+        
+        assert release.name == "1.0.0"
+        assert release.version.major == 1
+        assert release.version.minor == 0
+        assert release.version.patch == 0
+        assert isinstance(release, MajorRelease)
+
+
+    def it_build_minor_releases(self):
+        release = SemanticVersioningSchema().apply("1.1.0")
+        
+        assert release.name == "1.1.0"
+        assert release.version.major == 1
+        assert release.version.minor == 1
+        assert release.version.patch == 0
+        assert isinstance(release, MinorRelease)
+                          
+
+    def it_build_patches(self):
+        release = SemanticVersioningSchema().apply("1.1.1")
+        
+        assert release.name == "1.1.1"
+        assert release.version.major == 1
+        assert release.version.minor == 1
+        assert release.version.patch == 1
+        assert isinstance(release, Patch)

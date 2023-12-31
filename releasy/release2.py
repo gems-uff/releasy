@@ -82,30 +82,24 @@ class ReleaseDeliveryLifeCycle:
         self.delay: timedelta = None
 
 
-class ReleaseFactory(ABC):
-    @abstractmethod
-    def create(self, name, version) -> Release:
-        pass 
-    
-
-class MainReleaseFactory(ReleaseFactory):
-    def create(self, name, version):
-        return MainRelease(name, version)
-    
-
 class ReleaseVersioningSchema(ABC):
     @abstractmethod
-    def parse(self, name: str) -> Tuple[ReleaseVersion, ReleaseFactory]:
+    def apply(self, name: str) -> Release:
+        """ Create a release from its reference name """
         pass
 
 
 class SimpleVersioningSchema(ReleaseVersioningSchema):
-    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
-        return SimpleReleaseVersion(name), MainReleaseFactory()
+    def apply(self, name: str) -> Release:
+        #todo handle invalid name
+        version = SimpleReleaseVersion(name)
+        return MainRelease(name, version)
 
 
-class SemanticReleaseFactory(ReleaseFactory):
-    def create(self, name: str, version: SemanticVersion) -> Release:
+class SemanticVersioningSchema(ReleaseVersioningSchema):
+    def apply(self, name: str) -> Release:
+        #todo handle invalid name
+        version = SemanticVersion(name)
         if version.patch:
             return Patch(name, version)
         if version.minor:
@@ -114,12 +108,6 @@ class SemanticReleaseFactory(ReleaseFactory):
             return MajorRelease(name, version)
         return None
        
-
-class SemanticVersioningSchema(ReleaseVersioningSchema):
-    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
-       version = SemanticVersion(name)
-       return version, SemanticReleaseFactory()
-
 
 class ReleaseBuilder:
     def __init__(self, 
@@ -138,8 +126,7 @@ class ReleaseBuilder:
         return self
         
     def build(self) -> Release:
-        version, factory = self._version_schema.parse(self._name)
-        release = factory.create(self._name, version)
+        release = self._version_schema.apply(self._name)
         return release
 
 

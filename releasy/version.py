@@ -21,9 +21,11 @@ class SimpleReleaseVersion(ReleaseVersion):
     number_separator = re.compile(r'([0-9]+)')
 
     def __init__(self, name) -> None:
-        # parts = self.releases_separator.match(name)
-        # prefix, version_number, suffix = parts.groups()
-        prefix, version_number, suffix = self.releases_separator.findall(name)[0]
+        version = self.releases_separator.findall(name)
+        if not version:
+            raise ValueError(f'Invalid release version for reference {name}')
+
+        self.prefix, version_number, self.suffix = version[0]
         number_parts = self.number_separator.findall(version_number)
         numbers = [int(number) for number in number_parts]
         super().__init__(numbers)
