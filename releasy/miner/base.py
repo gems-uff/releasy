@@ -2,20 +2,33 @@ from abc import ABC, abstractmethod
 from typing import List, Self, Set
 
 from releasy.project2 import Project
-from releasy.release2 import Release, SimpleVersioningSchema
+from releasy.release2 import Release, ReleaseVersioningSchema, SimpleVersioningSchema
 
 
 class AMiner(ABC):
     def mine():
         pass
-    
-class SimpleReferenceFilter:
-    def test(reference: str) -> bool:
+
+
+class ReferenceFilter(ABC):
+    @abstractmethod
+    def test(self, reference: str) -> bool:
+        pass
+
+
+class AllReferenceFilter(ReferenceFilter):
+    def test(self, reference: str) -> bool:
         return True
     
 
-class SimpleReleaseFilter:
-    def test(release: Release) -> bool:
+class ReleaseFilter(ABC):
+    @abstractmethod
+    def test(self, release: str) -> bool:
+        pass
+
+
+class AllReleaseFilter(ReleaseFilter):
+    def test(self, release: Release) -> bool:
        return True
 
 
@@ -31,13 +44,21 @@ class Repository(ABC):
     
 
 class ReleaseMiner():
-    def __init__(self) -> None:
-        self.repository = None
-        self.versioning_schema = SimpleVersioningSchema()
-        self.reference_filter = SimpleReferenceFilter
-        self.release_filter = SimpleReleaseFilter
+    """ Mine releases in a repository """
+
+    def __init__(
+            self, 
+            versioning_schema: ReleaseVersioningSchema = None,
+            reference_filter: ReferenceFilter = None,
+            release_filter: ReleaseFilter = None
+            ) -> None:
+        self.versioning_schema = versioning_schema or SimpleVersioningSchema()
+        self.reference_filter = reference_filter or AllReferenceFilter()
+        self.release_filter = release_filter or AllReleaseFilter()
 
     def mine(self, repository) -> Set[Release]:
+        """ Mine the releases in a repository """
+
         release_refs = repository.release_refs
         filtered_refs = (ref for ref in release_refs 
                          if ref and self.reference_filter.test(ref))
