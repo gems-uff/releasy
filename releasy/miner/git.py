@@ -1,26 +1,64 @@
-from typing import Set
+from datetime import datetime, timedelta, timezone
+from typing import List, Set
 
 import pygit2
 
 from releasy.miner.base import ReleaseMiner
-from releasy.release2 import Release, ReleaseBuilder
+from releasy.miner.repository import Repository
+from releasy.release2 import Release, ReleaseReference
 
 
-class GitRepository:
-    pass
-
-
-class GitReleaseMiner(ReleaseMiner):
-    def __init__(self, repository: GitRepository, ) -> None:
+class GitRepository(Repository):
+    """ A Git Repository Abstraction """
+    def __init__(self, path) -> None:
         super().__init__()
-        self.git = repository
+        self._path = path
+        self._git = pygit2.Repository(path)
 
-    def mine(self) -> Set[Release]:
-        tags = [ref for ref in self.git.references.objects 
-                    if ref.name.startswith('refs/tags/')]
+    @property
+    def release_refs(self) -> List[ReleaseReference]:
+        tags: List[pygit2.Reference] = [
+            tag for tag in self._git.references.objects 
+            if tag.name.startswith('refs/tags/')
+        ]
 
-        release_builder = ReleaseBuilder()
-        releases = map(
-            lambda tag: release_builder.name(tag.shorthand).build(),
-            tags)
-        return list(releases)
+        targets = [
+            self._git.get(tag_reference.target) 
+            for tag_reference in tags
+        ]
+
+        references = map(
+            lambda tag, target: create_reference(tag, target),
+            tags, targets
+        )
+        references = [ref for ref in references if ref]
+        return references
+
+
+def create_reference(
+            tag_ref: pygit2.Reference, 
+            target_ref: pygit2.Object
+        ) -> ReleaseReference: 
+    
+    match target_ref:
+        case pygit2.Tag() as tag:
+           timestamp = get_time(tag.tagger)
+           developer = f'{tag.tagger.name} <{tag.tagger.email}>'
+           description = tag.message
+           commit = tag.peel(pygit2.Commit)
+           change_refs = [commit.oid] if commit else []
+        case pygit2.Commit() as commit:
+           timestamp = get_time(commit.committer)
+           developer = f'{commit.committer.name} <{commit.committer.email}>'
+           description = commit.message
+           change_refs = [commit.oid]
+        case _:
+           return None 
+    return ReleaseReference(tag_ref.shorthand, timestamp, developer, description,
+                            change_refs)
+
+
+def get_time(tagger):
+    time_tzinfo = timezone(timedelta(minutes=tagger.offset))
+    time = datetime.fromtimestamp(float(tagger.time), time_tzinfo)
+    return time

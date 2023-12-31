@@ -1,47 +1,36 @@
 from abc import ABC, abstractmethod
 from typing import List, Self, Set
+from releasy.miner.repository import Repository
 
 from releasy.project2 import Project
 from releasy.release2 import Release, ReleaseVersioningSchema, SimpleVersioningSchema
 
 
-class AMiner(ABC):
-    def mine():
-        pass
-
-
 class ReferenceFilter(ABC):
+    """ Filter references before parsing the release """
     @abstractmethod
     def test(self, reference: str) -> bool:
         pass
 
 
 class AllReferenceFilter(ReferenceFilter):
+    """ Select all references """
     def test(self, reference: str) -> bool:
         return True
     
 
 class ReleaseFilter(ABC):
+    """ Filter releases """
     @abstractmethod
     def test(self, release: str) -> bool:
         pass
 
 
 class AllReleaseFilter(ReleaseFilter):
+    """ Select all releases """
     def test(self, release: Release) -> bool:
        return True
 
-
-class Repository(ABC):
-    """ The Repository is an abstraction of any repository that contains
-    information about releases, its changes, issues, and collaborators"""
-
-    @property
-    @abstractmethod
-    def release_refs(self) -> List[str]:
-        """ The references to the releases """
-        pass
-    
 
 class ReleaseMiner():
     """ Mine releases in a repository """
@@ -56,7 +45,7 @@ class ReleaseMiner():
         self.reference_filter = reference_filter or AllReferenceFilter()
         self.release_filter = release_filter or AllReleaseFilter()
 
-    def mine(self, repository) -> Set[Release]:
+    def mine(self, repository: Repository) -> Set[Release]:
         """ Mine the releases in a repository """
 
         release_refs = repository.release_refs

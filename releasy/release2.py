@@ -1,4 +1,4 @@
-from typing import Self, Set, Tuple
+from typing import List, Self, Set, Tuple
 from abc import ABC, abstractmethod
 
 from datetime import datetime, timedelta
@@ -130,4 +130,13 @@ class SemanticVersioningSchema(ReleaseVersioningSchema):
 #         release = self._version_schema.apply(self._name)
 #         return release
 
+
+class ReleaseReference:
+    def __init__(self, name: str, timestamp: datetime, developer: str,
+                 description: str, change_refs: List[str]) -> None:
+        self.name = name
+        self.timestamp = timestamp
+        self.developer = developer
+        self.description = description
+        self.change_refs = change_refs
 
