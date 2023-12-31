@@ -9,7 +9,7 @@ class MockRepository(Repository):
 
 class TestReleaseMiner:
 
-    class with_SimpleRepo:
+    class WithSimpleRepo:
     
         def it_mine_a_repository(self):
             repository = MockRepository()

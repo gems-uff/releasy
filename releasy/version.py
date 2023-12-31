@@ -5,57 +5,44 @@ import re
 from typing import List, Tuple
 
 
-class ReleaseVersioningSchema(ABC):
-    @abstractmethod
-    def parse(self, name: str) -> Tuple[ReleaseVersion, ReleaseFactory]:
-        pass
-
-
-class SemanticVersioningSchema(ReleaseVersioningSchema):
-    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
-       version = SemanticVersioning(name) 
-       return version
-
-
-class SimpleVersioningSchema(ReleaseVersioningSchema):
-    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
-        return SimpleReleaseVersion(name)
-
 
 class ReleaseVersion(ABC):
-    pass
+    def __init__(self, numbers: List[int]) -> None:
+        self.numbers = numbers
 
 
 class SimpleReleaseVersion(ReleaseVersion):
-    def __init__(self, name) -> None:
-        self.numbers: List[int] = []
-
+    """ The release version is composed by a sequence of numbers and may have a
+    prefix and a suffix """
     
-class SemanticVersioning(ReleaseVersion):
-    def __init__(self, name) -> None:
-        self.prefix = ''
-        self.suffix = ''
-        
-        if not separator:
-            separator = re.compile(
-                r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
-            )
-        parts = separator.match(name)
-        if parts:
-            if parts.group('prefix'):
-                self.prefix = parts.group('prefix')
-            if parts.group('suffix'):
-                self.suffix = parts.group('suffix')
-            if parts.group('version'):
-                self.number = parts.group('version')
+    releases_separator = re.compile(
+        r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
+    )
+    number_separator = re.compile(r'([0-9]+)')
 
-        if not version_separator:
-            version_separator = re.compile(r'([0-9]+)')
-        version_parts = version_separator.findall(self.number)
-        self.numbers = [int(version_part) for version_part in version_parts]
-        if len(self.numbers) == 1:
-            self.numbers.append(0)
-        if len(self.numbers) == 2:
-            self.numbers.append(0)
-        #TODO handle dinamic
-        self.number = '.'.join([str(v) for v in self.numbers])
+    def __init__(self, name) -> None:
+        # parts = self.releases_separator.match(name)
+        # prefix, version_number, suffix = parts.groups()
+        prefix, version_number, suffix = self.releases_separator.findall(name)[0]
+        number_parts = self.number_separator.findall(version_number)
+        numbers = [int(number) for number in number_parts]
+        super().__init__(numbers)
+    
+
+class SemanticVersion(SimpleReleaseVersion):
+    """ The release version correspond to Semantic Versioning """
+    
+    def __init__(self, name) -> None:
+        super().__init__(name)
+
+    @property
+    def major(self):
+        return self.numbers[0]
+
+    @property
+    def minor(self):
+        return self.numbers[1]
+
+    @property
+    def patch(self):
+        return self.numbers[2]

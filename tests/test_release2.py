@@ -1,5 +1,4 @@
-from releasy.release2 import MainRelease, MajorRelease, MinorRelease, Patch, ReleaseBuilder
-from releasy.version import SemanticVersioningSchema
+from releasy.release2 import MainRelease, MajorRelease, MinorRelease, Patch, ReleaseBuilder, SemanticVersioningSchema
 
 
 class TestReleaseBuilder:
@@ -24,7 +23,7 @@ class TestReleaseBuilder:
 
 
         def it_build_minor_releases(self):
-            builder = ReleaseBuilder()
+            builder = ReleaseBuilder(SemanticVersioningSchema())
             builder.name("1.1.0")
             release = builder.build()
             
@@ -33,7 +32,7 @@ class TestReleaseBuilder:
 
 
         def it_build_patches(self):
-            builder = ReleaseBuilder()
+            builder = ReleaseBuilder(SemanticVersioningSchema())
             builder.name("1.1.1")
             release = builder.build()
             

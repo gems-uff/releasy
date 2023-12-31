@@ -1,16 +1,20 @@
-from typing import Self, Set
+from typing import Self, Set, Tuple
 from abc import ABC, abstractmethod
 
 from datetime import datetime, timedelta
 
-from releasy.version import ReleaseVersioningSchema, SimpleVersioningSchema
+from releasy.version import (
+    ReleaseVersion,
+    SemanticVersion, 
+    SimpleReleaseVersion 
+)
 from releasy.change import Change
 
 
 class Release(ABC):
-    def __init__(self) -> None:
-        self.name: str = None
-        self.version: ReleaseVersion = None
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        self.name = name
+        self.version = version
         self.changes: Set[Change] = ()
         self.lifecycle: ReleaseLifeCycle = None
         self.cycle: timedelta = None
@@ -18,27 +22,33 @@ class Release(ABC):
 
 
 class FinalRelease(Release):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class MainRelease(FinalRelease):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class MajorRelease(MainRelease):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class MinorRelease(MainRelease):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class Patch(FinalRelease):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class PreRelease(Release):
-    pass
+    def __init__(self, name: str, version: ReleaseVersion) -> None:
+        super().__init__(name, version)
 
 
 class ReleaseVersion:
@@ -72,6 +82,45 @@ class ReleaseDeliveryLifeCycle:
         self.delay: timedelta = None
 
 
+class ReleaseFactory(ABC):
+    @abstractmethod
+    def create(self, name, version) -> Release:
+        pass 
+    
+
+class MainReleaseFactory(ReleaseFactory):
+    def create(self, name, version):
+        return MainRelease(name, version)
+    
+
+class ReleaseVersioningSchema(ABC):
+    @abstractmethod
+    def parse(self, name: str) -> Tuple[ReleaseVersion, ReleaseFactory]:
+        pass
+
+
+class SimpleVersioningSchema(ReleaseVersioningSchema):
+    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
+        return SimpleReleaseVersion(name), MainReleaseFactory()
+
+
+class SemanticReleaseFactory(ReleaseFactory):
+    def create(self, name: str, version: SemanticVersion) -> Release:
+        if version.patch:
+            return Patch(name, version)
+        if version.minor:
+            return MinorRelease(name, version)
+        if version.major:
+            return MajorRelease(name, version)
+        return None
+       
+
+class SemanticVersioningSchema(ReleaseVersioningSchema):
+    def parse(self, name: str) -> Tuple[str, ReleaseVersion]:
+       version = SemanticVersion(name)
+       return version, SemanticReleaseFactory()
+
+
 class ReleaseBuilder:
     def __init__(self, 
                  versioning_schema: ReleaseVersioningSchema = None) -> None:
@@ -85,19 +134,12 @@ class ReleaseBuilder:
         self._name = ""
         
     def name(self, name: str) -> Self:
-        self.name = name
+        self._name = name
         return self
         
     def build(self) -> Release:
         version, factory = self._version_schema.parse(self._name)
-        release = factory.create(self.name, version)
+        release = factory.create(self._name, version)
         return release
 
 
-class ReleaseFactory():
-    def create(self, name, version) -> Release:
-        match version:
-            case "Major":
-                return MajorRelease(name, version)
-            case _:
-                return MainRelease(name, version)
