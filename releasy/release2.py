@@ -51,10 +51,6 @@ class PreRelease(Release):
         super().__init__(name, version)
 
 
-class ReleaseVersion:
-    pass
-
-
 class ReleaseLifeCycle:
     def __init__(self) -> None:
         self.development: ReleaseDevelopmentLifeCycle = None
@@ -91,42 +87,47 @@ class ReleaseVersioningSchema(ABC):
 
 class SimpleVersioningSchema(ReleaseVersioningSchema):
     def apply(self, name: str) -> Release:
-        #todo handle invalid name
-        version = SimpleReleaseVersion(name)
-        return MainRelease(name, version)
+        try:
+            version = SimpleReleaseVersion(name)
+            return MainRelease(name, version)
+        except:
+            pass
+        return None
 
 
 class SemanticVersioningSchema(ReleaseVersioningSchema):
     def apply(self, name: str) -> Release:
-        #todo handle invalid name
-        version = SemanticVersion(name)
-        if version.patch:
-            return Patch(name, version)
-        if version.minor:
-            return MinorRelease(name, version)
-        if version.major:
-            return MajorRelease(name, version)
+        try:
+            version = SemanticVersion(name)
+            if version.patch:
+                return Patch(name, version)
+            if version.minor:
+                return MinorRelease(name, version)
+            if version.major:
+                return MajorRelease(name, version)
+        except:
+            pass
         return None
        
 
-class ReleaseBuilder:
-    def __init__(self, 
-                 versioning_schema: ReleaseVersioningSchema = None) -> None:
-        if versioning_schema:
-            self._version_schema = versioning_schema
-        else:
-            self._version_schema = SimpleVersioningSchema()
-        self.reset()
+# class ReleaseBuilder:
+#     def __init__(self, 
+#                  versioning_schema: ReleaseVersioningSchema = None) -> None:
+#         if versioning_schema:
+#             self._version_schema = versioning_schema
+#         else:
+#             self._version_schema = SimpleVersioningSchema()
+#         self.reset()
     
-    def reset(self):
-        self._name = ""
+#     def reset(self):
+#         self._name = ""
         
-    def name(self, name: str) -> Self:
-        self._name = name
-        return self
+#     def name(self, name: str) -> Self:
+#         self._name = name
+#         return self
         
-    def build(self) -> Release:
-        release = self._version_schema.apply(self._name)
-        return release
+#     def build(self) -> Release:
+#         release = self._version_schema.apply(self._name)
+#         return release
 
 

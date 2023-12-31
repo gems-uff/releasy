@@ -1,5 +1,13 @@
 import pytest
-from releasy.release2 import MainRelease, MajorRelease, MinorRelease, Patch, ReleaseBuilder, SemanticVersioningSchema, SimpleVersioningSchema
+
+from releasy.release2 import (
+    MainRelease,
+    MajorRelease,
+    MinorRelease,
+    Patch,
+    SemanticVersioningSchema,
+    SimpleVersioningSchema
+)
 
 
 class TestSimpleVersioningSchema:
@@ -27,8 +35,9 @@ class TestSimpleVersioningSchema:
         
 
     def it_skip_invalid_references(self):
-        with pytest.raises(ValueError):
-            release = SimpleVersioningSchema().apply("invalid")
+        release = SimpleVersioningSchema().apply("invalid")
+        
+        assert not release
 
 
 class TestSemanticVersioningSchema:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Self, Set
 
 from releasy.project2 import Project
-from releasy.release2 import Release, ReleaseBuilder
+from releasy.release2 import Release, SimpleVersioningSchema
 
 
 class AMiner(ABC):
@@ -19,13 +19,6 @@ class SimpleReleaseFilter:
        return True
 
 
-class SimpleReleaseFactory:
-    def apply(reference: str) -> bool:
-        release_builder = ReleaseBuilder()
-        release = release_builder.name(reference).build()
-        return release
-
-
 class Repository(ABC):
     """ The Repository is an abstraction of any repository that contains
     information about releases, its changes, issues, and collaborators"""
@@ -40,17 +33,17 @@ class Repository(ABC):
 class ReleaseMiner():
     def __init__(self) -> None:
         self.repository = None
+        self.versioning_schema = SimpleVersioningSchema()
         self.reference_filter = SimpleReferenceFilter
-        self.release_factory = SimpleReleaseFactory
         self.release_filter = SimpleReleaseFilter
 
     def mine(self, repository) -> Set[Release]:
         release_refs = repository.release_refs
         filtered_refs = (ref for ref in release_refs 
-                         if self.reference_filter.test(ref))
-        releases = (self.release_factory.apply(ref) for ref in filtered_refs)
+                         if ref and self.reference_filter.test(ref))
+        releases = (self.versioning_schema.apply(ref) for ref in filtered_refs)
         filtered_releases = (release for release in releases
-                             if self.release_filter.test(release))
+                             if release and self.release_filter.test(release))
         return list(filtered_releases)
 
 
