@@ -3,7 +3,7 @@ from typing import List, Self, Set
 from releasy.miner.repository import Repository
 
 from releasy.project2 import Project
-from releasy.release2 import Release, ReleaseVersioningSchema, SimpleVersioningSchema
+from releasy.release2 import Release, ReleaseBuilder, ReleaseVersioningSchema, SimpleVersioningSchema
 
 
 class ReferenceFilter(ABC):
@@ -39,9 +39,9 @@ class ReleaseMiner():
             self, 
             versioning_schema: ReleaseVersioningSchema = None,
             reference_filter: ReferenceFilter = None,
-            release_filter: ReleaseFilter = None
-            ) -> None:
+            release_filter: ReleaseFilter = None) -> None:
         self.versioning_schema = versioning_schema or SimpleVersioningSchema()
+        self.release_builder = ReleaseBuilder(self.versioning_schema)
         self.reference_filter = reference_filter or AllReferenceFilter()
         self.release_filter = release_filter or AllReleaseFilter()
 
@@ -49,12 +49,16 @@ class ReleaseMiner():
         """ Mine the releases in a repository """
 
         release_refs = repository.release_refs
-        filtered_refs = (ref for ref in release_refs 
-                         if ref and self.reference_filter.test(ref))
-        releases = (self.versioning_schema.apply(ref) for ref in filtered_refs)
-        filtered_releases = (release for release in releases
-                             if release and self.release_filter.test(release))
-        return list(filtered_releases)
+        filtered_refs = [
+            ref for ref in release_refs 
+            if ref and self.reference_filter.test(ref)]
+        releases = [
+            self.release_builder.reference(ref).build() 
+            for ref in filtered_refs]
+        filtered_releases = [
+            release for release in releases
+            if release and self.release_filter.test(release)]
+        return filtered_releases
 
 
 class Miner:

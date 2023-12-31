@@ -15,6 +15,9 @@ class Release(ABC):
     def __init__(self, name: str, version: ReleaseVersion) -> None:
         self.name = name
         self.version = version
+        self.description = ''
+        self.developer: str = None
+        self.timestamp: datetime = None
         self.changes: Set[Change] = ()
         self.lifecycle: ReleaseLifeCycle = None
         self.cycle: timedelta = None
@@ -110,27 +113,6 @@ class SemanticVersioningSchema(ReleaseVersioningSchema):
         return None
        
 
-# class ReleaseBuilder:
-#     def __init__(self, 
-#                  versioning_schema: ReleaseVersioningSchema = None) -> None:
-#         if versioning_schema:
-#             self._version_schema = versioning_schema
-#         else:
-#             self._version_schema = SimpleVersioningSchema()
-#         self.reset()
-    
-#     def reset(self):
-#         self._name = ""
-        
-#     def name(self, name: str) -> Self:
-#         self._name = name
-#         return self
-        
-#     def build(self) -> Release:
-#         release = self._version_schema.apply(self._name)
-#         return release
-
-
 class ReleaseReference:
     def __init__(self, name: str, timestamp: datetime, developer: str,
                  description: str, change_refs: List[str]) -> None:
@@ -140,3 +122,24 @@ class ReleaseReference:
         self.description = description
         self.change_refs = change_refs
 
+
+class ReleaseBuilder:
+    def __init__(self, versioning_schema: ReleaseVersioningSchema = None) -> None:
+        self._version_schema = versioning_schema or SimpleVersioningSchema()
+        self.reset()
+    
+    def reset(self):
+        self._reference = None 
+
+    def reference(self, reference: ReleaseReference) -> Self:
+        self._reference = reference 
+        return self
+
+    def build(self) -> Release:
+        release = self._version_schema.apply(self._reference.name)
+        if not release:
+            return None
+        release.description = self._reference.description
+        release.timestamp = self._reference.timestamp
+        release.developer = self._reference.developer
+        return release
