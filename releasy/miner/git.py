@@ -46,12 +46,12 @@ def create_reference(
            developer = f'{tag.tagger.name} <{tag.tagger.email}>'
            description = tag.message
            commit = tag.peel(pygit2.Commit)
-           change_refs = [commit.oid] if commit else []
+           change_refs = [str(commit.oid)] if commit else []
         case pygit2.Commit() as commit:
            timestamp = get_time(commit.committer)
            developer = f'{commit.committer.name} <{commit.committer.email}>'
            description = commit.message
-           change_refs = [commit.oid]
+           change_refs = [str(commit.oid)]
         case _:
            return None 
     return ReleaseReference(tag_ref.shorthand, timestamp, developer, description,
