@@ -22,7 +22,7 @@ pylint = "^2.16.2"
 pytest = "^7.2.1"
 pytest-cov = "^4.0.0"
 pytest-profiling = "^1.7.0"
-pytest-pyspec = "^0.7.0"
+pytest-pyspec = "^0.8.0"
 
 [tool.pytest.ini_options]
 addopts = "--pyspec"
