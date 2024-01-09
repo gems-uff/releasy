@@ -5,9 +5,7 @@ description = "A library to mine release data"
 authors = ["Felipe Curty <felipecrp@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-
 repository = "https://github.com/gems-uff/releasy"
-
 packages = [
     { include = "releasy" }
 ]
@@ -17,14 +15,25 @@ python = "^3.8"
 pygit2 = "^1.11.1"
 pyyaml = "^6.0"
 python-dateutil = "^2.8.2"
-
+pytest = "^7.4.4"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.2"
 pytest = "^7.2.1"
 pytest-cov = "^4.0.0"
 pytest-profiling = "^1.7.0"
-pytest-pyspec = "^0.5.0"
+pytest-pyspec = "^0.8.0"
+
+[tool.pytest.ini_options]
+addopts = "--pyspec"
+python_classes = [
+    "Test",
+    "describe_*",
+    "with_*"
+]
+markers = [
+    "local: tests that only run local"
+]
 
 [build-system]
 requires = ["poetry-core"]
