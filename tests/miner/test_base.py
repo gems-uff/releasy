@@ -29,7 +29,7 @@ class MockRepository(Repository):
         return release_references
 
 
-class TestReleaseMiner:
+class DescribeReleaseMiner:
     def it_mine_a_repository(self):
         repository = MockRepository(['1.0.0', '1.1.0'])
         release_miner = ReleaseMiner()
@@ -77,3 +77,4 @@ class TestReleaseMiner:
         assert len(releases) == 2
         assert releases[0].name == '1.0.0'
         assert releases[1].name == '1.1.0'
+

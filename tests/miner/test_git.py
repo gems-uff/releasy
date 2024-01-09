@@ -4,7 +4,7 @@ from datetime import datetime
 from releasy.miner.git import GitRepository
 
 
-class TestGitRepository:
+class DescribeGitRepository:
     def it_fetch_release_references(self):
         git = GitRepository(".")
         references = git.release_refs

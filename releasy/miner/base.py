@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Callable, List, Self, Set
+from typing import Callable, List, Self, Set, Tuple
+from releasy.change import Change
 from releasy.miner.repository import Repository
 
 from releasy.project2 import Project
 from releasy.release2 import Release, ReleaseBuilder, ReleaseReference, ReleaseVersioningSchema, SimpleVersioningSchema
 
 
-class ReleaseMiner():
+class ReleaseMiner:
     """ Mine releases in a repository """
 
     def __init__(
@@ -14,7 +15,7 @@ class ReleaseMiner():
             versioning_schema: ReleaseVersioningSchema = None,
             reference_filter: Callable[[ReleaseReference], bool] = None,
             release_filter: Callable[[Release], bool] = None
-        ) -> None:
+            ) -> None:
         self.versioning_schema = versioning_schema or SimpleVersioningSchema()
         self.release_builder = ReleaseBuilder(self.versioning_schema)
         self.reference_filter = reference_filter or no_filter
@@ -35,6 +36,15 @@ class ReleaseMiner():
 def no_filter(value):
     """ Dummy filter that always return True """
     return True
+
+
+class ChangeMiner:
+    def mine(
+            self, 
+            releases: Set[Release], 
+            repository: Repository
+            ) -> Set[Tuple[Release,List[Change]]]:
+        pass
 
 
 class Miner:
