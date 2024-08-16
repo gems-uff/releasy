@@ -1,0 +1,116 @@
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from enum import Enum
+import re
+from typing import List, Set
+
+
+class Release:
+    """
+    A Release is a group of changes ready to be delivered to its stakeholders
+    """
+    def __init__(
+            self, 
+            name: str = None,
+            version: ReleaseVersion = None,
+            format: ReleaseFormat = None) -> None:
+        self.name = name
+        self.version = version
+        self.format = format
+        self.previous: Set[Release] = None
+
+
+    @property
+    def type(self) -> ReleaseType:
+        if not self.version:
+            return None
+            
+        return self.version.type
+
+    
+    @property
+    def commits(self) -> Set[Change]:
+        pass 
+
+
+class ReleaseVersion:
+    """
+    The release version number. According to the ReleaseFormat, the release
+    number can be categorized in the following types:
+    - MAJOR
+    - MINOR
+    - PATCH
+    """
+
+    def __init__(self, parts: List[str], type: ReleaseType, format: ReleaseFormat) -> None:
+        self.parts = parts
+        self.type = type
+        self.format = format
+
+
+class ReleaseFormat(ABC):
+    """
+    A Release format, such as Semantic Versioning. The release format define how
+    the release name will be parsed to categorize the release into the following
+    categories:
+    - MAJOR
+    - MINOR
+    - PATCH
+    """
+    def __init__(self, name) -> None:
+        self.name = name
+
+    @abstractmethod
+    def parse(self, name):
+        """
+        Parse the release name according the release format and generate the
+        related version
+        """
+        pass
+
+
+
+class SemanticVersioningFormat(ReleaseFormat):
+    """
+    Implements the Semantic Versioning format 
+    """
+    part_separator = re.compile(r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)')
+    version_separator = re.compile(r'([0-9]+)')
+    
+    def __init__(self) -> None:
+        super().__init__("Semantic Versioning")
+        self.part_separator = SemanticVersioningFormat.part_separator
+        self.version_separator = SemanticVersioningFormat.version_separator
+
+    def parse(self, name):
+        parts = self.part_separator.match(name)
+
+        if not parts.group('version'):
+            return None
+        version_part = parts.group('version')
+        
+        version = [int(version) for version 
+                   in self.version_separator.findall(version_part)]
+
+        match version:
+            case [_, _, patch] if patch > 0:
+                type = ReleaseType.PATCH
+            case [_, minor, 0] if minor > 0:
+                type = ReleaseType.MINOR
+            case _:
+                type = ReleaseType.MAJOR
+
+        return ReleaseVersion(version, type, self)
+
+
+class ReleaseType(Enum):
+    MAJOR = 1,
+    MINOR = 2,
+    PATCH = 3
+
+
+
+class Change:
+    pass
+
+
