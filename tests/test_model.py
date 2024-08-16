@@ -1,7 +1,7 @@
 
 from releasy.model import Release, ReleaseType, SemanticVersioningFormat
 
-class describe_release:
+class DescribeRelease:
     def it_has_name(self):
         release = Release()
         release.name = "1.0.0"
@@ -10,7 +10,6 @@ class describe_release:
         release = Release("1.1.0")
         assert release.name == "1.1.0"
 
-
     def it_has_version(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.0.0")
@@ -18,19 +17,20 @@ class describe_release:
         assert release.version.parts == [1,0,0] 
         assert release.version.type == ReleaseType.MAJOR 
         assert release.version.format.name == "Semantic Versioning"
-    
 
     def it_has_type(self):
-        release = Release()
-        pass
-        
-
-class describe_release_version:
-    def it_has_parts(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.0.0")
         release = Release(version=version)
-        assert release.version.parts == [1,0,0] 
+        assert release.type == ReleaseType.MAJOR
+        
+
+class DescribeReleaseVersion:
+    def it_has_number(self):
+        releaseFormat = SemanticVersioningFormat()
+        version = releaseFormat.parse("1.0.0")
+        release = Release(version=version)
+        assert release.version.number == [1,0,0] 
 
     def it_has_type(self):
         releaseFormat = SemanticVersioningFormat()
@@ -44,8 +44,32 @@ class describe_release_version:
         release = Release(version=version)
         assert release.version.format == releaseFormat
 
+    def it_is_comparable(self):
+        releaseFormat = SemanticVersioningFormat()
+        release_a = Release(version=releaseFormat.parse("1.0.0"))
+        release_a2 = Release(version=releaseFormat.parse("1.0.0"))
+        release_b = Release(version=releaseFormat.parse("1.0.1"))
+        
+        assert release_a.version == release_a2.version 
+        assert release_a.version != release_b.version 
+        
+        assert release_a.version < release_b.version 
+        assert release_b.version > release_a.version 
+        
+        assert not (release_a.version < release_a2.version)
+        assert not (release_a.version > release_a2.version)
+    
+    def it_is_sortable(self):
+        releaseFormat = SemanticVersioningFormat()
+        version_a = releaseFormat.parse("1.0.0")
+        version_b = releaseFormat.parse("1.0.1")
+        version_c = releaseFormat.parse("1.1.0")
+        versions = [version_c, version_a, version_b]
+        # sorted_versions = sorted(versions)
+        # assert sorted_versions == [version_a, version_b, version_c] 
 
-class describe_semantic_versioning_format:
+
+class DescribeSemanticVersioningFormat:
     def it_has_version_number(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.0.0")

@@ -14,8 +14,10 @@ class Release:
             name: str = None,
             version: ReleaseVersion = None,
             format: ReleaseFormat = None) -> None:
-        self.name = name
         self.version = version
+        self.name = name 
+        if not name and version:
+            self.name = ".".join(str(s) for s in version.number)
         self.format = format
         self.previous: Set[Release] = None
 
@@ -32,6 +34,9 @@ class Release:
     def commits(self) -> Set[Change]:
         pass 
 
+    def __repr__(self) -> str:
+        return self.name
+
 
 class ReleaseVersion:
     """
@@ -42,10 +47,53 @@ class ReleaseVersion:
     - PATCH
     """
 
-    def __init__(self, parts: List[str], type: ReleaseType, format: ReleaseFormat) -> None:
-        self.parts = parts
+    def __init__(self, number: List[str], type: ReleaseType, format: ReleaseFormat) -> None:
+        self.number = number
+        self.name = ".".join(str(s) for s in number)
         self.type = type
         self.format = format
+
+    def __eq__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
+        
+        for a,b in zip(self.number, other.number):
+            if a != b:
+                return False
+        
+        return True 
+
+    def __lt__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
+        
+        for a,b in zip(self.number, other.number):
+            if a > b:
+                return False
+
+        if a == b:
+            return False
+         
+        return True
+     
+    def __le__(self, other: ReleaseVersion):
+        return self < other or self == other
+
+    def __gt__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
+        
+        for a,b in zip(self.number, other.number):
+            if a > b:
+                return True
+        
+        return False
+        
+    def __ge__(self, other: ReleaseVersion):
+        return self > other or self == other
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 class ReleaseFormat(ABC):
