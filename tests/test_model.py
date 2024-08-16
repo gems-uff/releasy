@@ -54,7 +54,9 @@ class DescribeReleaseVersion:
         assert release_a.version != release_b.version 
         
         assert release_a.version < release_b.version 
+        assert release_a.version <= release_b.version 
         assert release_b.version > release_a.version 
+        assert release_b.version >= release_a.version 
         
         assert not (release_a.version < release_a2.version)
         assert not (release_a.version > release_a2.version)
@@ -65,8 +67,8 @@ class DescribeReleaseVersion:
         version_b = releaseFormat.parse("1.0.1")
         version_c = releaseFormat.parse("1.1.0")
         versions = [version_c, version_a, version_b]
-        # sorted_versions = sorted(versions)
-        # assert sorted_versions == [version_a, version_b, version_c] 
+        sorted_versions = sorted(versions)
+        assert sorted_versions == [version_a, version_b, version_c] 
 
 
 class DescribeSemanticVersioningFormat:

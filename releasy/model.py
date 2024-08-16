@@ -68,13 +68,13 @@ class ReleaseVersion:
             return False
         
         for a,b in zip(self.number, other.number):
-            if a > b:
-                return False
+            if a < b:
+                return True
 
         if a == b:
             return False
          
-        return True
+        return False
      
     def __le__(self, other: ReleaseVersion):
         return self < other or self == other
