@@ -47,9 +47,14 @@ class ReleaseVersion:
     - PATCH
     """
 
-    def __init__(self, number: List[str], type: ReleaseType, format: ReleaseFormat) -> None:
-        self.number = number
-        self.name = ".".join(str(s) for s in number)
+    def __init__(self,
+            parts: List[str],
+            numbers: List[int],
+            type: ReleaseType, 
+            format: ReleaseFormat) -> None:
+        self.name = ".".join(parts)
+        self.str = parts
+        self.number = numbers
         self.type = type
         self.format = format
 
@@ -109,13 +114,12 @@ class ReleaseFormat(ABC):
         self.name = name
 
     @abstractmethod
-    def parse(self, name):
+    def parse(self, name: str) -> ReleaseVersion:
         """
         Parse the release name according the release format and generate the
         related version
         """
         pass
-
 
 
 class SemanticVersioningFormat(ReleaseFormat):
@@ -136,11 +140,13 @@ class SemanticVersioningFormat(ReleaseFormat):
         if not parts.group('version'):
             return None
         version_part = parts.group('version')
-        
-        version = [int(version) for version 
-                   in self.version_separator.findall(version_part)]
+        version_str = [
+            version
+            for version in self.version_separator.findall(version_part)
+        ] 
+        version_number = [int(version) for version in version_str] 
 
-        match version:
+        match version_number:
             case [_, _, patch] if patch > 0:
                 type = ReleaseType.PATCH
             case [_, minor, 0] if minor > 0:
@@ -148,14 +154,13 @@ class SemanticVersioningFormat(ReleaseFormat):
             case _:
                 type = ReleaseType.MAJOR
 
-        return ReleaseVersion(version, type, self)
+        return ReleaseVersion(version_str, version_number, type, self)
 
 
 class ReleaseType(Enum):
-    MAJOR = 1,
-    MINOR = 2,
-    PATCH = 3
-
+    MAJOR = 0,
+    MINOR = 1,
+    PATCH = 2
 
 
 class Change:
