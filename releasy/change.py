@@ -1,3 +1,5 @@
 
 class Change:
-    pass
+    """ 
+    A change in a release, such as a commit
+    """

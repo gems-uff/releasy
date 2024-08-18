@@ -1,8 +1,11 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from datetime import datetime
 import re
-from typing import Set
+from typing import Iterable, Set
 
+from releasy.change import Change
+from releasy.contributor import Contributor
 from releasy.version import VersionType, ReleaseVersion
 
 
@@ -10,8 +13,14 @@ class Release:
     """
     A Release is a group of changes ready to be delivered to its stakeholders
     """
-    def __init__(self, version: ReleaseVersion) -> None:
+    def __init__(self, 
+            version: ReleaseVersion,
+            timestamp: datetime,
+            author: Contributor) -> None:
         self.version = version
+        self.timestamp = timestamp
+        self.author = author
+        self.changes = set[Change]()
         self.previous: Set[Release] = None
 
     @property
@@ -25,17 +34,9 @@ class Release:
             
         return self.version.type
 
-    
-    @property
-    def commits(self) -> Set[Change]:
-        pass 
+    def add_changes(self, changes: Iterable[Change]) -> None:
+        self.changes.add(changes)
 
     def __repr__(self) -> str:
         return self.name
-
-
-
-class Change:
-    pass
-
 
