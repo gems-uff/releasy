@@ -1,5 +1,6 @@
 from datetime import datetime
 import pytest
+from releasy.change import Change
 from releasy.contributor import Contributor
 from releasy.version import VersionType, ReleaseVersion
 from releasy.release import Release
@@ -23,6 +24,9 @@ class DescribeRelease:
     def it_has_author(self, release: Release, alice: Contributor):
         assert release.author == alice
     
+    def it_has_head(self, release: Release, change_a: Change):
+        assert release.head == change_a
+    
     def it_track_changes(self, release: Release):
-        pass
+        assert len(release.changes) == 3
         
