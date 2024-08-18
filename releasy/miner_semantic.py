@@ -11,7 +11,7 @@ This module also categorize releases into pre releases.
 from typing import Any, Tuple
 from unicodedata import name
 from .project import Project
-from .release import Release
+from .release_old import Release
 from .semantic import MainRelease, Patch, SReleaseSet, SemanticRelease
 from .miner_base import AbstractMiner
 

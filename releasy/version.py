@@ -1,50 +1,79 @@
-
 from __future__ import annotations
-from abc import ABC, abstractmethod
-import re
-from typing import List, Tuple
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from releasy.release import ReleaseVersionFormat
+
+from enum import Enum
+
+from typing import List
 
 
+class VersionType(Enum):
+    MAJOR = 0,
+    MINOR = 1,
+    PATCH = 2
 
-class ReleaseVersion(ABC):
-    def __init__(self, numbers: List[int]) -> None:
-        self.numbers = numbers
 
+class ReleaseVersion:
+    """
+    The release version number. According to the ReleaseFormat, the release
+    number can be categorized in the following types:
+    - MAJOR
+    - MINOR
+    - PATCH
+    """
 
-class SimpleReleaseVersion(ReleaseVersion):
-    """ The release version is composed by a sequence of numbers and may have a
-    prefix and a suffix """
-    
-    releases_separator = re.compile(
-        r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)'
-    )
-    number_separator = re.compile(r'([0-9]+)')
+    def __init__(self,
+            name: str,
+            parts: List[str],
+            numbers: List[int],
+            type: VersionType,
+            format: ReleaseVersionFormat) -> None:
+        self.name = name
+        self.formatted_name = ".".join(parts)
+        self.str = parts
+        self.number = numbers
+        self.type = type
+        self.format = format
 
-    def __init__(self, name) -> None:
-        version = self.releases_separator.findall(name)
-        if not version:
-            raise ValueError(f'Invalid release version for reference {name}')
+    def __eq__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
 
-        self.prefix, version_number, self.suffix = version[0]
-        number_parts = self.number_separator.findall(version_number)
-        numbers = [int(number) for number in number_parts]
-        super().__init__(numbers)
-    
+        for a,b in zip(self.number, other.number):
+            if a != b:
+                return False
 
-class SemanticVersion(SimpleReleaseVersion):
-    """ The release version correspond to Semantic Versioning """
-    
-    def __init__(self, name) -> None:
-        super().__init__(name)
+        return True
 
-    @property
-    def major(self):
-        return self.numbers[0]
+    def __lt__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
 
-    @property
-    def minor(self):
-        return self.numbers[1]
+        for a,b in zip(self.number, other.number):
+            if a < b:
+                return True
 
-    @property
-    def patch(self):
-        return self.numbers[2]
+        if a == b:
+            return False
+
+        return False
+
+    def __le__(self, other: ReleaseVersion):
+        return self < other or self == other
+
+    def __gt__(self, other: ReleaseVersion):
+        if not isinstance(other, ReleaseVersion):
+            return False
+
+        for a,b in zip(self.number, other.number):
+            if a > b:
+                return True
+
+        return False
+
+    def __ge__(self, other: ReleaseVersion):
+        return self > other or self == other
+
+    def __repr__(self) -> str:
+        return self.name

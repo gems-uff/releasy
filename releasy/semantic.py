@@ -6,7 +6,7 @@ from typing import Callable, Generic, Iterator, Set, TypeVar
 import datetime
 
 from .project import Project
-from .release import Release, ReleaseSet
+from .release_old import Release, ReleaseSet
 from .repository import CommitSet
 
 

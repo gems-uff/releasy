@@ -1,10 +1,14 @@
 import pytest
-from releasy.model import ReleaseFormat, ReleaseType, ReleaseVersion, SemanticVersioningFormat
+from releasy.version import VersionType, ReleaseVersion
+from releasy.version_format import SemanticVersioningFormat
 
 
 class DescribeReleaseVersion:
     def it_has_name(self, version: ReleaseVersion):
-        assert version.name == "1.0.0"
+        assert version.name == "r1.0.0"
+    
+    def it_has_formatted_name(self, version: ReleaseVersion):
+        assert version.formatted_name == "1.0.0"
 
     def it_has_version_str(self, version: ReleaseVersion):
         assert version.str == ["1", "0", "0"]
@@ -13,7 +17,7 @@ class DescribeReleaseVersion:
         assert version.number == [1,0,0] 
 
     def it_has_type(self, version: ReleaseVersion):
-        assert version.type == ReleaseType.MAJOR
+        assert version.type == VersionType.MAJOR
 
     def it_has_format(self, version: ReleaseVersion):
         assert isinstance(version.format, SemanticVersioningFormat)
@@ -58,16 +62,16 @@ class DescribeSemanticVersioningFormat:
     def it_parse_major_release(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.0.0")
-        assert version.type == ReleaseType.MAJOR
+        assert version.type == VersionType.MAJOR
 
     def it_parse_minor_release(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.1.0")
-        assert version.type == ReleaseType.MINOR
+        assert version.type == VersionType.MINOR
 
     def it_parse_patch(self):
         releaseFormat = SemanticVersioningFormat()
         version = releaseFormat.parse("1.0.1")
-        assert version.type == ReleaseType.PATCH
+        assert version.type == VersionType.PATCH
 
 

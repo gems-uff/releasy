@@ -8,7 +8,7 @@ For each release, it assigns:
 """
 
 from typing import Any, List, Tuple
-from releasy.release import Commit2ReleaseMapper, Release
+from releasy.release_old import Commit2ReleaseMapper, Release
 
 from releasy.repository import Commit, CommitSet
 from .miner_base import AbstractMiner

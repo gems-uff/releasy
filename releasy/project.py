@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .repository import Repository
     from .semantic import SReleaseSet, MainRelease, Patch
-    from .release import ReleaseSet
+    from .release_old import ReleaseSet
 
 class Project:
     def __init__(self, name: str, repository: Repository) -> None:

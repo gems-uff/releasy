@@ -5,7 +5,7 @@ from releasy.miner_commit import HistoryCommitMiner
 from releasy.miner_contributor import ContributorMiner
 from releasy.miner_release import ReleaseMiner
 
-from releasy.release import Release
+from releasy.release_old import Release
 from tests.mock_repository import MockRepository
 
 class TestReleaseVersion:

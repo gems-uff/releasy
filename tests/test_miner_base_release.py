@@ -3,7 +3,7 @@ import pytest
 import releasy
 from releasy.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
 from releasy.miner_release import ReleaseMiner
-from releasy.release import ReleaseSet
+from releasy.release_old import ReleaseSet
 from releasy.project import Project
 from releasy.miner_base_release import BaseReleaseMiner
 
