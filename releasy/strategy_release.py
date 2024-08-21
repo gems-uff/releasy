@@ -14,7 +14,7 @@ class ReferenceReleaseStrategy:
     def assign(self, repository: Repository, releases: Set[Release] = None) -> Set[Release]:
         releases = list[Release]()
 
-        for (name, author, timestamp) in repository.release_refs():
+        for (name, head, author, timestamp) in repository.release_refs():
             version = self.version_format.parse(name)
             if not version:
                 continue
