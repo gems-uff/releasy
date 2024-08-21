@@ -1,6 +1,6 @@
 from typing import Set
 from datetime import datetime, timedelta
-from releasy.repository import Commit, CommitSet, Repository, RepositoryProxy, Tag
+from releasy.old.repository_old import Commit, CommitSet, Repository, RepositoryProxy, Tag
 
 
 class MockRepositoryProxy(RepositoryProxy):

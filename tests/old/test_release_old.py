@@ -1,12 +1,12 @@
 
 import pytest
-import releasy
-from releasy.miner_commit import HistoryCommitMiner
-from releasy.miner_contributor import ContributorMiner
-from releasy.miner_release import ReleaseMiner
+import releasy.old as old
+from releasy.old.miner_commit import HistoryCommitMiner
+from releasy.old.miner_contributor import ContributorMiner
+from releasy.old.miner_release import ReleaseMiner
 
-from releasy.release_old import Release
-from tests.mock_repository import MockRepository
+from releasy.old.release_old import Release
+from tests.old.mock_repository import MockRepository
 
 class TestReleaseVersion:
     def it_normalize_version_numbers(self):
@@ -35,7 +35,7 @@ class DescribeRelease:
     class WithHistoryCommitMiner:
         @pytest.fixture(autouse=True)
         def init(self) -> None:
-            project = releasy.Miner(MockRepository()).apply(
+            project = old.Miner(MockRepository()).apply(
                 ReleaseMiner(),
                 HistoryCommitMiner(),
                 ContributorMiner()

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set, Tuple
 import pygit2
 
-from releasy.repository import Commit, CommitSet, DiffDelta, Repository, RepositoryProxy, Tag
+from releasy.old.repository_old import Commit, CommitSet, DiffDelta, Repository, RepositoryProxy, Tag
 
 
 class GitRepository(RepositoryProxy):

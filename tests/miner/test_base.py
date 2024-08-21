@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 
 from releasy.miner.base import ReleaseMiner, Repository
-from releasy.release2 import ReleaseReference
+from releasy.old.release2 import ReleaseReference
 
 
 class MockRepository(Repository):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .repository import Repository
+    from .repository_old import Repository
     from .semantic import SReleaseSet, MainRelease, Patch
     from .release_old import ReleaseSet
 

@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 import pytest
-from releasy.repository import Commit, Repository, Tag
+from releasy.old.repository_old import Commit, Repository, Tag
 
-from releasy.repository_git import GitRepository
+from releasy.old.repository_git import GitRepository
 
 @pytest.mark.local
 class describe_git_repository:

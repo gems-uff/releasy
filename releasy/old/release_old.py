@@ -4,14 +4,14 @@ from collections import OrderedDict
 from typing import Callable, Dict, Generic, Iterator, Set, TypeVar
 from typing import TYPE_CHECKING
 
-from releasy.contributor_old import ContributorSet
+from releasy.old.contributor_old import ContributorSet
 if TYPE_CHECKING:
-    from releasy.project import Project
+    from releasy.old.project import Project
 
 import re
 from datetime import datetime, timedelta
 
-from .repository import (
+from .repository_old import (
     Commit,
     CommitSet, 
     Repository, 

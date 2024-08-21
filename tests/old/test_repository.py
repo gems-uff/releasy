@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Set
 import pytest
-from releasy.repository import Commit, Repository, RepositoryProxy, Tag
+from releasy.old.repository_old import Commit, Repository, RepositoryProxy, Tag
 from .mock_repository import MockRepository, MockRepositoryProxy
 
 

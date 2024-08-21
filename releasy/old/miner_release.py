@@ -5,7 +5,7 @@ import re
 from .project import Project
 from .release_old import Release, ReleaseSet
 from .miner_base import AbstractMiner
-from .repository import Repository
+from .repository_old import Repository
 
 class ReleaseMiner(AbstractMiner):
     """ 

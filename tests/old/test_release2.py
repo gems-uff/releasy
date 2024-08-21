@@ -1,6 +1,6 @@
 import pytest
 
-from releasy.release2 import (
+from releasy.old.release2 import (
     MainRelease,
     MajorRelease,
     MinorRelease,

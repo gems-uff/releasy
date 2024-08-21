@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 from typing import List
 from releasy.miner.base import Repository
-from releasy.release2 import ReleaseReference
+from releasy.old.release2 import ReleaseReference
 
 
 class MockRepository(Repository):

@@ -1,5 +1,5 @@
 from typing import List, Set, Tuple
-from releasy.repository import CommitSet
+from releasy.old.repository_old import CommitSet
 
 class ContributorSet():
     def __init__(self, 

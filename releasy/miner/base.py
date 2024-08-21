@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Callable, List, Self, Set, Tuple
 from releasy.change import Change
-from releasy.miner.repository import Repository
+from releasy.repository import Repository
 
-from releasy.project2 import Project
-from releasy.release2 import Release, ReleaseBuilder, ReleaseReference, ReleaseVersioningSchema, SimpleVersioningSchema
+from releasy.old.project2 import Project
+from releasy.old.release2 import Release, ReleaseBuilder, ReleaseReference, ReleaseVersioningSchema, SimpleVersioningSchema
 
 
 class ReleaseMiner:

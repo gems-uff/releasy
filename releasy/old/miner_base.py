@@ -2,9 +2,9 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Set, Tuple
 
-from releasy.project import Project
+from releasy.old.project import Project
 
-from .repository import Repository, Tag
+from .repository_old import Repository, Tag
 
 
 class AbstractMiner(ABC):

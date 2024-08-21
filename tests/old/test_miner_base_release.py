@@ -1,11 +1,11 @@
 import pytest
 
-import releasy
-from releasy.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
-from releasy.miner_release import ReleaseMiner
-from releasy.release_old import ReleaseSet
-from releasy.project import Project
-from releasy.miner_base_release import BaseReleaseMiner
+import releasy.old as old
+from releasy.old.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
+from releasy.old.miner_release import ReleaseMiner
+from releasy.old.release_old import ReleaseSet
+from releasy.old.project import Project
+from releasy.old.miner_base_release import BaseReleaseMiner
 
 from .mock_repository import MockRepository
 
@@ -50,7 +50,7 @@ from .mock_repository import MockRepository
 class describe_base_release_miner_with_history():
     @pytest.fixture(autouse=True)
     def project(self) -> Project:
-        project = releasy.Miner(MockRepository()).apply(
+        project = old.Miner(MockRepository()).apply(
             ReleaseMiner(), 
             HistoryCommitMiner(),
             BaseReleaseMiner()

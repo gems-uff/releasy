@@ -1,15 +1,15 @@
 import pytest
-import releasy
-from releasy.repository import Repository
-from releasy.miner_release import FinalReleaseMiner, ReleaseMiner
-from releasy.project import Project
+import releasy.old as old
+from releasy.old.repository_old import Repository
+from releasy.old.miner_release import FinalReleaseMiner, ReleaseMiner
+from releasy.old.project import Project
 from .mock_repository import MockRepository, MockRepositoryProxy
 
 
 class describe_release_miner:
     @pytest.fixture(autouse=True)
     def init(self):
-        self.project = releasy.Miner(MockRepository()).apply(
+        self.project = old.Miner(MockRepository()).apply(
             ReleaseMiner()
         ).mine()
 
@@ -37,7 +37,7 @@ class describe_release_miner:
 class describe_final_release_miner:
     @pytest.fixture(autouse=True)
     def init(self):
-        self.project = releasy.Miner(MockRepository()).apply(
+        self.project = old.Miner(MockRepository()).apply(
             FinalReleaseMiner()
         ).mine()
 
@@ -61,7 +61,7 @@ class describe_final_release_miner:
 class describe__release_set:
     @pytest.fixture(autouse=True)
     def init(self):
-        self.project = releasy.Miner(MockRepository()).apply(
+        self.project = old.Miner(MockRepository()).apply(
             ReleaseMiner()
         ).mine()
 

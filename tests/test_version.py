@@ -1,6 +1,6 @@
 import pytest
 from releasy.version import VersionType, ReleaseVersion
-from releasy.version_format import SemanticVersioningFormat
+from releasy.old.version_format import SemanticVersioningFormat
 
 
 class DescribeReleaseVersion:

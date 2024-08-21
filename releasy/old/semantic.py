@@ -7,7 +7,7 @@ import datetime
 
 from .project import Project
 from .release_old import Release, ReleaseSet
-from .repository import CommitSet
+from .repository_old import CommitSet
 
 
 class SemanticRelease:

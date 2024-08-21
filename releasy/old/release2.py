@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from datetime import datetime, timedelta
 
-from releasy.version_old import (
+from releasy.old.version_old import (
     ReleaseVersion,
     SemanticVersion, 
     SimpleReleaseVersion 

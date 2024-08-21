@@ -1,12 +1,12 @@
 import pytest
 from datetime import timedelta
 
-import releasy
-from releasy.miner_release import FinalReleaseMiner
-from releasy.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
-from releasy.miner_base_release import BaseReleaseMiner
-from releasy.miner_semantic import SemanticReleaseMiner
-from releasy.repository import Commit
+import releasy.old as old
+from releasy.old.miner_release import FinalReleaseMiner
+from releasy.old.miner_commit import HistoryCommitMiner, MixedHistoryCommitMiner
+from releasy.old.miner_base_release import BaseReleaseMiner
+from releasy.old.miner_semantic import SemanticReleaseMiner
+from releasy.old.repository_old import Commit
 
 from .mock_repository import MockRepository
 
@@ -14,7 +14,7 @@ from .mock_repository import MockRepository
 class describe_release_miner:
     @pytest.fixture(autouse=True)
     def project(self) -> None:
-        project = releasy.Miner(MockRepository()).apply(
+        project = old.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
             HistoryCommitMiner(),
             BaseReleaseMiner(),
@@ -161,7 +161,7 @@ class describe_release_miner:
 class describe_semantic_release_set:
     @pytest.fixture(autouse=True)
     def project(self) -> None:
-        project = releasy.Miner(MockRepository()).apply(
+        project = old.Miner(MockRepository()).apply(
             FinalReleaseMiner(),
             HistoryCommitMiner(),
             BaseReleaseMiner(),

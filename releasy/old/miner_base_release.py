@@ -5,10 +5,10 @@ before the actual release.
 """
 from __future__ import annotations
 from typing import Any, Tuple
-from releasy.miner_base import AbstractMiner
-from releasy.release_old import Commit2ReleaseMapper, Release, ReleaseSet
-from releasy.project import Project
-from releasy.repository import Commit
+from releasy.old.miner_base import AbstractMiner
+from releasy.old.release_old import Commit2ReleaseMapper, Release, ReleaseSet
+from releasy.old.project import Project
+from releasy.old.repository_old import Commit
 
 
 class BaseReleaseMiner(AbstractMiner):

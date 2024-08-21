@@ -1,8 +1,8 @@
 
 from typing import Any, Tuple
-from releasy.miner_base import AbstractMiner
-from releasy.project import Project
-from releasy.contributor_old import ContributorSet
+from releasy.old.miner_base import AbstractMiner
+from releasy.old.project import Project
+from releasy.old.contributor_old import ContributorSet
 
 
 class ContributorMiner(AbstractMiner):

@@ -1,4 +1,9 @@
 
+from typing import Set
+# from releasy.release import Release
+from releasy.old.repository_old import Repository
+
+
 class Change:
     """ 
     A change in a release, such as a commit
@@ -23,3 +28,11 @@ class Change:
         return self.id == other.id
 
 
+class ChangeAssignmentStrategy:
+    pass
+
+
+class HistoryBasedStrategy(ChangeAssignmentStrategy):
+    def assign(releases: Set, repository: Repository):
+        return releases
+    

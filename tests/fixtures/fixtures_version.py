@@ -1,7 +1,7 @@
 
 import pytest
 
-from releasy.version_format import ReleaseVersionFormat, SemanticVersioningFormat
+from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 
 
 @pytest.fixture
