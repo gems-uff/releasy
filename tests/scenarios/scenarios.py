@@ -1,6 +1,6 @@
 
 
-from releasy.change import Change
+from releasy.commit import Commit
 from releasy.repository import Repository
 
 class MockRepository(Repository):
@@ -8,10 +8,10 @@ class MockRepository(Repository):
         super().__init__()
 
 
-A = Change("A")
-B = Change("B", [A])
-C = Change("C", [B])
-D = Change("D", [B])
-E = Change("E", [C, D])
+A = Commit("A")
+B = Commit("B", [A])
+C = Commit("C", [B])
+D = Commit("D", [B])
+E = Commit("E", [C, D])
 
 

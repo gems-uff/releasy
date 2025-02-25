@@ -5,21 +5,21 @@ from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningF
 
 
 @pytest.fixture
-def format():
+def semver_format() -> ReleaseVersionFormat:
     return SemanticVersioningFormat()
 
 @pytest.fixture
-def version(format: ReleaseVersionFormat):
-    return format.parse("r1.0.0")
+def version(semver_format: ReleaseVersionFormat):
+    return semver_format.parse("r1.0.0")
 
 @pytest.fixture
-def version_a(format: ReleaseVersionFormat):
-    return format.parse("1.0.0")
+def version_a(semver_format: ReleaseVersionFormat):
+    return semver_format.parse("1.0.0")
 
 @pytest.fixture
-def version_b(format: ReleaseVersionFormat):
-    return format.parse("1.2.0")
+def version_b(semver_format: ReleaseVersionFormat):
+    return semver_format.parse("1.2.0")
 
 @pytest.fixture
-def version_c(format: ReleaseVersionFormat):
-    return format.parse("1.2.3")
+def version_c(semver_format: ReleaseVersionFormat):
+    return semver_format.parse("1.2.3")

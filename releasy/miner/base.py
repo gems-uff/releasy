@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Callable, List, Self, Set, Tuple
-from releasy.change import Change
+from releasy.commit import Commit
 from releasy.repository import Repository
 
 from releasy.old.project2 import Project
@@ -43,7 +43,7 @@ class ChangeMiner:
             self, 
             releases: Set[Release], 
             repository: Repository
-            ) -> Set[Tuple[Release,List[Change]]]:
+            ) -> Set[Tuple[Release,List[Commit]]]:
         pass
 
 
