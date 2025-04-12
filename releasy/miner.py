@@ -18,6 +18,6 @@ class Miner:
             releases: Set[Release], 
             strategy) -> Set[Release]:
         for release in releases:
-            release.add_changes(strategy.assign(release))
+            release.set_commits(strategy.assign(release))
 
 

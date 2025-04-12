@@ -8,7 +8,7 @@ from releasy.old.version_old import (
     SemanticVersion, 
     SimpleReleaseVersion 
 )
-from releasy.change import Change
+from releasy.commit import Commit
 
 
 class Release(ABC):
@@ -18,7 +18,7 @@ class Release(ABC):
         self.description = ''
         self.developer: str = None
         self.timestamp: datetime = None
-        self.changes: Set[Change] = ()
+        self.changes: Set[Commit] = ()
         self.lifecycle: ReleaseLifeCycle = None
         self.cycle: timedelta = None
         self.base_releases: Set[Release] = ()

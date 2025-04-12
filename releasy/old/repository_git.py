@@ -32,15 +32,15 @@ class GitRepository(RepositoryProxy):
 
     def _get_tag(self, rtag: pygit2.Reference) -> Tag:
         ref = self.git.get(rtag.target)
-        if ref.type == pygit2.GIT_OBJ_COMMIT:
-            commit = self.repository.get_commit(ref.hex)
+        if ref.type == pygit2.GIT_OBJECT_COMMIT:
+            commit = self.repository.get_commit(ref.id)
             #TODO time
             tag = Tag(self.repository, rtag.shorthand, commit)
             return tag                
-        elif ref.type == pygit2.GIT_OBJ_TAG: # annotatted tag
+        elif ref.type == pygit2.GIT_OBJECT_TAG: # annotatted tag
             peel = rtag.peel()
-            if peel.type == pygit2.GIT_OBJ_COMMIT:
-                commit = self.repository.get_commit(rtag.peel().hex)
+            if peel.type == pygit2.GIT_OBJECT_COMMIT:
+                commit = self.repository.get_commit(rtag.peel().id)
                 rtag_ref: pygit2.Tag = ref
                 try:
                     message = rtag_ref.message
@@ -72,7 +72,7 @@ class GitRepository(RepositoryProxy):
 
         commit = Commit(
             self.repository,
-            rcommit.hex,
+            rcommit.id,
             message,
             f"{rcommit.committer.name} <{rcommit.committer.email}>",
             committer_time,
@@ -84,7 +84,7 @@ class GitRepository(RepositoryProxy):
         commit_ref: pygit2.Commit = self.commit_cache.fetch_commit(commit.id)
         parents = CommitSet()
         for parent_ref in commit_ref.parents:
-            parent = self.repository.get_commit(parent_ref.hex)
+            parent = self.repository.get_commit(parent_ref.id)
             parents.add(parent)
         return parents
 
