@@ -48,6 +48,7 @@ def release_a(version_a: ReleaseVersion, alice: Contributor):
     return Release(
         version=version_a,
         timestamp=datetime(2024, 1, 2),
+        head=change_a,
         author=alice
     )
 
@@ -56,6 +57,7 @@ def release_b(version_b: ReleaseVersion, alice: Contributor):
     return Release(
         version=version_b,
         timestamp=datetime(2024, 1, 3),
+        head=change_b,
         author=alice
     )
 
@@ -64,5 +66,6 @@ def release_c(version_c: ReleaseVersion, alice: Contributor):
     return Release(
         version=version_c,
         timestamp=datetime(2024, 1, 4),
+        head=change_c,
         author=alice
     )
