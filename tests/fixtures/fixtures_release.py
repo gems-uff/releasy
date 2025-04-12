@@ -46,7 +46,7 @@ def release(
     return release
     
 @pytest.fixture
-def prev_release(version_a: ReleaseVersion, alice: Contributor, commit_a: Commit):
+def release_a(version_a: ReleaseVersion, alice: Contributor, commit_a: Commit):
     return Release(
         version=version_a,
         timestamp=datetime(2024, 1, 1),
@@ -64,11 +64,11 @@ def release_b(version_b: ReleaseVersion, alice: Contributor, commit_b):
     )
 
 @pytest.fixture
-def release_c(version_c: ReleaseVersion, alice: Contributor):
+def release_c(version_c: ReleaseVersion, alice: Contributor, commit_c):
     return Release(
         version=version_c,
         timestamp=datetime(2024, 1, 5),
-        head=change_c,
+        head=commit_c,
         author=alice
     )
 

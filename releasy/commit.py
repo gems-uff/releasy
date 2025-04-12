@@ -9,7 +9,7 @@ class Commit:
     """ 
     A change in a release, such as a commit
     """
-    def __init__(self, id: str, parents: List[Commit], timestamp: datetime) -> None:
+    def __init__(self, id: str, parents: List[Commit] = None, timestamp: datetime = None) -> None:
         self._id = id
         self.parents = parents
         self.timestamp = datetime
