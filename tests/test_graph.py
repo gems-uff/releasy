@@ -21,33 +21,29 @@ class DescribeReleaseGraph:
 
         release = graph.get(release_a.name)
         assert release == release_a
-
-    def it_track_dependency(self, release_a, release_b):
+    
+    def it_retrieve_release_by_ref(self, release_a: Release):
         graph = ReleaseGraph()
         graph.add(release_a)
-        graph.add(release_b, [release_a])
-        assert(len(graph) == 2)
 
-        bse_rleases = graph.previous(release_a)
-        assert len(bse_rleases) == 0
+        release = graph[release_a]
+        assert release == release_a
 
-        bse_rleases = graph.previous(release_b)
-        assert len(bse_rleases) == 1
-        assert bse_rleases[0] == release_a
+        release = graph.get(release_a)
+        assert release == release_a
 
-    def it_track_mul_dep(self, release_a, release_b, release_c):
+    def it_track_parent_releases(self, release_a, release_b, release_c):
         graph = ReleaseGraph()
         graph.add(release_a)
         graph.add(release_b)
         graph.add(release_c, [release_a, release_b])
         assert(len(graph) == 3)
 
-        bse_rleases = graph.previous(release_c)
+        bse_rleases = graph.get_parents(release_c)
         assert len(bse_rleases) == 2
         assert bse_rleases[0] == release_a
         assert bse_rleases[1] == release_b
         
-    def it_track_mul_dep_2(self, release_a, release_b, release_c):
         graph = ReleaseGraph()
         graph.add(release_a)
         graph.add(release_b)
@@ -55,25 +51,58 @@ class DescribeReleaseGraph:
         graph.add(release_c, [release_b])
         assert(len(graph) == 3)
 
-        bse_rleases = graph.previous(release_c)
+        bse_rleases = graph.get_parents(release_c)
         assert len(bse_rleases) == 2
         assert bse_rleases[0] == release_a
         assert bse_rleases[1] == release_b
     
-    def it_handle_loops(self, release_a, release_b, release_c):
+    def it_track_main_parent(self, release_a, release_b, release_c):
+        graph = ReleaseGraph()
+        graph.add(release_c, [release_a, release_b])
+        main_parent = graph.get_main_parent(release_c)
+        assert main_parent == release_b
+
+        graph = ReleaseGraph()
+        graph.add(release_a, [release_b, release_c])
+        main_parent = graph.get_main_parent(release_a)
+        assert main_parent == release_b
+    
+    def it_track_path_between_releases(self, release_a, release_b, release_c):
         graph = ReleaseGraph()
         graph.add(release_a)
         graph.add(release_b, [release_a])
-        graph.add(release_c, [release_b]) 
-        graph.add(release_a, [release_c]) 
+        graph.add(release_c, [release_b])
+
+        assert [release_b, release_a] == \
+            graph.get_path(release_a, origin=release_b)
+        assert [release_c, release_b, release_a] == \
+            graph.get_path(release_a, origin=release_c)
+        assert [release_c, release_b] == \
+            graph.get_path(release_b, origin=release_c)
+
+        graph = ReleaseGraph()
+        graph.add(release_a)
+        graph.add(release_b, [release_a])
+        graph.add(release_c, [release_a])
+        assert [] == \
+            graph.get_path(release_b, origin=release_c)
+        
+    def it_track_reach_between_releases(self, release_a, release_b, release_c):
+        graph = ReleaseGraph()
+        graph.add(release_a)
+        graph.add(release_b, [release_a])
+        graph.add(release_c, [release_b])
+
+        assert graph.reach(release_a, origin=release_b)
+        assert graph.reach(release_a, origin=release_c)
+        assert graph.reach(release_b, origin=release_c)
+
+        graph = ReleaseGraph()
+        graph.add(release_a)
+        graph.add(release_b, [release_a])
+        graph.add(release_c, [release_a])
+        assert not graph.reach(release_b, origin=release_c)
+    
 
 
-
-
-
-
-
-
-
-
-
+    

@@ -1,3 +1,4 @@
+from queue import Queue
 from typing import List
 from releasy.release import Release
 
@@ -5,64 +6,132 @@ from releasy.release import Release
 class GraphNode[T]:
     def __init__(self, ref: T):
         self.ref = ref
-        self.prev_refs = []
-
+        self.parents = []
+    
+    def add_parent(self, parent):
+        self.parents.append(parent)
+    
+    def __repr__(self):
+        return self.ref.__repr__()
+    
 
 class Graph[T]:
-    def __init__(self):
+    def __init__(self, ref_name, check_type):
         self.nodes = dict[str, GraphNode]()
+        self._ref_name = ref_name
+        self._check_type = check_type
 
-    def add(self, ref: T, prev_refs: List[T] = None) -> None:
-        if not prev_refs:
-            prev_refs = []
-
-        name = self._ref_name(ref)
+    def _add_node(self, ref: T):
+        name = self._ref_name(ref) 
         if name in self.nodes:
             node = self.nodes[name]
         else:
             node = GraphNode(ref)
             self.nodes[name] = node
-
-        for prev_ref in prev_refs:
-            prev_node = GraphNode(prev_ref) 
-            node.prev_refs.append(prev_node)
-
+        return node
     
-    def get(self, name: str):
-        node = self.nodes[name]
-        return node.ref
-    
-    def __getitem__(self, obj):
-        if isinstance(obj, str):
-            name = obj
-        elif isinstance(obj, T):
-            name = self._ref_name(obj)
+    def _add_edge(self, node: GraphNode, parent: GraphNode):
+        node.add_parent(parent)
+
+    def _get_node(self, ref: str | T):
+        if isinstance(ref, str):
+            name = ref
+        elif self._check_type(ref):
+            name = self._ref_name(ref)
         else:
             return None
-
-        return self.get(name)
-
-    def previous(self, ref) -> List[T]:
-        name = self._ref_name(ref)
-        node = self._get_node(name)
-        return [node.ref for node in node.prev_refs]
-
-    def _get_node(self, name: str):
+        
+        if name not in self.nodes:
+            return None
+        
         node = self.nodes[name]
         return node
+
+    def add(self, ref: T, parents_ref: List[T] = None) -> None:
+        if not parents_ref:
+            parents_ref = []
+
+        node = self._add_node(ref)
+        for parent_ref in parents_ref:
+            parent_node = self._add_node(parent_ref)
+            self._add_edge(node, parent_node)
+    
+    def get(self, ref: str | T):
+        node = self._get_node(ref)
+        if not node:
+            return None
+        
+        ref = node.ref
+        return ref
+    
+    def __getitem__(self, ref: str | T):
+        return self.get(ref)
+
+    def get_parents(self, ref: str | T) -> List[T]:
+        node = self._get_node(ref)
+        parents_ref = [node.ref for node in node.parents]
+        return parents_ref
+    
+    def get_path(self, target: str | T, origin: str | T):
+        target = self._get_node(target)
+        origin = self._get_node(origin)
+
+        queue = Queue[GraphNode]()
+        queue.put(origin)
+        origin_of = dict()
+        while not queue.empty():
+            current = queue.get()
+
+            if current == target:
+                break
+
+            for parent in current.parents:
+                if parent not in origin_of:
+                    origin_of[parent] = current
+                    queue.put(parent)
+
+        path = []
+        current = target
+
+        if current not in origin_of:
+            return path
+
+        while current != origin:
+            current = origin_of[current]
+            path.insert(0, current)
+        path.append(target)
+        path = [node.ref for node in path]
+        return path
+
+    def reach(self, target: str | T, origin: str | T):
+        path = self.get_path(target, origin)
+        return True if path else False
 
     def __len__(self) -> int:
         return len(self.nodes)
     
-    def _ref_name(self, ref: T):
-        pass
-
 
 class ReleaseGraph(Graph[Release]):
     def __init__(self):
-        super().__init__()
-
-    def _ref_name(self, ref: Release):
-        return ref.name
-
+        super().__init__(
+            lambda release: release.name,
+            lambda release: isinstance(release, Release)
+        )
+    
+    #TODO: move to a inspector class to remove business logic
+    def get_main_parent(self, ref: str | Release) -> Release:
+        releases = self.get_parents(ref)
+        if not releases:
+            return None
+            
+        ref = self.get(ref)
+        releases.append(ref)
+        releases = sorted(releases, key=lambda r: r.version)
+        pos = releases.index(ref)
+        if pos > 0:
+            return releases[pos-1]
+            
+        releases = sorted(releases, key=lambda r: r.version)
+        pos = releases.index(ref)
+        return releases[1]
 
