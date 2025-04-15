@@ -4,7 +4,7 @@ import re
 
 from datetime import datetime, timedelta
 
-from releasy.miner.base import ReleaseMiner, Repository
+from releasy.miner2.base import ReleaseMiner, Repository
 from releasy.old.release2 import ReleaseReference
 
 

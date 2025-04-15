@@ -1,6 +1,6 @@
 import pygit2
 
-from releasy.miner.git import GitReleaseMiner
+from releasy.miner2.git import GitReleaseMiner
 
 miner = GitReleaseMiner(pygit2.Repository("."))
 releases = miner.mine()

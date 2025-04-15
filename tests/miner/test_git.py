@@ -1,7 +1,7 @@
 
 
 from datetime import datetime
-from releasy.miner.git import GitRepository
+from releasy.miner2.git import GitRepository
 
 
 class DescribeGitRepository:

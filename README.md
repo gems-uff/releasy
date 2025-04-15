@@ -12,3 +12,16 @@ Papers
 
 [Curty, F., Kohwalter, T., Braganholo, V., Murta, L., 2018. An Infrastructure for Software Release Analysis through Provenance Graphs. Presented at the VI Workshop on Software Visualization, Evolution and Maintenance.](https://goo.gl/9u8rzc)
 
+Overview
+========
+
+```text
+Git ----> Release Graph ----> Data
+      |                   |
+    Miner             Inspector
+```
+
+1. The miner creates the release graph based on Git
+2. The inspector read the release graph to extract data
+
+

@@ -64,6 +64,10 @@ class Graph[T]:
         ref = node.ref
         return ref
     
+    def get_all(self) -> T:
+        releases = [release.ref for release in self.nodes.values()]
+        return releases
+    
     def __getitem__(self, ref: str | T):
         return self.get(ref)
 

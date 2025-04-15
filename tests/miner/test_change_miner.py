@@ -1,7 +1,7 @@
 
 from datetime import datetime, timedelta
 from typing import List
-from releasy.miner.base import Repository
+from releasy.miner2.base import Repository
 from releasy.old.release2 import ReleaseReference
 
 
