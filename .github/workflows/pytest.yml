@@ -12,8 +12,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Install libgit
-      run: sudo apt install -y libgit2-dev
+    # - name: Install libgit
+      # run: sudo apt install -y libgit2-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
