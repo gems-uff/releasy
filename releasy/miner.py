@@ -81,7 +81,7 @@ class GitMiner(MinerPlugin):
                 continue
 
             # Simple Tag
-            if tag.type == pygit2.GIT_OBJ_COMMIT:
+            if tag.type == pygit2.GIT_OBJECT_COMMIT:
                 head = self.git.get(tag.id) #TODO Convert to commit
                 author = None
                 tagger_tzinfo = timezone(timedelta(minutes=tag.committer.offset))
@@ -96,11 +96,11 @@ class GitMiner(MinerPlugin):
                 graph.add(release)
 
             # Annotatted Tag
-            elif tag.type == pygit2.GIT_OBJ_TAG:
+            elif tag.type == pygit2.GIT_OBJECT_TAG:
                 peel = tag_ref.peel()
                 # A tag may point to other objects in the repository
                 # but we are only looking for tags that reference a commit
-                if peel.type == pygit2.GIT_OBJ_COMMIT:
+                if peel.type == pygit2.GIT_OBJECT_COMMIT:
                     head = self.git.get(peel.id)
                     try:
                         message = tag.message
