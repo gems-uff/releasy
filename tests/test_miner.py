@@ -1,60 +1,49 @@
-from datetime import datetime
 import pytest
+import json
 
-from releasy.miner import Configuration, DictMiner, GitMiner, Miner
+from datetime import datetime
+
+from releasy.miner import Configuration, JsonMiner, GitMiner, Miner
 from releasy.release import Release
 
 class DescribeMinerConfiguration:
     def it_has_a_list_plugins(self):
         config = Configuration(
-            plugins=[DictMiner({})]
+            plugins=[JsonMiner({})]
         )
         assert len(config.plugins) == 1
-        assert isinstance(config.plugins[0], DictMiner)
+        assert isinstance(config.plugins[0], JsonMiner)
 
 class DescribeJsonReleaseMiner:
     class WithScenarioA:
         @pytest.fixture
         def scenario(self):
-            return [
-                {
-                    'name': '1.0.0',
-                    'timestamp': '2025-01-01',
-                    'head': 'a',
-                    'author': 'Alice <alice@examplo.com>' 
-                },
-                {
-                    'name': '1.1.0',
-                    'timestamp': '2025-01-10',
-                    'head': 'b',
-                    'author': 'Alice <alice@examplo.com>' 
-                },
-                {
-                    'name': '1.1.1',
-                    'timestamp': '2025-01-20',
-                    'head': 'c',
-                    'author': 'Alice <alice@examplo.com>' 
-                }
-            ]
+            with open('tests/fixtures/scenario_a.json') as scenario_file:
+                scenario = json.load(scenario_file)
+                return scenario
             
         def it_create_a_release_graph(self, scenario):
             miner = Miner(Configuration(
-                plugins=[DictMiner(scenario)]
+                plugins=[JsonMiner(scenario)]
             ))
             project = miner.mine()
             assert len(project.releases) == 3
         
         def it_use_multiple_plugins(self, scenario):
-            r4 = [{
-                    'name': '1.1.2',
-                    'timestamp': '2025-01-25',
-                    'head': 'd',
-                    'author': 'Alice <alice@examplo.com>' 
-            }] 
+            r4 = {
+                'releases': [
+                    {
+                        'name': '1.1.2',
+                        'timestamp': '2025-01-25',
+                        'head': 'd',
+                        'author': 'Alice <alice@examplo.com>' 
+                    }
+                ]
+            } 
             miner = Miner(Configuration(
                 plugins=[
-                    DictMiner(scenario),
-                    DictMiner(r4),
+                    JsonMiner(scenario),
+                    JsonMiner(r4),
                 ]
             ))
             project = miner.mine()

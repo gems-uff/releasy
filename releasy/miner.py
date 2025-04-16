@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List
 
 import pygit2
+import json
 
 from releasy.contributor import Contributor
 from releasy.graph import ProjectGraph, ReleaseGraph
@@ -36,19 +37,19 @@ class MinerPlugin(ABC):
         pass
     
 
-class DictMiner(MinerPlugin):
-    def __init__(self, dict: Dict):
-        self.dict = dict
+class JsonMiner(MinerPlugin):
+    def __init__(self, json: Dict):
+        self.json = json
 
     def mine(self, project: ProjectGraph, config: Configuration):
         parser = config.parser
-        for data in self.dict:
-            version = parser.parse(data['name'])
-            contributor = Contributor(data['name'])
+        for release_data in self.json['releases']:
+            version= parser.parse(release_data['name'])
+            contributor = Contributor(release_data['name'])
             release = Release(
                 version=version,
-                timestamp=data['timestamp'],
-                head=data['head'],
+                timestamp=release_data['timestamp'],
+                head=release_data['head'],
                 author=contributor
             )
             project.releases.add(release)
