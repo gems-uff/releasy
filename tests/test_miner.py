@@ -12,7 +12,7 @@ class DescribeMinerConfiguration:
         assert len(config.plugins) == 1
         assert isinstance(config.plugins[0], DictMiner)
 
-class DescribeMiner:
+class DescribeJsonReleaseMiner:
     class WithScenarioA:
         @pytest.fixture
         def scenario(self):
@@ -41,8 +41,8 @@ class DescribeMiner:
             miner = Miner(Configuration(
                 plugins=[DictMiner(scenario)]
             ))
-            graph = miner.mine()
-            assert len(graph) == 3
+            project = miner.mine()
+            assert len(project.releases) == 3
         
         def it_use_multiple_plugins(self, scenario):
             r4 = [{
@@ -57,19 +57,21 @@ class DescribeMiner:
                     DictMiner(r4),
                 ]
             ))
-            graph = miner.mine()
-            assert len(graph) == 4
+            project = miner.mine()
+            assert len(project.releases) == 4
 
 
-class DescribeGitMiner:
+class DescribeGitReleaseMiner:
     def it_mine_releases(self):
         miner = Miner(Configuration(
             plugins=[GitMiner('.')]
         ))
-        graph = miner.mine()
+        project = miner.mine()
         releases = [
-            release
-            for release in graph.get_all()
-            if release.timestamp < datetime(2025, 1, 1, tzinfo=release.timestamp.tzinfo) 
+            release_node.get()
+            for release_node in project.releases.get_all()
+            if release_node.get().timestamp < \
+                    datetime(2025, 1, 1, \
+                        tzinfo=release_node.get().timestamp.tzinfo) 
         ]
         assert len(releases) == 25

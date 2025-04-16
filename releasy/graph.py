@@ -193,10 +193,14 @@ class RGraph:
             release_node = ReleaseNode(release)
             self.nodes[release.name] = release_node
     
-    def get(self, reference: str):
+    def get(self, reference: str) -> ReleaseNode:
         if reference not in self.nodes:
             return None
         return self.nodes[reference]
+    
+    def get_all(self) -> List[ReleaseNode]:
+        release_nodes = [release_node for release_node in self.nodes.values()]
+        return release_nodes
 
     def __getitem__(self, reference: str | Release):
         if isinstance(reference, Release):

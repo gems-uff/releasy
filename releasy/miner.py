@@ -7,7 +7,7 @@ from typing import Dict, List
 import pygit2
 
 from releasy.contributor import Contributor
-from releasy.graph import ReleaseGraph
+from releasy.graph import ProjectGraph, ReleaseGraph
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 from releasy.release import Release
 
@@ -23,16 +23,16 @@ class Miner:
         self.config = config
 
     def mine(self):
-        graph = ReleaseGraph()
+        project = ProjectGraph()
         config = self.config
         for plugin in self.config.plugins:
-            graph = plugin.mine(graph, config)
-        return graph
+            project = plugin.mine(project, config)
+        return project
 
 
 class MinerPlugin(ABC):
     @abstractmethod
-    def mine(self, graph: ReleaseGraph, config: Configuration):
+    def mine(self, project: ProjectGraph, config: Configuration) -> ProjectGraph:
         pass
     
 
@@ -40,7 +40,7 @@ class DictMiner(MinerPlugin):
     def __init__(self, dict: Dict):
         self.dict = dict
 
-    def mine(self, graph: ReleaseGraph, config: Configuration):
+    def mine(self, project: ProjectGraph, config: Configuration):
         parser = config.parser
         for data in self.dict:
             version = parser.parse(data['name'])
@@ -51,8 +51,8 @@ class DictMiner(MinerPlugin):
                 head=data['head'],
                 author=contributor
             )
-            graph.add(release)
-        return graph
+            project.releases.add(release)
+        return project
 
 
 class GitMiner(MinerPlugin):
@@ -61,11 +61,11 @@ class GitMiner(MinerPlugin):
         self.git = pygit2.Repository(self.path) 
         self.mine_commits = mine_commits
 
-    def mine(self, graph: ReleaseGraph, config: Configuration):
-        self.fetch_tags(graph, config)
-        return graph
+    def mine(self, project: ProjectGraph, config: Configuration):
+        self.fetch_tags(project, config)
+        return project
     
-    def fetch_tags(self, graph: ReleaseGraph, config: Configuration) -> None:
+    def fetch_tags(self, project: ProjectGraph, config: Configuration) -> None:
         tag_refs = [
             ref 
             for ref in self.git.references.objects 
@@ -93,7 +93,7 @@ class GitMiner(MinerPlugin):
                     head=head,
                     author=tagger
                 )
-                graph.add(release)
+                project.releases.add(release)
 
             # Annotatted Tag
             elif tag.type == pygit2.GIT_OBJECT_TAG:
@@ -122,4 +122,4 @@ class GitMiner(MinerPlugin):
                         head=head,
                         author=tagger
                     )
-                    graph.add(release)
+                    project.releases.add(release)
