@@ -1,6 +1,6 @@
 
 
-from releasy.graph import ReleaseGraph
+from releasy.graph import ProjectGraph, ReleaseGraph
 from releasy.release import Release
 
 
@@ -103,6 +103,26 @@ class DescribeReleaseGraph:
         graph.add(release_c, [release_a])
         assert not graph.reach(release_b, origin=release_c)
     
+
+class DescribeProjectGraph:
+    def it_add_release(self, release_a: Release):
+        project = ProjectGraph()
+        assert len(project.releases) == 0
+
+        project.releases.add(release_a)
+        assert len(project.releases) == 1
+        assert release_a == project.releases[release_a].get()
+
+    def it_add_commit_to_release(self, release_a: Release, commit_a, commit_b):
+        project = ProjectGraph()
+        project.releases.add(release_a)
+        project.releases[release_a].add_commit([commit_a, commit_b])
+
+        assert len(project.releases) == 1
+        commits = project.releases[release_a.name].commits
+        assert len(commits) == 2
+        assert commit_a  == commits[0].get()
+        assert commit_b  == commits[1].get()
 
 
     

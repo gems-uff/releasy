@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 from queue import Queue
 from typing import List
+from releasy.commit import Commit
 from releasy.release import Release
 
 
@@ -121,7 +123,16 @@ class ReleaseGraph(Graph[Release]):
             lambda release: release.name,
             lambda release: isinstance(release, Release)
         )
-    
+        self.commits = dict[str, list[Commit]]()
+
+    def add_commit(self, release, commits: list[Commit]):
+        if release not in self.commits:
+            self.commits[release.name] = list()
+            
+        commits = self.commits[release.name]
+        for commit in commits:
+            commits.append[commit]
+
     #TODO: move to a inspector class to remove business logic
     def get_main_parent(self, ref: str | Release) -> Release:
         releases = self.get_parents(ref)
@@ -138,4 +149,100 @@ class ReleaseGraph(Graph[Release]):
         releases = sorted(releases, key=lambda r: r.version)
         pos = releases.index(ref)
         return releases[1]
+
+
+class CommitGraph(Graph[Commit]):
+    def __init__(self):
+        super().__init__(
+            lambda commit: commit.id,
+            lambda commit: isinstance(commit, Commit)
+        )
+
+
+class ReleaseNode:
+    def __init__(self, release: Release):
+        self.release = release
+        self.base_releases = list[Release]()
+        self.commits = list[CommitNode]()
+
+    def get(self) -> Release:
+        return self.release
+
+    def add_commit(self, commits: List[Commit]):
+        self.commits.extend(CommitNode(commit) for commit in commits)
+
+
+Reference = Release | Commit
+
+
+class CommitNode:
+    def __init__(self, commit: Commit):
+        self.commit = commit
+        self.parents = list[CommitNode]
+    
+    def get(self) -> Commit:
+        return self.commit
+
+
+class RGraph:
+    def __init__(self):
+        self.nodes = dict[str, ReleaseNode]()
+  
+    def add(self, release: Release):
+        if release.name not in self.nodes:
+            release_node = ReleaseNode(release)
+            self.nodes[release.name] = release_node
+    
+    def get(self, reference: str):
+        if reference not in self.nodes:
+            return None
+        return self.nodes[reference]
+
+    def __getitem__(self, reference: str | Release):
+        if isinstance(reference, Release):
+            return self.get(reference.name)
+        return self.get(reference)
+    
+    def __len__(self) -> int:
+        return len(self.nodes)
+
+class ProjectGraph:
+    def __init__(self):
+        self.releases = RGraph()
+        # self.commits = CommitGraph()
+
+    # def add_release(self, release: Release):
+    #     self.releases.add(release)
+
+    # def add_release_commit(self, release: Release, commits: List[Commit]):
+    #     self.releases.add_commits(release, commits)
+
+# class ReleaseCommitGraph:
+#     def __init__(self):
+#        self.commits = Graph[Commit]()
+
+#TODO rename to ReleaseGraph
+# class RelGraph:
+#     def __init__(self):
+#        self.releases = ReleaseCommitGraph()
+#        self.commits = Graph[Commit]()
+        
+# class CommitGraph(Graph[Commit]):
+#     def __init__(self):
+#         super().__init__(
+#             lambda commit: commit.id,
+#             lambda commit: isinstance(commit, Commit)
+#         )
+
+
+# class ProjectGraph:
+#     def __init__(self):
+#         self.releases: Graph[Release] = None
+#         self.commits: Graph[Commit] = None
+
+        
+        # graph.release['1.0.0']  -> Get release
+        # graph.release['1.0.0'].commits -> Get commits from release
+        # graph.commits['ab10'] -> Get commits
+
 
