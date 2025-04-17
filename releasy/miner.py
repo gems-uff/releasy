@@ -9,7 +9,7 @@ import json
 
 from releasy.commit import Commit
 from releasy.contributor import Contributor
-from releasy.graph import ProjectGraph, ReleaseGraph
+from releasy.graph import ProjectGraph, RRGraph
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 from releasy.release import Release
 
@@ -44,8 +44,8 @@ class JsonMiner(MinerPlugin):
 
 
     def mine(self, project: ProjectGraph, config: Configuration):
-        project = self._mine_releases(project, config)
         project = self._mine_commits(project, config)
+        project = self._mine_releases(project, config)
         return project
     
 
@@ -59,10 +59,12 @@ class JsonMiner(MinerPlugin):
             version= parser.parse(release_data['name'])
             timestamp = datetime.fromisoformat(release_data['timestamp'])
             contributor = Contributor(release_data['name'])
+            head_id = release_data['head']
+            head = project.commits[head_id].get()
             release = Release(
                 version=version,
                 timestamp=timestamp,
-                head=release_data['head'],
+                head=head,
                 author=contributor
             )
             project.releases.add(release)

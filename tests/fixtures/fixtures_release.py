@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Iterable
+from typing import Iterable, List
 import pytest
 
-from releasy.commit import Commit, CommitSet
+from releasy.commit import CommitSet
 from releasy.contributor import Contributor
-from releasy.release import Release, ReleaseSet
+from releasy.release import Commit, Release
 from releasy.version import ReleaseVersion
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 
@@ -86,7 +86,7 @@ def scenario_1(
     ]
 
     commits = CommitSet()
-    releases = ReleaseSet()
+    releases = list()
     timestamp = datetime(2025, 1, 1)
     commit2release = {}
     
@@ -122,7 +122,7 @@ def scenario_1(
     return releases, commits
 
 @pytest.fixture
-def scenario_1_releases(scenario_1) -> ReleaseSet:
+def scenario_1_releases(scenario_1) -> List:
     releases, _ = scenario_1
     return releases
 

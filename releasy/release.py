@@ -4,7 +4,6 @@ from datetime import datetime
 import re
 from typing import Iterable, Set
 
-from releasy.commit import Commit, CommitGroup
 from releasy.contributor import Contributor
 from releasy.version import VersionType, ReleaseVersion
 
@@ -22,9 +21,6 @@ class Release:
         self.timestamp = timestamp
         self.head = head
         self.author = author
-        self.commits = CommitGroup()
-        self.base_releases = ReleaseSet()
-        self.pre_releases = ReleaseSet()
 
     @property
     def name(self) -> str:
@@ -37,39 +33,26 @@ class Release:
             
         return self.version.type
 
-    def set_commits(self, commits: Iterable[Commit]) -> None:
-        self.commits = CommitGroup(commits)
-    
-    def add_base_release(self, release: Release) -> None:
-        if not self.base_releases:
-            self.base_releases = set()
-        self.base_releases.add(release)
-    
-    def add_pre_release(self, release: Release) -> None:
-        if not self.pre_releases:
-            self.pre_releases = set()
-        self.pre_releases.add(release)
-
-
     def __repr__(self) -> str:
         return self.name
 
 
-class ReleaseSet:
-    def __init__(self, releases: Iterable[Release] = None) -> None:
-        self._releases = {release.name: release for release in releases} \
-                         if releases else {}
+class Commit:
+    """ 
+    A change in a release, such as a commit
+    """
+    def __init__(self, id: str, timestamp: datetime = None) -> None:
+        self.id = id
+        self.timestamp = timestamp
+    
+    def __hash__(self) -> int:
+        if self.id:
+            return hash(self.id)
+        else:
+            return super.__hash__()
 
-    def add(self, release: Release) -> None:
-        self._releases[release.name] = release
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Commit):
+            return False
 
-    def __len__(self) -> int:
-        return len(self._releases)
-
-    def __getitem__(self, release_name: str) -> Release:
-        if release_name not in self._releases:
-            raise KeyError(f"Release {release_name} not found")
-        return self._releases[release_name]
-
-    def __iter__(self):
-        return iter(self._releases.values())
+        return self.id == other.id

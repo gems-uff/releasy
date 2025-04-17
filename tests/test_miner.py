@@ -47,6 +47,13 @@ class DescribeJsonMiner:
             assert len(commits['b'].parents) == 1
             assert commits['c'].parents[0].get().id == 'b'
             assert len(commits['c'].parents) == 1
+        
+        def it_mine_head_commits(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[JsonMiner(scenario)]
+            ))
+            project = miner.mine()
+            project.releases['1.0.0'].get().head.id == 'a'
 
         def it_use_multiple_plugins(self, scenario):
             r4 = {
@@ -54,6 +61,14 @@ class DescribeJsonMiner:
                     {
                         'name': '1.1.2',
                         'timestamp': '2025-01-25',
+                        'head': 'd',
+                        'author': 'Alice <alice@examplo.com>' 
+                    }
+                ],
+                'commits': [
+                    {
+                        'id': 'd',
+                        'timestamp': '2025-01-24',
                         'head': 'd',
                         'author': 'Alice <alice@examplo.com>' 
                     }

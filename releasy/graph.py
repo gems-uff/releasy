@@ -117,7 +117,7 @@ class Graph[T]:
         return len(self.nodes)
     
 
-class ReleaseGraph(Graph[Release]):
+class RRGraph(Graph[Release]):
     def __init__(self):
         super().__init__(
             lambda release: release.name,
@@ -151,28 +151,16 @@ class ReleaseGraph(Graph[Release]):
         return releases[1]
 
 
-
-
 class ReleaseNode:
     def __init__(self, release: Release):
         self.release = release
         self.base_releases = list[Release]()
-        self.commits = list[CommitNode]()
+        self.commits = CommitGraph()
 
     def get(self) -> Release:
         return self.release
 
-    def add_commit(self, commits: List[Commit]):
-        self.commits.extend(CommitNode(commit) for commit in commits)
-
-
-Reference = Release | Commit
-
-
-
-
-
-class RGraph:
+class ReleaseGraph:
     def __init__(self):
         self.nodes = dict[str, ReleaseNode]()
   
@@ -237,42 +225,5 @@ class CommitGraph:
 
 class ProjectGraph:
     def __init__(self):
-        self.releases = RGraph()
+        self.releases = ReleaseGraph()
         self.commits = CommitGraph()
-        # self.commits = CommitGraph()
-
-    # def add_release(self, release: Release):
-    #     self.releases.add(release)
-
-    # def add_release_commit(self, release: Release, commits: List[Commit]):
-    #     self.releases.add_commits(release, commits)
-
-# class ReleaseCommitGraph:
-#     def __init__(self):
-#        self.commits = Graph[Commit]()
-
-#TODO rename to ReleaseGraph
-# class RelGraph:
-#     def __init__(self):
-#        self.releases = ReleaseCommitGraph()
-#        self.commits = Graph[Commit]()
-        
-# class CommitGraph(Graph[Commit]):
-#     def __init__(self):
-#         super().__init__(
-#             lambda commit: commit.id,
-#             lambda commit: isinstance(commit, Commit)
-#         )
-
-
-# class ProjectGraph:
-#     def __init__(self):
-#         self.releases: Graph[Release] = None
-#         self.commits: Graph[Commit] = None
-
-        
-        # graph.release['1.0.0']  -> Get release
-        # graph.release['1.0.0'].commits -> Get commits from release
-        # graph.commits['ab10'] -> Get commits
-
-
