@@ -28,6 +28,22 @@ class DescribeHistoryBasedStrategy:
             assert project.releases['1.0.0'].commits['a']
             assert project.releases['1.1.0'].commits['b']
             assert project.releases['1.1.1'].commits['c']
+        
+        def it_assign_base_releases(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[
+                    JsonMiner(scenario),
+                    HistoryBasedStrategy()
+                ]
+            ))
+            project = miner.mine()
+            assert len(project.releases['1.0.0'].base_releases) == 0
+            assert len(project.releases['1.1.0'].base_releases) == 1
+            assert project.releases['1.0.0'] in project.releases['1.1.0'].base_releases
+            assert len(project.releases['1.1.1'].base_releases) == 1
+            assert project.releases['1.1.0'] in project.releases['1.1.1'].base_releases
+
+
     class WithScenarioB:
         @pytest.fixture
         def scenario(self):
@@ -82,3 +98,19 @@ class DescribeHistoryBasedStrategy:
 
             assert len(project.releases['2.0'].commits) == 1
             assert project.releases['2.0'].commits['15']
+        
+
+        def it_assign_base_releases(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[
+                    JsonMiner(scenario),
+                    HistoryBasedStrategy()
+                ]
+            ))
+            project = miner.mine()
+            releases = project.releases
+            assert len(releases['1.1.0'].base_releases) == 2
+            assert releases['v1.0.0'] in releases['1.1.0'].base_releases
+            assert releases['0.10.1'] in releases['1.1.0'].base_releases
+
+
