@@ -4,7 +4,7 @@ from typing import List, Set
 import pygit2
 
 from releasy.miner2.base import ReleaseMiner
-from releasy.repository import Repository
+from releasy.old.repository import Repository
 from releasy.old.release2 import Release, ReleaseReference
 
 

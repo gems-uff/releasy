@@ -12,18 +12,3 @@ class Contributor:
         if not isinstance(other, Contributor):
             return False
         return self.name == other.name and self.email == other.email
-
-
-# class Person:
-#     def __init__(self, name: str) -> None:
-#         self.name = name
-
-#     def __eq__(self, other: object) -> bool:
-#         if not isinstance(other, Person):
-#             return False
-        
-#         return self.name == other.name
-
-# class Role(Enum):
-#     AUTHOR = 0
-#     INTEGRATOR = 1

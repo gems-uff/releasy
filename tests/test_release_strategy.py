@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 from releasy.contributor import Contributor
 from releasy.old.version_format import SemanticVersioningFormat
-from releasy.repository import Repository
+from releasy.old.repository import Repository
 from releasy.strategy_release import ReferenceReleaseStrategy
 
 class MockRepositoryA(Repository):

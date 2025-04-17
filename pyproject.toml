@@ -25,7 +25,7 @@ pytest-profiling = "^1.8.1"
 pytest-pyspec = "^0.10.0"
 
 [tool.pytest.ini_options]
-addopts = "--pyspec"
+addopts = "--pyspec --ignore=tests/old"
 
 [build-system]
 requires = ["poetry-core"]

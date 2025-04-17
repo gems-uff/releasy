@@ -11,7 +11,7 @@ def semver_format() -> ReleaseVersionFormat:
 @pytest.fixture
 def version(semver_format: ReleaseVersionFormat):
     return semver_format.parse("r1.0.0")
-
+    
 @pytest.fixture
 def version_a(semver_format: ReleaseVersionFormat):
     return semver_format.parse("1.0.0")

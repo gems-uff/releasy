@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Callable, List, Self, Set, Tuple
 from releasy.commit import Commit
-from releasy.repository import Repository
+from releasy.old.repository import Repository
 
 from releasy.old.project2 import Project
 from releasy.old.release2 import Release, ReleaseBuilder, ReleaseReference, ReleaseVersioningSchema, SimpleVersioningSchema

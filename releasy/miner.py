@@ -56,7 +56,7 @@ class JsonMiner(MinerPlugin):
         #TODO parser from config
         parser = config.parser
         for release_data in self.json['releases']:
-            version= parser.parse(release_data['name'])
+            version = parser.parse(release_data['name'])
             timestamp = datetime.fromisoformat(release_data['timestamp'])
             contributor = Contributor(release_data['name'])
             head_id = release_data['head']
@@ -78,7 +78,7 @@ class JsonMiner(MinerPlugin):
         for commit_data in self.json['commits']:
             commit_id = commit_data['id']
             timestamp = datetime.fromisoformat(commit_data['timestamp'])
-            project.commits.add(Commit(commit_id, [], timestamp))
+            project.commits.add(Commit(commit_id, timestamp))
 
         for commit_data in self.json['commits']:
             if 'parents' not in commit_data:
@@ -116,8 +116,9 @@ class GitMiner(MinerPlugin):
 
         for tag_ref in tag_refs:
             tag = self.git.get(tag_ref.target)
+            release_name = tag_ref.shorthand
 
-            version = version_parser.parse(tag_ref.shorthand)
+            version = version_parser.parse(release_name)
             if not version:
                 continue
 

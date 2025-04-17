@@ -4,7 +4,7 @@
 from typing import Set
 from releasy.old.version_format import ReleaseVersionFormat
 from releasy.release import Release
-from releasy.repository import Repository
+from releasy.old.repository import Repository
 
 
 class ReferenceReleaseStrategy:

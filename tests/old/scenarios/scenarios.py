@@ -1,7 +1,7 @@
 
 
 from releasy.commit import Commit
-from releasy.repository import Repository
+from releasy.old.repository import Repository
 
 class MockRepository(Repository):
     def __init__(self, releases, commits) -> None:

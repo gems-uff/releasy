@@ -12,6 +12,7 @@ class Release:
     """
     A Release is a group of commits ready to be delivered to its stakeholders
     """
+
     def __init__(self, 
             version: ReleaseVersion,
             timestamp: datetime,
@@ -30,29 +31,9 @@ class Release:
     def type(self) -> VersionType:
         if not self.version:
             return None
-            
         return self.version.type
+
 
     def __repr__(self) -> str:
         return self.name
 
-
-class Commit:
-    """ 
-    A change in a release, such as a commit
-    """
-    def __init__(self, id: str, timestamp: datetime = None) -> None:
-        self.id = id
-        self.timestamp = timestamp
-    
-    def __hash__(self) -> int:
-        if self.id:
-            return hash(self.id)
-        else:
-            return super.__hash__()
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Commit):
-            return False
-
-        return self.id == other.id
