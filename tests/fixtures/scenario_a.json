@@ -2,7 +2,7 @@
     "releases": [
         {
             "name": "1.0.0",
-            "timestamp": "2025-01-01",
+            "timestamp": "2025-01-02",
             "head": "a",
             "author": "Alice <alice@examplo.com>"
         },
@@ -22,15 +22,18 @@
     "commits": [
         {
             "id": "a",
-            "parents": []
+            "parents": [],
+            "timestamp": "2025-01-01"
         },
         {
             "id": "b",
-            "parents": ["a"]
+            "parents": ["a"],
+            "timestamp": "2025-01-09"
         },
         {
             "id": "c",
-            "parents": ["b"]
+            "parents": ["b"],
+            "timestamp": "2025-01-19"
         }
     ]
 }

@@ -11,8 +11,7 @@ class Commit:
     """
     def __init__(self, id: str, parents: List[Commit] = None, timestamp: datetime = None) -> None:
         self._id = id
-        self.parents = parents
-        self.timestamp = datetime
+        self.timestamp = timestamp
     
     @property
     def id(self) -> str:

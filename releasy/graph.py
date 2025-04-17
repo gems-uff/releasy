@@ -151,12 +151,6 @@ class ReleaseGraph(Graph[Release]):
         return releases[1]
 
 
-class CommitGraph(Graph[Commit]):
-    def __init__(self):
-        super().__init__(
-            lambda commit: commit.id,
-            lambda commit: isinstance(commit, Commit)
-        )
 
 
 class ReleaseNode:
@@ -175,13 +169,7 @@ class ReleaseNode:
 Reference = Release | Commit
 
 
-class CommitNode:
-    def __init__(self, commit: Commit):
-        self.commit = commit
-        self.parents = list[CommitNode]
-    
-    def get(self) -> Commit:
-        return self.commit
+
 
 
 class RGraph:
@@ -210,9 +198,47 @@ class RGraph:
     def __len__(self) -> int:
         return len(self.nodes)
 
+
+class CommitNode:
+    def __init__(self, commit: Commit):
+        self.commit = commit
+        self.parents = list[CommitNode]()
+    
+    def get(self) -> Commit:
+        return self.commit
+    
+
+class CommitGraph:
+    def __init__(self):
+        self.commit_nodes = dict[str, CommitNode]()
+
+    def add(self, commit: Commit) -> None:
+        if commit.id not in self.commit_nodes:
+            commit_node = CommitNode(commit)
+            self.commit_nodes[commit.id] = commit_node
+
+    def get(self, reference: str) -> CommitNode:
+        if reference not in self.commit_nodes:
+            return None
+        return self.commit_nodes[reference]
+    
+    def get_all(self) -> List[CommitNode]:
+        commit_nodes = [commit_node for commit_node in self.commit_nodes.values()]
+        return commit_nodes
+
+    def __getitem__(self, reference: str | Commit):
+        if isinstance(reference, Commit):
+            return self.get(reference.name)
+        return self.get(reference)
+    
+    def __len__(self) -> int:
+        return len(self.commit_nodes) 
+
+
 class ProjectGraph:
     def __init__(self):
         self.releases = RGraph()
+        self.commits = CommitGraph()
         # self.commits = CommitGraph()
 
     # def add_release(self, release: Release):

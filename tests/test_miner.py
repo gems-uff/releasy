@@ -14,7 +14,7 @@ class DescribeMinerConfiguration:
         assert len(config.plugins) == 1
         assert isinstance(config.plugins[0], JsonMiner)
 
-class DescribeJsonReleaseMiner:
+class DescribeJsonMiner:
     class WithScenarioA:
         @pytest.fixture
         def scenario(self):
@@ -22,13 +22,32 @@ class DescribeJsonReleaseMiner:
                 scenario = json.load(scenario_file)
                 return scenario
             
-        def it_create_a_release_graph(self, scenario):
+        def it_mine_releases(self, scenario):
             miner = Miner(Configuration(
                 plugins=[JsonMiner(scenario)]
             ))
             project = miner.mine()
             assert len(project.releases) == 3
         
+        def it_mine_commits(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[JsonMiner(scenario)]
+            ))
+            project = miner.mine()
+            assert len(project.commits) == 3
+
+        def it_mine_commit_parents(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[JsonMiner(scenario)]
+            ))
+            project = miner.mine()
+            commits = project.commits
+            assert not commits['a'].parents
+            assert commits['b'].parents[0].get().id == 'a'
+            assert len(commits['b'].parents) == 1
+            assert commits['c'].parents[0].get().id == 'b'
+            assert len(commits['c'].parents) == 1
+
         def it_use_multiple_plugins(self, scenario):
             r4 = {
                 'releases': [

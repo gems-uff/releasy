@@ -7,6 +7,7 @@ from typing import Dict, List
 import pygit2
 import json
 
+from releasy.commit import Commit
 from releasy.contributor import Contributor
 from releasy.graph import ProjectGraph, ReleaseGraph
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
@@ -41,18 +42,52 @@ class JsonMiner(MinerPlugin):
     def __init__(self, json: Dict):
         self.json = json
 
+
     def mine(self, project: ProjectGraph, config: Configuration):
+        project = self._mine_releases(project, config)
+        project = self._mine_commits(project, config)
+        return project
+    
+
+    def _mine_releases(self, project: ProjectGraph, config: Configuration):
+        if 'releases' not in self.json:
+            return project 
+
+        #TODO parser from config
         parser = config.parser
         for release_data in self.json['releases']:
             version= parser.parse(release_data['name'])
+            timestamp = release_data['timestamp']
             contributor = Contributor(release_data['name'])
             release = Release(
                 version=version,
-                timestamp=release_data['timestamp'],
+                timestamp=timestamp,
                 head=release_data['head'],
                 author=contributor
             )
             project.releases.add(release)
+        return project
+
+        
+    def _mine_commits(self, project: ProjectGraph, config: Configuration):
+        if 'commits' not in self.json:
+            return project 
+            
+        for commit_data in self.json['commits']:
+            commit_id = commit_data['id']
+            timestamp = commit_data['timestamp']
+            project.commits.add(Commit(commit_id, [], timestamp))
+
+        for commit_data in self.json['commits']:
+            if 'parents' not in commit_data:
+                continue
+
+            commit_id = commit_data['id']
+            commit_node = project.commits[commit_id]
+            for parent_id in commit_data['parents']:
+                parent_node = project.commits[parent_id]
+                commit_node.parents.append(parent_node)
+
         return project
 
 
@@ -64,6 +99,7 @@ class GitMiner(MinerPlugin):
 
     def mine(self, project: ProjectGraph, config: Configuration):
         self.fetch_tags(project, config)
+        self.fetch_commits(project, config)
         return project
     
     def fetch_tags(self, project: ProjectGraph, config: Configuration) -> None:
@@ -124,3 +160,6 @@ class GitMiner(MinerPlugin):
                         author=tagger
                     )
                     project.releases.add(release)
+
+    def fetch_commits(self, project: ProjectGraph, config: Configuration) -> None:
+        pass
