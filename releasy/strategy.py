@@ -46,7 +46,9 @@ class HistoryBasedStrategy(MinerPlugin):
                 commit_node = commit_stack.pop()
 
                 if commit_node in visited:
-                    base_release_nodes = base_release_nodes | commit2release[commit_node] - set([release_node])
+                    base_release_nodes = \
+                        (base_release_nodes | commit2release[commit_node]) \
+                        - set([release_node])
                     #TODO tail
                     continue
 
@@ -61,4 +63,19 @@ class HistoryBasedStrategy(MinerPlugin):
 
         return project
     
-    
+
+#TODO Change from miner to another super class that need a previous mined project
+class BasedReleaseStrategy(MinerPlugin):
+    def mine(self, project: ProjectGraph, config: Configuration):
+        releases = [release_node for release_node in project.releases.get_all()]
+
+        for release_node in releases: 
+            base_release_nodes = set[ReleaseNode]()
+            for tail_node in release_node.tails:
+                for parent_node in tail_node.parents:
+                    base_release_nodes = \
+                        (base_release_nodes | project.releases.get_from_commit(parent_node)) \
+                        - set([release_node])
+            release_node.base_releases = base_release_nodes
+
+        return project

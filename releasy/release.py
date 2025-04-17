@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime
 
-from releasy.commit import Commit, CommitGraph
+from releasy.commit import Commit, CommitGraph, CommitNode
 from releasy.contributor import Contributor
 from releasy.version import VersionType, ReleaseVersion
 
@@ -41,6 +41,7 @@ class ReleaseNode:
         self.release = release
         self.base_releases = list[Release]()
         self.commits = CommitGraph()
+        self.tails = list[CommitNode]()
 
     def get(self) -> Release:
         return self.release

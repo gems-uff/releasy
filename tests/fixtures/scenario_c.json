@@ -1,0 +1,64 @@
+{
+    "releases": [
+        {
+            "name": "1.0.0",
+            "timestamp": "2025-01-01",
+            "head": "3",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "1.0.1",
+            "timestamp": "2025-01-02",
+            "head": "6",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "1.1.0",
+            "timestamp": "2025-01-04",
+            "head": "8",
+            "author": "Alice <alice@examplo.com>"
+        }
+    ],
+    "commits": [
+        {
+            "id": "1",
+            "parents": [],
+            "timestamp": "2025-01-01"
+        },
+        {
+            "id": "2",
+            "parents": ["1"],
+            "timestamp": "2025-01-02"
+        },
+        {
+            "id": "3",
+            "parents": ["2"],
+            "timestamp": "2025-01-03"
+        },
+        {
+            "id": "4",
+            "parents": ["2"],
+            "timestamp": "2025-01-04"
+        },
+        {
+            "id": "5",
+            "parents": ["3"],
+            "timestamp": "2025-01-05"
+        },
+        {
+            "id": "6",
+            "parents": ["4"],
+            "timestamp": "2025-01-06"
+        },
+        {
+            "id": "7",
+            "parents": ["5"],
+            "timestamp": "2025-01-07"
+        },
+        {
+            "id": "8",
+            "parents": ["7"],
+            "timestamp": "2025-01-08"
+        }
+    ]
+}
