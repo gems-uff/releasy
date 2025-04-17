@@ -57,7 +57,7 @@ class JsonMiner(MinerPlugin):
         parser = config.parser
         for release_data in self.json['releases']:
             version= parser.parse(release_data['name'])
-            timestamp = release_data['timestamp']
+            timestamp = datetime.fromisoformat(release_data['timestamp'])
             contributor = Contributor(release_data['name'])
             release = Release(
                 version=version,
@@ -75,7 +75,7 @@ class JsonMiner(MinerPlugin):
             
         for commit_data in self.json['commits']:
             commit_id = commit_data['id']
-            timestamp = commit_data['timestamp']
+            timestamp = datetime.fromisoformat(commit_data['timestamp'])
             project.commits.add(Commit(commit_id, [], timestamp))
 
         for commit_data in self.json['commits']:
@@ -97,10 +97,12 @@ class GitMiner(MinerPlugin):
         self.git = pygit2.Repository(self.path) 
         self.mine_commits = mine_commits
 
+
     def mine(self, project: ProjectGraph, config: Configuration):
         self.fetch_tags(project, config)
         self.fetch_commits(project, config)
         return project
+
     
     def fetch_tags(self, project: ProjectGraph, config: Configuration) -> None:
         tag_refs = [
@@ -160,6 +162,7 @@ class GitMiner(MinerPlugin):
                         author=tagger
                     )
                     project.releases.add(release)
+
 
     def fetch_commits(self, project: ProjectGraph, config: Configuration) -> None:
         pass
