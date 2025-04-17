@@ -9,8 +9,9 @@ import json
 
 from releasy.commit import Commit
 from releasy.contributor import Contributor
-from releasy.graph import ProjectGraph, RRGraph
+#TODO check and move from old
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
+from releasy.project import ProjectGraph
 from releasy.release import Release
 
 

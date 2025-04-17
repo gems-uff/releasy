@@ -1,0 +1,84 @@
+import json
+import pytest
+
+from datetime import datetime
+from typing import List
+
+from releasy import miner
+from releasy.miner import Configuration, JsonMiner, Miner
+from releasy.strategy import HistoryBasedStrategy
+
+
+class DescribeHistoryBasedStrategy:
+    class WithScenarioA:
+        @pytest.fixture
+        def scenario(self):
+            with open('tests/fixtures/scenario_a.json') as scenario_file:
+                scenario = json.load(scenario_file)
+                return scenario
+                
+        def it_assign_commits_to_releases(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[
+                    JsonMiner(scenario),
+                    HistoryBasedStrategy()
+                ]
+            ))
+            project = miner.mine()
+            assert project.releases['1.0.0'].commits['a']
+            assert project.releases['1.1.0'].commits['b']
+            assert project.releases['1.1.1'].commits['c']
+    class WithScenarioB:
+        @pytest.fixture
+        def scenario(self):
+            with open('tests/fixtures/scenario_b.json') as scenario_file:
+                scenario = json.load(scenario_file)
+                return scenario
+                
+        def it_assign_commits_to_releases(self, scenario):
+            miner = Miner(Configuration(
+                plugins=[
+                    JsonMiner(scenario),
+                    HistoryBasedStrategy()
+                ]
+            ))
+            project = miner.mine()
+            assert len(project.releases['0.0.0-alpha1'].commits) == 1
+            assert project.releases['0.0.0-alpha1'].commits['0']
+            
+            assert len(project.releases['v0.9.0'].commits) == 1
+            assert project.releases['v0.9.0'].commits['1']
+
+            assert len(project.releases['v1.0.0'].commits) == 2 
+            assert project.releases['v1.0.0'].commits['3']
+            assert project.releases['v1.0.0'].commits['2']
+
+            assert len(project.releases['0.10.1'].commits) == 1
+            assert project.releases['0.10.1'].commits['5']
+
+            assert len(project.releases['1.1.0'].commits) == 1
+            assert project.releases['1.1.0'].commits['6']
+
+            assert len(project.releases['1.1.1'].commits) == 2
+            assert project.releases['1.1.1'].commits['7']
+            assert project.releases['1.1.1'].commits['4']
+
+            assert len(project.releases['v2.0.0-alpha1'].commits) == 1
+            assert project.releases['v2.0.0-alpha1'].commits['8']
+
+            assert len(project.releases['v2.0.0-beta1'].commits) == 2
+            assert project.releases['v2.0.0-beta1'].commits['10']
+            assert project.releases['v2.0.0-beta1'].commits['9']
+            
+            assert len(project.releases['r-1.0.2'].commits) == 1
+            assert project.releases['r-1.0.2'].commits['13']
+
+            assert len(project.releases['v2.0.0'].commits) == 3
+            assert project.releases['v2.0.0'].commits['14']
+            assert project.releases['v2.0.0'].commits['12']
+            assert project.releases['v2.0.0'].commits['11']
+
+            assert len(project.releases['v2.0.1'].commits) == 0
+
+            assert len(project.releases['2.0'].commits) == 1
+            assert project.releases['2.0'].commits['15']

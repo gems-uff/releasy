@@ -1,0 +1,159 @@
+{
+    "releases": [
+        {
+            "name": "0.0.0-alpha1",
+            "timestamp": "2025-01-01",
+            "head": "0",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v0.9.0",
+            "timestamp": "2025-01-02",
+            "head": "1",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v1.0.0",
+            "timestamp": "2025-01-04",
+            "head": "3",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "0.10.1",
+            "timestamp": "2025-01-06",
+            "head": "5",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "1.1.0",
+            "timestamp": "2025-01-07",
+            "head": "6",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "1.1.1",
+            "timestamp": "2025-01-08",
+            "head": "7",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v2.0.0-alpha1",
+            "timestamp": "2025-01-09",
+            "head": "8",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v2.0.0-beta1",
+            "timestamp": "2025-01-11",
+            "head": "10",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "r-1.0.2",
+            "timestamp": "2025-01-14",
+            "head": "13",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v2.0.0",
+            "timestamp": "2025-01-15T08:00:00",
+            "head": "14",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "v2.0.1",
+            "timestamp": "2025-01-15T10:00:00",
+            "head": "14",
+            "author": "Alice <alice@examplo.com>"
+        },
+        {
+            "name": "2.0",
+            "timestamp": "2025-01-16",
+            "head": "15",
+            "author": "Alice <alice@examplo.com>"
+        }
+    ],
+    "commits": [
+        {
+            "id": "0",
+            "parents": [],
+            "timestamp": "2025-01-01"
+        },
+        {
+            "id": "1",
+            "parents": ["0"],
+            "timestamp": "2025-01-02"
+        },
+        {
+            "id": "2",
+            "parents": ["1"],
+            "timestamp": "2025-01-03"
+        },
+        {
+            "id": "3",
+            "parents": ["2"],
+            "timestamp": "2025-01-04"
+        },
+        {
+            "id": "4",
+            "parents": ["3"],
+            "timestamp": "2025-01-05"
+        },
+        {
+            "id": "5",
+            "parents": [],
+            "timestamp": "2025-01-06"
+        },
+        {
+            "id": "6",
+            "parents": ["5", "2"],
+            "timestamp": "2025-01-07"
+        },
+        {
+            "id": "7",
+            "parents": ["4", "6"],
+            "timestamp": "2025-01-08"
+        },
+        {
+            "id": "8",
+            "parents": ["7"],
+            "timestamp": "2025-01-09"
+        },
+        {
+            "id": "9",
+            "parents": ["8"],
+            "timestamp": "2025-01-10"
+        },
+        {
+            "id": "10",
+            "parents": ["9"],
+            "timestamp": "2025-01-11"
+        },
+        {
+            "id": "11",
+            "parents": ["2"],
+            "timestamp": "2025-01-12"
+        },
+        {
+            "id": "12",
+            "parents": ["10", "11"],
+            "timestamp": "2025-01-13"
+        },
+        {
+            "id": "13",
+            "parents": ["3"],
+            "timestamp": "2025-01-14"
+        },
+        {
+            "id": "14",
+            "parents": ["13", "12"],
+            "timestamp": "2025-01-15"
+        }
+        ,
+        {
+            "id": "15",
+            "parents": ["14"],
+            "timestamp": "2025-01-16"
+        }
+    ]
+}
