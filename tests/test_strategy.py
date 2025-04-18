@@ -139,4 +139,12 @@ class DescribeHistoryBasedStrategy:
             assert releases['1.1.0'].commits['8']
             assert releases['1.1.0'].commits['7']
             assert releases['1.1.0'].commits['5']
+        
+        def it_assign_base_releases(self, project):
+            releases = project.releases
+            assert len(releases['1.0.0'].base_releases) == 0
+            assert len(releases['1.0.1'].base_releases) == 1
+            assert releases['1.0.0'] in releases['1.0.1'].base_releases
+            assert len(releases['1.1.0'].base_releases) == 1
+            assert releases['1.0.0'] in releases['1.1.0'].base_releases
             
