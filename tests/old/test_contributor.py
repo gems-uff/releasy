@@ -1,4 +1,4 @@
-from releasy.contributor import Contributor
+from releasy.models.contributor import Contributor
 
 
 class DescribeContributor:

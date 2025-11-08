@@ -1,16 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from releasy.release import ReleaseVersionFormat
-
 from enum import Enum
-
-from typing import List
+from typing import List, Any
 
 
 class VersionType(Enum):
-    MAJOR = 0,
-    MINOR = 1,
+    MAJOR = 0
+    MINOR = 1
     PATCH = 2
 
 
@@ -24,11 +19,11 @@ class ReleaseVersion:
     """
 
     def __init__(self,
-            name: str,
-            parts: List[str],
-            numbers: List[int],
-            type: VersionType,
-            format: ReleaseVersionFormat) -> None:
+        name: str,
+        parts: List[str],
+        numbers: List[int],
+        type: VersionType,
+        format: Any) -> None:
         self.name = name
         self.formatted_name = ".".join(parts)
         self.str = parts

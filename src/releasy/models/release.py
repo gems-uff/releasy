@@ -1,9 +1,9 @@
 from typing import List
 from datetime import datetime
 
-from releasy.commit import Commit, CommitGraph, CommitNode
-from releasy.contributor import Contributor
-from releasy.version import VersionType, ReleaseVersion
+from releasy.models.commit import Commit, CommitGraph, CommitNode
+from releasy.models.contributor import Contributor
+from releasy.models.version import VersionType, ReleaseVersion
 
 
 class Release:
@@ -30,7 +30,6 @@ class Release:
         if not self.version:
             return None
         return self.version.type
-
 
     def __repr__(self) -> str:
         return self.name

@@ -1,9 +1,6 @@
-
 from __future__ import annotations
 from datetime import datetime
 from typing import List, Set
-from releasy.old.repository_old import Repository
-
 
 
 class Commit:
@@ -64,4 +61,4 @@ class CommitGraph:
         return None
     
     def __len__(self) -> int:
-        return len(self.commit_nodes) 
+        return len(self.commit_nodes)

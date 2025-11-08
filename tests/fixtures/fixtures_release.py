@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from typing import Iterable, List
 import pytest
 
-from releasy.commit import Commit
-from releasy.contributor import Contributor
-from releasy.release import Release
-from releasy.version import ReleaseVersion
+from releasy.models.commit import Commit
+from releasy.models.contributor import Contributor
+from releasy.models.release import Release
+from releasy.models.version import ReleaseVersion
 from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 
 @pytest.fixture

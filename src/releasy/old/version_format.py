@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import re
 
-from releasy.version import VersionType, ReleaseVersion
+from releasy.models.version import VersionType, ReleaseVersion
 
 
 class ReleaseVersionFormat(ABC):

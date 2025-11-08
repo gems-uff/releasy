@@ -1,6 +1,6 @@
 import pytest
 
-from releasy.contributor import Contributor
+from releasy.models.contributor import Contributor
 
 
 @pytest.fixture
