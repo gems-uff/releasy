@@ -1,18 +1,9 @@
 import pytest
 import json
 
-from datetime import datetime
+from releasy.miners.miner import Configuration, Miner
+from releasy.miners.json import JsonMiner
 
-from releasy.miners.miner import Configuration, JsonMiner, GitMiner, Miner
-from releasy.models.release import Release
-
-class DescribeMinerConfiguration:
-    def it_has_a_list_plugins(self):
-        config = Configuration(
-            plugins=[JsonMiner({})]
-        )
-        assert len(config.plugins) == 1
-        assert isinstance(config.plugins[0], JsonMiner)
 
 class DescribeJsonMiner:
     class WithScenarioA:
@@ -82,19 +73,3 @@ class DescribeJsonMiner:
             ))
             project = miner.mine()
             assert len(project.releases) == 4
-
-
-class DescribeGitReleaseMiner:
-    def it_mine_releases(self):
-        miner = Miner(Configuration(
-            plugins=[GitMiner('.')]
-        ))
-        project = miner.mine()
-        releases = [
-            release_node.get()
-            for release_node in project.releases.get_all()
-            if release_node.get().timestamp < \
-                    datetime(2025, 1, 1, \
-                        tzinfo=release_node.get().timestamp.tzinfo) 
-        ]
-        assert len(releases) == 25

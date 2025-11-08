@@ -4,7 +4,8 @@ import pytest
 from datetime import datetime
 from typing import List
 
-from releasy.miners.miner import Configuration, JsonMiner, Miner
+from releasy.miners.miner import Configuration, Miner
+from releasy.miners.json import JsonMiner
 from releasy.miners.strategy import HistoryBasedStrategy
 
 
