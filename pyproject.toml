@@ -25,10 +25,10 @@ dev = [
 ]
 
 [tool.hatch.build.targets.sdist]
-include = ["releasy"]
+include = ["src/releasy"]
 
 [tool.hatch.build.targets.wheel]
-include = ["releasy"]
+include = ["src/releasy"]
 
 [build-system]
 requires = ["hatchling"]
@@ -36,3 +36,4 @@ build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 addopts = "--pyspec --ignore=tests/old"
+pythonpath = ["src"]
