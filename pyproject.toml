@@ -1,32 +1,38 @@
-[tool.poetry]
+[project]
 name = "releasy_lib"
 version = "5.0.0-alpha.1"
 description = "A library to mine release data"
-authors = ["Felipe Curty <felipecrp@gmail.com>"]
-license = "MIT"
+authors = [{ name = "Felipe Curty", email = "felipecrp@gmail.com" }]
+requires-python = ">=3.12, <4"
 readme = "README.md"
-repository = "https://github.com/gems-uff/releasy"
-packages = [
-    { include = "releasy" }
+license = "MIT"
+dependencies = [
+    "pygit2>=1.17.0,<2",
+    "pyyaml>=6.0.2,<7",
+    "python-dateutil>=2.9.0,<3",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-pygit2 = "^1.17.0"
-pyyaml = "^6.0.2"
-python-dateutil = "^2.9.0"
+[project.urls]
+Repository = "https://github.com/gems-uff/releasy"
 
+[dependency-groups]
+dev = [
+    "pylint>=3.3.4,<4",
+    "pytest>=8.3.4,<9",
+    "pytest-cov>=6.0.0,<7",
+    "pytest-profiling>=1.8.1,<2",
+    "pytest-pyspec>=0.10.0,<0.11",
+]
 
-[tool.poetry.group.dev.dependencies]
-pylint = "^3.3.4"
-pytest = "^8.3.4"
-pytest-cov = "^6.0.0"
-pytest-profiling = "^1.8.1"
-pytest-pyspec = "^0.10.0"
+[tool.hatch.build.targets.sdist]
+include = ["releasy"]
+
+[tool.hatch.build.targets.wheel]
+include = ["releasy"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 addopts = "--pyspec --ignore=tests/old"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
