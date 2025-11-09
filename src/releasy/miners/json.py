@@ -3,7 +3,6 @@ from typing import Dict
 
 from releasy.models.commit import Commit
 from releasy.models.contributor import Contributor
-from releasy.models.project import ProjectGraph
 from releasy.models.release import Release
 from releasy.miners.miner import Configuration, MinerPlugin
 
@@ -12,12 +11,12 @@ class JsonMiner(MinerPlugin):
     def __init__(self, json: Dict):
         self.json = json
 
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project, config: Configuration):
         project = self._mine_commits(project, config)
         project = self._mine_releases(project, config)
         return project
 
-    def _mine_releases(self, project: ProjectGraph, config: Configuration):
+    def _mine_releases(self, project, config: Configuration):
         if 'releases' not in self.json:
             return project 
 
@@ -38,7 +37,7 @@ class JsonMiner(MinerPlugin):
             project.releases.add(release)
         return project
 
-    def _mine_commits(self, project: ProjectGraph, config: Configuration):
+    def _mine_commits(self, project, config: Configuration):
         if 'commits' not in self.json:
             return project 
             

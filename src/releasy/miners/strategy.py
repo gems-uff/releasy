@@ -5,13 +5,12 @@ from collections import defaultdict
 from typing import Set
 from releasy.models.commit import Commit, CommitNode
 from releasy.miners.miner import Configuration, Miner, MinerPlugin
-from releasy.models.project import ProjectGraph
 from releasy.models.release import Release, ReleaseNode
 
 
 #TODO Change from miner to another super class that need a previous mined project
 class HistoryBasedStrategy(MinerPlugin):
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project, config: Configuration):
         releases = [release_node for release_node in project.releases.get_all()]
         releases = sorted(releases, key=lambda r: r.get().timestamp)
         visited = set[CommitNode]()

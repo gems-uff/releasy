@@ -35,7 +35,7 @@ class Miner:
 
 class MinerPlugin(ABC):
     @abstractmethod
-    def mine(self, project: ProjectGraph, config: Configuration) -> ProjectGraph:
+    def mine(self, project: ProjectGraph, config: Configuration):
         pass
     
 

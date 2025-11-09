@@ -1,15 +1,15 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import List, Set
+from typing import List, Set, Iterator
 
 
 class Commit:
     """ 
     A change in a release, such as a commit
     """
-    def __init__(self, id: str, timestamp: datetime = None) -> None:
-        self.id = id
-        self.timestamp = timestamp
+    def __init__(self, id: str, timestamp: datetime | None = None) -> None:
+        self.id: str = id
+        self.timestamp: datetime | None = timestamp
     
     def __hash__(self) -> int:
         if self.id:
@@ -27,7 +27,7 @@ class Commit:
 class CommitNode:
     def __init__(self, commit: Commit):
         self.commit = commit
-        self.parents = list[CommitNode]()
+        self.parents: list[CommitNode] = []
     
     def get(self) -> Commit:
         return self.commit
@@ -35,7 +35,7 @@ class CommitNode:
 
 class CommitGraph:
     def __init__(self):
-        self.commit_nodes = dict[str, CommitNode]()
+        self.commit_nodes: dict[str, CommitNode] = {}
 
     def add(self, commit: Commit) -> None:
         if commit.id not in self.commit_nodes:
@@ -62,3 +62,35 @@ class CommitGraph:
     
     def __len__(self) -> int:
         return len(self.commit_nodes)
+
+class CommitList:
+    """A list-like collection of commits supporting access by index or id."""
+    def __init__(self, commits: list[Commit] | None = None):
+        self._commits: list[Commit] = [] if commits is None else list(commits)
+        self._by_id: dict[str, Commit] = {c.id: c for c in self._commits}
+
+    def append(self, commit: Commit) -> None:
+        self._commits.append(commit)
+        self._by_id[commit.id] = commit
+
+    def __getitem__(self, key: int | str) -> Commit:
+        if isinstance(key, int):
+            return self._commits[key]
+        elif isinstance(key, str):
+            return self._by_id[key]
+        else:
+            raise TypeError("CommitList indices must be int or str (id)")
+
+    def __iter__(self) -> Iterator[Commit]:
+        return iter(self._commits)
+
+    def __len__(self) -> int:
+        return len(self._commits)
+
+    def __contains__(self, item: str | Commit) -> bool:
+        if isinstance(item, str):
+            return item in self._by_id
+        return item in self._commits
+
+    def ids(self) -> list[str]:
+        return list(self._by_id.keys())

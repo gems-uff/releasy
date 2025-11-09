@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 import pygit2
 
 from releasy.models.contributor import Contributor
-from releasy.models.project import ProjectGraph
 from releasy.models.release import Release
 from releasy.miners.miner import Configuration, MinerPlugin
 
@@ -14,12 +13,12 @@ class GitMiner(MinerPlugin):
         self.git = pygit2.Repository(self.path) 
         self.mine_commits = mine_commits
 
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project, config: Configuration):
         self.fetch_tags(project, config)
         self.fetch_commits(project, config)
         return project
 
-    def fetch_tags(self, project: ProjectGraph, config: Configuration) -> None:
+    def fetch_tags(self, project, config: Configuration) -> None:
         tag_refs = [
             ref 
             for ref in self.git.references.objects 
@@ -79,5 +78,5 @@ class GitMiner(MinerPlugin):
                     )
                     project.releases.add(release)
 
-    def fetch_commits(self, project: ProjectGraph, config: Configuration) -> None:
+    def fetch_commits(self, project, config: Configuration) -> None:
         pass

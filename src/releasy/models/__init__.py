@@ -7,7 +7,7 @@ releases, commits, versions, and projects.
 from .commit import Commit, CommitNode, CommitGraph
 from .release import Release, ReleaseNode, ReleaseGraph
 from .version import ReleaseVersion, VersionType
-from .project import ProjectGraph
+
 
 __all__ = [
     # commit.py
@@ -17,5 +17,4 @@ __all__ = [
     # version.py
     "ReleaseVersion", "VersionType",
     # project.py
-    "ProjectGraph",
 ]
