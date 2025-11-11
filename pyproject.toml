@@ -21,7 +21,7 @@ dev = [
     "pytest>=9,<10",
     "pytest-cov>=6.0.0,<7",
     "pytest-profiling>=1.8.1,<2",
-    "pytest-pyspec>=0.10.0,<0.11",
+    "pytest-pyspec>=1.0.0,<2",
 ]
 
 [tool.hatch.build.targets.sdist]
