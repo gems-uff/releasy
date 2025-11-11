@@ -17,9 +17,9 @@ Repository = "https://github.com/gems-uff/releasy"
 
 [dependency-groups]
 dev = [
-    "pylint>=3.3.4,<4",
+    "pylint>=4.0.0,<5",
     "pytest>=9,<10",
-    "pytest-cov>=6.0.0,<7",
+    "pytest-cov>=7.0.0,<8",
     "pytest-profiling>=1.8.1,<2",
     "pytest-pyspec>=1.0.0,<2",
 ]
