@@ -20,7 +20,7 @@ class ReleasySession:
         self._repository = None
         self.releases = ReleaseList()
         self.commits = CommitList()
-        self.config = config or Configuration()
+        self.config = config or Configuration
 
     def __enter__(self) -> "ReleasySession":
         """Enter the session, initializing the repository connection.

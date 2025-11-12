@@ -34,38 +34,42 @@ def commits(commit_a: Commit, commit_b: Commit, commit_c: Commit):
 
 
 @pytest.fixture
-def release(version, alice, commit_a) -> Release:
+def release(alice, commit_a) -> Release:
     return Release(
-        version=version,
+        name="r1.0.0",
         timestamp=datetime(2024, 1, 1),
         head=commit_a,
-        author=alice
+        author=alice,
+        message=""
     )
 
 
 @pytest.fixture
-def release_a(version_a, alice, commit_a) -> Release:
+def release_a(alice, commit_a) -> Release:
     return Release(
-        version=version_a,
+        name="r1.0.0",
         timestamp=datetime(2024, 1, 1),
         head=commit_a,
-        author=alice
+        author=alice,
+        message=""
     )
 
 @pytest.fixture
-def release_b(version_b, alice, commit_b) -> Release:
+def release_b(alice, commit_b) -> Release:
     return Release(
-        version=version_b,
+        name="r2.0.0",
         timestamp=datetime(2024, 1, 1),
         head=commit_b,
-        author=alice
+        author=alice,
+        message=""
     )
 
 @pytest.fixture
-def release_c(version_c, alice, commit_c) -> Release:
+def release_c(alice, commit_c) -> Release:
     return Release(
-        version=version_c,
+        name="r3.0.0",
         timestamp=datetime(2024, 1, 1),
         head=commit_c,
-        author=alice
+        author=alice,
+        message=""
     )

@@ -28,3 +28,8 @@ class Configuration:
             f"ignore_tags={self.ignore_tags!r} "
             f"log_level={self.log_level!r}>"
         )
+
+    @staticmethod
+    def default() -> "Configuration":
+        """Create a Configuration object with default settings."""
+        return Configuration()

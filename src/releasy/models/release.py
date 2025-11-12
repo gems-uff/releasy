@@ -10,36 +10,31 @@ from releasy.models.version import VersionType, ReleaseVersion
 
 
 
+
 class Release:
     """
-    A Release is a group of commits ready to be delivered to its stakeholders
+    A Release is a group of commits ready to be delivered to its stakeholders.
+    Lightweight: only name, timestamp, author, head, message. Version is lazy/optional.
     """
 
-    def __init__(self, 
-            version: ReleaseVersion,
-            timestamp: datetime,
-            head: Commit,
-            author: Contributor) -> None:
-        self.version = version
+    def __init__(self,
+                 name: str,
+                 timestamp: datetime,
+                 author: Contributor,
+                 head: Commit,
+                 message: str = ""):
+        self.name = name
         self.timestamp = timestamp
-        self.head = head
         self.author = author
+        self.head = head
+        self.message = message
+        self.version = None
         self.base_releases = ReleaseList()
         self.commits = CommitList()
 
     def add_base_release(self, base: 'Release'):
         if base not in self.base_releases:
             self.base_releases.append(base)
-
-    @property
-    def name(self) -> str:
-        return self.version.name
-
-    @property
-    def type(self) -> VersionType:
-        if not self.version:
-            return None
-        return self.version.type
 
     def __repr__(self) -> str:
         return self.name
@@ -74,6 +69,7 @@ class ReleaseList:
             return item in self._by_name
         return item in self._releases
 
+    @property
     def names(self):
         return list(self._by_name.keys())
     
