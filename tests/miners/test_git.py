@@ -162,6 +162,32 @@ class DescribeGitReleaseMiner:
             names = set(releases.names())
             assert "1.0.1" not in names  # Blob tag should be ignored
 
+
+        def it_fetches_release_head_parent_relationship_only_after_mining_commits(self, temp_git_repo_with_tags):
+            (
+                repo_dir,
+                _,
+                _,
+                _,
+                _,
+                _,
+            ) = temp_git_repo_with_tags
+            miner = GitMiner(repo_dir)
+            releases = miner.mine_releases()
+            with pytest.raises(ValueError):
+                releases[0].head.parents
+    
+            miner = GitMiner(repo_dir)
+            releases = miner.mine_releases()
+            commits = miner.mine_commits()
+            releases[0].head.parents
+
+            miner = GitMiner(repo_dir)
+            commits = miner.mine_commits()
+            releases = miner.mine_releases()
+            releases[0].head.parents
+
+
     class WhenMiningCommits:
         def it_mines_commits(self, temp_git_repo_with_tags):
             (
@@ -199,7 +225,7 @@ class DescribeGitReleaseMiner:
 
             # commit2 has commit1 as parent
             assert len(commits[commit2_id].parents) == 1
-            assert commits[commit2_id].parents[0].id == commit1_id
+            assert commits[commit2_id]._parents[0].id == commit1_id
 
             # commit3 is a merge commit with two parents: commit1 and commit2
             assert len(commits[commit3_id].parents) == 2

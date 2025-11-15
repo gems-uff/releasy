@@ -25,7 +25,7 @@ class Commit:
         self.timestamp = committer_time
         self.author = author
         self.author_time = author_time
-        self.parents = CommitList() if parents is None else parents
+        self._parents = parents
     
     def __hash__(self) -> int:
         if self.id:
@@ -36,10 +36,36 @@ class Commit:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Commit):
             return False
-
         return self.id == other.id
+    
+    @property
+    def parents(self) -> CommitList:
+        if self._parents is None:
+            raise ValueError(
+                "Commit information have not been fetched yet, consider using a "
+                "miner to populate it."
+            )
+        return self._parents
+
+    def set_root(self) -> None:
+        self._parents = CommitList()
+
+    def add_parent(self, parent: Commit) -> None:
+        if not self._parents:
+            self._parents = CommitList()
+        self._parents.append(parent)
 
 
+# deprecated
+class CommitNode:
+    def __init__(self, commit: Commit):
+        self.commit = commit
+        self.parents: list[CommitNode] = []
+    
+    def get(self) -> Commit:
+        return self.commit
+    
+# deprecated
 class CommitNode:
     def __init__(self, commit: Commit):
         self.commit = commit

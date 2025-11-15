@@ -54,7 +54,7 @@ class GitMiner():
                 timestamp = datetime.fromtimestamp(head.committer.time)
                 message = head.message if head.message else None
 
-            head = self._commit_from_git_commit(head)
+            head = self._add_commit_from_git_commit(head)
             release = Release(
                 name=release_name,
                 timestamp=timestamp,
@@ -69,23 +69,27 @@ class GitMiner():
     def mine_commits(self) -> CommitList:
         """Mine the commits"""
         repository = pygit2.Repository(self.repository_path)
-        commits = CommitList()
         git_commits: List[pygit2.Commit] = []
 
         for git_commit in repository.walk(repository.head.target):
-            commit = self._commit_from_git_commit(git_commit)
-            commits.append(commit)
+            self._add_commit_from_git_commit(git_commit)
             git_commits.append(git_commit)
 
         # Link parent commits by reusing created commit objects
         for git_commit in git_commits:
-            commit = commits[str(git_commit.id)]
+            commit = self.commits[str(git_commit.id)]
+            if not git_commit.parent_ids:
+                commit.set_root()
             for parent_id in git_commit.parent_ids:
-                commit.parents.append(commits[str(parent_id)])
+                commit.add_parent(self.commits[str(parent_id)])
 
-        return CommitList(commits)
+        return CommitList(self.commits)
 
-    def _commit_from_git_commit(self, git_commit) -> Commit:
+    def _add_commit_from_git_commit(self, git_commit) -> Commit:
+        commit_id = str(git_commit.id)
+        if commit_id in self.commits:
+            return self.commits[commit_id]
+
         author = Contributor(
             name=git_commit.author.name,
             email=git_commit.author.email
@@ -96,7 +100,7 @@ class GitMiner():
         )
         author_time = datetime.fromtimestamp(git_commit.author.time)
         committer_time = datetime.fromtimestamp(git_commit.committer.time)
-        return Commit(
+        commit = Commit(
             id=str(git_commit.id),
             message=git_commit.message,
             committer=committer,
@@ -104,3 +108,5 @@ class GitMiner():
             author=author,
             author_time=author_time
         )
+        self.commits.append(commit)
+        return commit
