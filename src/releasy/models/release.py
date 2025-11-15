@@ -22,15 +22,16 @@ class Release:
                  timestamp: datetime,
                  author: Contributor,
                  head: Commit,
-                 message: str = ""):
+                 message: str = None
+    ) -> None:
         self.name = name
         self.timestamp = timestamp
         self.author = author
         self.head = head
         self.message = message
-        self.version = None
         self.base_releases = ReleaseList()
         self.commits = CommitList()
+        self.version = None
 
     def add_base_release(self, base: 'Release'):
         if base not in self.base_releases:
@@ -69,7 +70,6 @@ class ReleaseList:
             return item in self._by_name
         return item in self._releases
 
-    @property
     def names(self):
         return list(self._by_name.keys())
     

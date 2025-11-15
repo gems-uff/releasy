@@ -2,14 +2,30 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Set, Iterator
 
+from releasy.models.contributor import Contributor
+
 
 class Commit:
     """ 
     A change in a release, such as a commit
     """
-    def __init__(self, id: str, timestamp: datetime | None = None) -> None:
+    def __init__(
+        self,
+        id: str,
+        message: str = None,
+        committer: Contributor = None,
+        committer_time: datetime = None,
+        parents: CommitList = None,
+        author: Contributor =None,
+        author_time: datetime =None,
+    ) -> None:
         self.id: str = id
-        self.timestamp: datetime | None = timestamp
+        self.message = message
+        self.committer = committer
+        self.timestamp = committer_time
+        self.author = author
+        self.author_time = author_time
+        self.parents = CommitList() if parents is None else parents
     
     def __hash__(self) -> int:
         if self.id:

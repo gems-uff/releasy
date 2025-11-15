@@ -1,82 +1,106 @@
-from datetime import datetime, timedelta, timezone
-
+from typing import List
 import pygit2
+from datetime import datetime
 
+from releasy.models.release import Release, ReleaseList
+from releasy.models.commit import Commit, CommitList
 from releasy.models.contributor import Contributor
-from releasy.models.release import Release
-from releasy.miners.miner import Configuration, MinerPlugin
 
 
-class GitMiner(MinerPlugin):
-    def __init__(self, path: str, mine_commits: bool = True):
-        self.path = path
-        self.git = pygit2.Repository(self.path) 
-        self.mine_commits = mine_commits
+class GitMiner():
+    """Mines releases from the tags of a Git repository."""
+    def __init__(self, repository_path=None):
+        if not repository_path:
+            raise ValueError("Repository path must be provided")
+        self.repository_path = repository_path
+        self.commits = CommitList()  # Will hold CommitList, indexed by id
 
-    def mine(self, project, config: Configuration):
-        self.fetch_tags(project, config)
-        self.fetch_commits(project, config)
-        return project
 
-    def fetch_tags(self, project, config: Configuration) -> None:
-        tag_refs = [
-            ref 
-            for ref in self.git.references.objects 
-            if ref.name.startswith('refs/tags/')
-        ]
-        version_parser = config.parser
+    def mine_releases(self) -> ReleaseList:
+        """Mine the releases"""
+        repository = pygit2.Repository(self.repository_path)
+        releases = ReleaseList()
 
-        for tag_ref in tag_refs:
-            tag = self.git.get(tag_ref.target)
-            release_name = tag_ref.shorthand
+        tag_references = (
+            reference
+            for reference in repository.references
+            if reference.startswith('refs/tags/')
+        )
 
-            version = version_parser.parse(release_name)
-            if not version:
-                continue
+        for tag_reference in tag_references:
+            release_name = tag_reference.replace('refs/tags/', '')
+            tag = repository.get(
+                repository.references.get(tag_reference).target
+            )
 
-            # Simple Tag
-            if tag.type == pygit2.GIT_OBJECT_COMMIT:
-                head = self.git.get(tag.id) #TODO Convert to commit
-                author = None
-                tagger_tzinfo = timezone(timedelta(minutes=tag.committer.offset))
-                tagger_time = datetime.fromtimestamp(float(tag.committer.time), tagger_tzinfo)
-                tagger = Contributor(tag.committer.name, tag.committer.email)
-                release = Release(
-                    version=version,
-                    timestamp=tagger_time,
-                    head=head,
-                    author=tagger
+            if tag.type == pygit2.GIT_OBJECT_TAG:
+                head_reference = tag.target
+                head = repository.get(head_reference)
+                if head.type != pygit2.GIT_OBJECT_COMMIT:
+                    continue
+                author = Contributor(
+                    name=tag.tagger.name,
+                    email=tag.tagger.email
                 )
-                project.releases.add(release)
+                timestamp = datetime.fromtimestamp(tag.tagger.time)
+                message = tag.message if tag.message else None
+            
+            elif tag.type == pygit2.GIT_OBJECT_COMMIT:
+                head = tag
+                author = Contributor(
+                    name=head.committer.name,
+                    email=head.committer.email
+                )
+                timestamp = datetime.fromtimestamp(head.committer.time)
+                message = head.message if head.message else None
 
-            # Annotatted Tag
-            elif tag.type == pygit2.GIT_OBJECT_TAG:
-                peel = tag_ref.peel()
-                # A tag may point to other objects in the repository
-                # but we are only looking for tags that reference a commit
-                if peel.type == pygit2.GIT_OBJECT_COMMIT:
-                    head = self.git.get(peel.id)
-                    try:
-                        message = tag.message
-                    except:
-                        message = ''
+            head = self._commit_from_git_commit(head)
+            release = Release(
+                name=release_name,
+                timestamp=timestamp,
+                author=author,
+                head=head,
+                message=message
+            )
+            releases.append(release)
 
-                    if tag.tagger:
-                        tagger = Contributor(tag.tagger.name, tag.tagger.email)
-                        tagger_time_tzinfo = timezone(timedelta(minutes=tag.tagger.offset))
-                        tagger_time = datetime.fromtimestamp(float(tag.tagger.time), tagger_time_tzinfo)
-                    else:
-                        tagger = Contributor(tag.committer.name, tag.committer.email)
-                        tagger_time_tzinfo = timezone(timedelta(minutes=tag.committer.offset))
-                        tagger_time = datetime.fromtimestamp(float(tag.committer.time), tagger_time_tzinfo)
+        return releases
 
-                    release = Release(
-                        version=version,
-                        timestamp=tagger_time,
-                        head=head,
-                        author=tagger
-                    )
-                    project.releases.add(release)
+    def mine_commits(self) -> CommitList:
+        """Mine the commits"""
+        repository = pygit2.Repository(self.repository_path)
+        commits = CommitList()
+        git_commits: List[pygit2.Commit] = []
 
-    def fetch_commits(self, project, config: Configuration) -> None:
-        pass
+        for git_commit in repository.walk(repository.head.target):
+            commit = self._commit_from_git_commit(git_commit)
+            commits.append(commit)
+            git_commits.append(git_commit)
+
+        # Link parent commits by reusing created commit objects
+        for git_commit in git_commits:
+            commit = commits[str(git_commit.id)]
+            for parent_id in git_commit.parent_ids:
+                commit.parents.append(commits[str(parent_id)])
+
+        return CommitList(commits)
+
+    def _commit_from_git_commit(self, git_commit) -> Commit:
+        author = Contributor(
+            name=git_commit.author.name,
+            email=git_commit.author.email
+        )
+        committer = Contributor(
+            name=git_commit.committer.name,
+            email=git_commit.committer.email
+        )
+        author_time = datetime.fromtimestamp(git_commit.author.time)
+        committer_time = datetime.fromtimestamp(git_commit.committer.time)
+        return Commit(
+            id=str(git_commit.id),
+            message=git_commit.message,
+            committer=committer,
+            committer_time=committer_time,
+            author=author,
+            author_time=author_time
+        )
