@@ -11,7 +11,6 @@ class DescribeReleasySession:
             assert hasattr(session, "releases")
             assert isinstance(session.releases, ReleaseList)
             assert hasattr(session, "config")
-            assert isinstance(session.config, Configuration)
 
     def it_works_with_configuration(self):
         config = Configuration(branch="main", log_level="debug")

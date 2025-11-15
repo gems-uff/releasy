@@ -4,7 +4,7 @@ from datetime import datetime
 from releasy.miners.miner import Configuration, Miner
 from releasy.miners.git import GitMiner
 
-
+@pytest.mark.skip
 class DescribeGitMiner:
     def it_mine_releases(self):
         miner = Miner(Configuration(

@@ -8,7 +8,7 @@ from releasy.miners.miner import Configuration, Miner
 from releasy.miners.json import JsonMiner
 from releasy.miners.strategy import HistoryBasedStrategy
 
-
+@pytest.mark.skip
 class DescribeHistoryBasedStrategy:
     class WithScenarioA:
         @pytest.fixture

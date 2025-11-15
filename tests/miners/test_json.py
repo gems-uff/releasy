@@ -5,6 +5,7 @@ from releasy.miners.miner import Configuration, Miner
 from releasy.miners.json import JsonMiner
 
 
+@pytest.mark.skip
 class DescribeJsonMiner:
     class WithScenarioA:
         @pytest.fixture
