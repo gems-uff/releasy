@@ -85,12 +85,13 @@ def temp_git_repo_with_tags():
         # create a third tag for a non commit object
         blob_oid = repo.create_blob("This is a blob, not a commit.")
         repo.create_tag(
-            "1.0.1",
+            "blob",
             blob_oid,
             pygit2.GIT_OBJECT_BLOB,
             author,
             "This is a blob tag"
         )
+        repo.create_reference("refs/heads/blob2", blob_oid)
 
         # Get commit1 timestamp
         commit1 = repo.get(commit1_id)
