@@ -9,9 +9,8 @@ import json
 
 from releasy.models.commit import Commit
 from releasy.models.contributor import Contributor
-#TODO check and move from old
-from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
-from releasy.models.project import ProjectGraph
+from releasy.version_format import ReleaseVersionFormat, SemanticVersioningFormat
+from releasy.models.project import Project
 from releasy.models.release import Release
 
 
@@ -26,7 +25,7 @@ class Miner:
         self.config = config
 
     def mine(self):
-        project = ProjectGraph()
+        project = Project()
         config = self.config
         for plugin in self.config.plugins:
             project = plugin.mine(project, config)
@@ -35,7 +34,7 @@ class Miner:
 
 class MinerPlugin(ABC):
     @abstractmethod
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project: Project, config: Configuration):
         pass
     
 
@@ -44,13 +43,13 @@ class JsonMiner(MinerPlugin):
         self.json = json
 
 
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project: Project, config: Configuration):
         project = self._mine_commits(project, config)
         project = self._mine_releases(project, config)
         return project
     
 
-    def _mine_releases(self, project: ProjectGraph, config: Configuration):
+    def _mine_releases(self, project: Project, config: Configuration):
         if 'releases' not in self.json:
             return project 
 
@@ -59,37 +58,38 @@ class JsonMiner(MinerPlugin):
         for release_data in self.json['releases']:
             version = parser.parse(release_data['name'])
             timestamp = datetime.fromisoformat(release_data['timestamp'])
-            contributor = Contributor(release_data['name'])
+            contributor = Contributor(release_data.get('author', release_data['name']))
             head_id = release_data['head']
-            head = project.commits[head_id].get()
+            head = project.commits[head_id]
             release = Release(
-                version=version,
+                name=release_data['name'],
                 timestamp=timestamp,
                 head=head,
                 author=contributor
             )
-            project.releases.add(release)
+            release.version = version
+            project.releases.append(release)
         return project
 
         
-    def _mine_commits(self, project: ProjectGraph, config: Configuration):
+    def _mine_commits(self, project: Project, config: Configuration):
         if 'commits' not in self.json:
             return project 
             
         for commit_data in self.json['commits']:
             commit_id = commit_data['id']
             timestamp = datetime.fromisoformat(commit_data['timestamp'])
-            project.commits.add(Commit(commit_id, timestamp))
+            project.commits.append(Commit(id=commit_id, committer_time=timestamp))
 
         for commit_data in self.json['commits']:
             if 'parents' not in commit_data:
                 continue
 
             commit_id = commit_data['id']
-            commit_node = project.commits[commit_id]
+            commit = project.commits[commit_id]
             for parent_id in commit_data['parents']:
-                parent_node = project.commits[parent_id]
-                commit_node.parents.append(parent_node)
+                parent = project.commits[parent_id]
+                commit.add_parent(parent)
 
         return project
 
@@ -101,13 +101,13 @@ class GitMiner(MinerPlugin):
         self.mine_commits = mine_commits
 
 
-    def mine(self, project: ProjectGraph, config: Configuration):
+    def mine(self, project: Project, config: Configuration):
         self.fetch_tags(project, config)
         self.fetch_commits(project, config)
         return project
 
     
-    def fetch_tags(self, project: ProjectGraph, config: Configuration) -> None:
+    def fetch_tags(self, project: Project, config: Configuration) -> None:
         tag_refs = [
             ref 
             for ref in self.git.references.objects 
@@ -125,18 +125,19 @@ class GitMiner(MinerPlugin):
 
             # Simple Tag
             if tag.type == pygit2.GIT_OBJECT_COMMIT:
-                head = self.git.get(tag.id) #TODO Convert to commit
+                head = Commit(id=str(tag.id))
                 author = None
                 tagger_tzinfo = timezone(timedelta(minutes=tag.committer.offset))
                 tagger_time = datetime.fromtimestamp(float(tag.committer.time), tagger_tzinfo)
                 tagger = Contributor(tag.committer.name, tag.committer.email)
                 release = Release(
-                    version=version,
+                    name=release_name,
                     timestamp=tagger_time,
                     head=head,
                     author=tagger
                 )
-                project.releases.add(release)
+                release.version = version
+                project.releases.append(release)
 
             # Annotatted Tag
             elif tag.type == pygit2.GIT_OBJECT_TAG:
@@ -144,7 +145,7 @@ class GitMiner(MinerPlugin):
                 # A tag may point to other objects in the repository
                 # but we are only looking for tags that reference a commit
                 if peel.type == pygit2.GIT_OBJECT_COMMIT:
-                    head = self.git.get(peel.id)
+                    head = Commit(id=str(peel.id))
                     try:
                         message = tag.message
                     except:
@@ -160,13 +161,15 @@ class GitMiner(MinerPlugin):
                         tagger_time = datetime.fromtimestamp(float(tag.committer.time), tagger_time_tzinfo)
 
                     release = Release(
-                        version=version,
+                        name=release_name,
                         timestamp=tagger_time,
                         head=head,
-                        author=tagger
+                        author=tagger,
+                        message=message,
                     )
-                    project.releases.add(release)
+                    release.version = version
+                    project.releases.append(release)
 
 
-    def fetch_commits(self, project: ProjectGraph, config: Configuration) -> None:
+    def fetch_commits(self, project: Project, config: Configuration) -> None:
         pass

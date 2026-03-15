@@ -16,12 +16,12 @@ Overview
 ========
 
 ```text
-Git ----> Release Graph ----> Data
-      |                   |
-    Miner             Inspector
+Git ----> Releases + Commits ----> Data
+      |                        |
+    Miner                  Inspector
 ```
 
-1. The miner creates the release graph based on Git
-2. The inspector read the release graph to extract data
+1. The miner creates release and commit collections based on Git
+2. The inspector reads these collections to extract data
 
 

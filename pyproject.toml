@@ -35,5 +35,5 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
-addopts = "--pyspec --ignore=tests/old"
+addopts = "--pyspec"
 pythonpath = ["src"]

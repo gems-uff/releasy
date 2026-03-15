@@ -25,16 +25,17 @@ class JsonMiner(MinerPlugin):
         for release_data in self.json['releases']:
             version = parser.parse(release_data['name'])
             timestamp = datetime.fromisoformat(release_data['timestamp'])
-            contributor = Contributor(release_data['name'])
+            contributor = Contributor(release_data.get('author', release_data['name']))
             head_id = release_data['head']
-            head = project.commits[head_id].get()
+            head = project.commits[head_id]
             release = Release(
-                version=version,
+                name=release_data['name'],
                 timestamp=timestamp,
                 head=head,
                 author=contributor
             )
-            project.releases.add(release)
+            release.version = version
+            project.releases.append(release)
         return project
 
     def _mine_commits(self, project, config: Configuration):
@@ -44,16 +45,16 @@ class JsonMiner(MinerPlugin):
         for commit_data in self.json['commits']:
             commit_id = commit_data['id']
             timestamp = datetime.fromisoformat(commit_data['timestamp'])
-            project.commits.add(Commit(commit_id, timestamp))
+            project.commits.append(Commit(id=commit_id, committer_time=timestamp))
 
         for commit_data in self.json['commits']:
             if 'parents' not in commit_data:
                 continue
 
             commit_id = commit_data['id']
-            commit_node = project.commits[commit_id]
+            commit = project.commits[commit_id]
             for parent_id in commit_data['parents']:
-                parent_node = project.commits[parent_id]
-                commit_node.parents.append(parent_node)
+                parent = project.commits[parent_id]
+                commit.add_parent(parent)
 
         return project

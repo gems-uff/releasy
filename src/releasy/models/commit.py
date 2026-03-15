@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import List, Set, Iterator
+from typing import Iterator
 
 from releasy.models.contributor import Contributor
 
@@ -54,56 +54,6 @@ class Commit:
         if not self._parents:
             self._parents = CommitList()
         self._parents.append(parent)
-
-
-# deprecated
-class CommitNode:
-    def __init__(self, commit: Commit):
-        self.commit = commit
-        self.parents: list[CommitNode] = []
-    
-    def get(self) -> Commit:
-        return self.commit
-    
-# deprecated
-class CommitNode:
-    def __init__(self, commit: Commit):
-        self.commit = commit
-        self.parents: list[CommitNode] = []
-    
-    def get(self) -> Commit:
-        return self.commit
-    
-
-class CommitGraph:
-    def __init__(self):
-        self.commit_nodes: dict[str, CommitNode] = {}
-
-    def add(self, commit: Commit) -> None:
-        if commit.id not in self.commit_nodes:
-            commit_node = CommitNode(commit)
-            self.commit_nodes[commit.id] = commit_node
-
-    def get(self, reference: str) -> CommitNode:
-        if reference not in self.commit_nodes:
-            return None
-        return self.commit_nodes[reference]
-    
-    def get_all(self) -> List[CommitNode]:
-        commit_nodes = [commit_node for commit_node in self.commit_nodes.values()]
-        return commit_nodes
-
-    def __getitem__(self, reference: str | Commit):
-        if isinstance(reference, Commit):
-            return self.get(reference.id)
-        if isinstance(reference, CommitNode):
-            return self.get(reference.get().id)
-        if isinstance(reference, str):
-            return self.get(reference)
-        return None
-    
-    def __len__(self) -> int:
-        return len(self.commit_nodes)
 
 class CommitList:
     """A list-like collection of commits supporting access by index or id."""

@@ -1,12 +1,9 @@
 from __future__ import annotations 
 
-from typing import Iterator, Union
-from typing import List
 from datetime import datetime
 
-from releasy.models.commit import Commit, CommitGraph, CommitNode, CommitList
+from releasy.models.commit import Commit, CommitList
 from releasy.models.contributor import Contributor
-from releasy.models.version import VersionType, ReleaseVersion
 
 
 
@@ -72,41 +69,3 @@ class ReleaseList:
 
     def names(self):
         return list(self._by_name.keys())
-    
-
-class ReleaseNode:
-    def __init__(self, release: Release):
-        self.release = release
-        self.base_releases = list[Release]()
-        self.commits = CommitGraph()
-        self.tails = list[CommitNode]()
-
-    def get(self) -> Release:
-        return self.release
-
-
-class ReleaseGraph:
-    def __init__(self):
-        self.nodes = dict[str, ReleaseNode]()
-  
-    def add(self, release: Release):
-        if release.name not in self.nodes:
-            release_node = ReleaseNode(release)
-            self.nodes[release.name] = release_node
-    
-    def get(self, reference: str) -> ReleaseNode:
-        if reference not in self.nodes:
-            return None
-        return self.nodes[reference]
-    
-    def get_all(self) -> List[ReleaseNode]:
-        release_nodes = [release_node for release_node in self.nodes.values()]
-        return release_nodes
-
-    def __getitem__(self, reference: str | Release):
-        if isinstance(reference, Release):
-            return self.get(reference.name)
-        return self.get(reference)
-    
-    def __len__(self) -> int:
-        return len(self.nodes)

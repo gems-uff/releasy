@@ -6,7 +6,7 @@ from releasy.models.commit import Commit
 from releasy.models.contributor import Contributor
 from releasy.models.release import Release
 from releasy.models.version import ReleaseVersion
-from releasy.old.version_format import ReleaseVersionFormat, SemanticVersioningFormat
+from releasy.version_format import ReleaseVersionFormat, SemanticVersioningFormat
 
 @pytest.fixture
 def commit() -> Commit:

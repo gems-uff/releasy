@@ -27,11 +27,11 @@ class ReleaseVersionFormat(ABC):
 
 class SemanticVersioningFormat(ReleaseVersionFormat):
     """
-    Implements the Semantic Versioning format 
+    Implements the Semantic Versioning format
     """
     part_separator = re.compile(r'(?P<prefix>(?:[^\s,]*?)(?=(?:[0-9]+[\._]))|[^\s,]*?)(?P<version>(?:[0-9]+[\._])*[0-9]+)(?P<suffix>[^\s,]*)')
     version_separator = re.compile(r'([0-9]+)')
-    
+
     def __init__(self) -> None:
         super().__init__("Semantic Versioning")
         self.part_separator = SemanticVersioningFormat.part_separator
@@ -46,8 +46,8 @@ class SemanticVersioningFormat(ReleaseVersionFormat):
         version_str = [
             version
             for version in self.version_separator.findall(version_part)
-        ] 
-        version_number = [int(version) for version in version_str] 
+        ]
+        version_number = [int(version) for version in version_str]
 
         match version_number:
             case [_, _, patch] if patch > 0:
