@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Iterator
 
 from releasy.models.contributor import Contributor
+from releasy.models.entity_list import EntityList
 
 
 class Commit:
@@ -55,34 +56,14 @@ class Commit:
             self._parents = CommitList()
         self._parents.append(parent)
 
-class CommitList:
+class CommitList(EntityList[Commit]):
     """A list-like collection of commits supporting access by index or id."""
-    def __init__(self, commits: list[Commit] | None = None):
-        self._commits: list[Commit] = [] if commits is None else list(commits)
-        self._by_id: dict[str, Commit] = {c.id: c for c in self._commits}
 
-    def append(self, commit: Commit) -> None:
-        self._commits.append(commit)
-        self._by_id[commit.id] = commit
-
-    def __getitem__(self, key: int | str) -> Commit:
-        if isinstance(key, int):
-            return self._commits[key]
-        elif isinstance(key, str):
-            return self._by_id[key]
-        else:
-            raise TypeError("CommitList indices must be int or str (id)")
+    def _key(self, item: Commit) -> str:
+        return item.id
 
     def __iter__(self) -> Iterator[Commit]:
-        return iter(self._commits)
-
-    def __len__(self) -> int:
-        return len(self._commits)
-
-    def __contains__(self, item: str | Commit) -> bool:
-        if isinstance(item, str):
-            return item in self._by_id
-        return item in self._commits
+        return super().__iter__()
 
     def ids(self) -> list[str]:
-        return list(self._by_id.keys())
+        return self.keys()

@@ -39,6 +39,8 @@ class SemanticVersioningFormat(ReleaseVersionFormat):
 
     def parse(self, name: str) -> ReleaseVersion:
         parts = self.part_separator.match(name)
+        if not parts:
+            return None
 
         if not parts.group('version'):
             return None

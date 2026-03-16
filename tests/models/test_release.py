@@ -1,15 +1,8 @@
 from datetime import datetime
 import pytest
-from releasy.models.commit import Commit
+from releasy.models.commit import Commit, CommitList
 from releasy.models.contributor import Contributor
 from releasy.models.release import Release, ReleaseList
-import types
-
-# --- Fixtures for ReleaseList tests ---
-@pytest.fixture
-def dummy_format():
-    # Minimal dummy format with a name attribute
-    return types.SimpleNamespace(name="dummy")
 
 @pytest.fixture
 def release_a() -> Release:
@@ -37,12 +30,11 @@ class DescribeRelease:
         assert release_a.name == "1.0.0"
 
     def it_has_version(self, release_a: Release):
-        # version is always None for now
-        assert release_a.version is None
+        assert release_a.version is not None
+        assert release_a.version.name == "1.0.0"
 
     def it_has_type(self, release_a: Release):
-        # type is always None for now
-        assert getattr(release_a, 'type', None) is None
+        assert release_a.type is not None
     
     def it_has_release_timestamp(self, release_a: Release):
         assert release_a.timestamp == datetime(2024, 1, 1)
@@ -57,20 +49,32 @@ class DescribeRelease:
         assert repr(release_a) == release_a.name
 
     def it_type_is_none_if_version_is_none(self):
-        # Defensive: Release with no version
         dummy_author = Contributor("Nobody")
         dummy_commit = Commit("x")
         r = Release(name="dummy", timestamp=datetime(2024,1,1), head=dummy_commit, author=dummy_author, message="")
-        assert getattr(r, 'type', None) is None
+        assert r.type is None
 
     def it_has_commits(self, release: Release):
-        # By default, should be an empty CommitList
         assert hasattr(release, "commits")
-        assert isinstance(
-            release.commits,
-            type(release.head.__class__.__name__ == "Commit" and release.commits)
-        )
+        assert isinstance(release.commits, CommitList)
         assert len(release.commits) == 0
+
+    def it_supports_lazy_loading_commits(self, release: Release):
+        c1 = Commit("c1")
+        c2 = Commit("c2")
+
+        release.set_commits_loader(lambda: CommitList([c1, c2]))
+
+        loaded = release.commits
+        assert len(loaded) == 2
+        assert loaded["c1"] == c1
+        assert loaded["c2"] == c2
+
+    def it_tracks_previous_and_next(self, release_a: Release, release_b: Release):
+        release_b.add_previous(release_a)
+
+        assert release_a in release_b.previous
+        assert release_b in release_a.next
 
     def it_can_add_commits(self, release: Release):
         c1 = Commit("c1")

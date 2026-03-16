@@ -1,29 +1,34 @@
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 
+from releasy.configuration import Configuration
 from releasy.models.commit import Commit
 from releasy.models.contributor import Contributor
 from releasy.models.release import Release
-from releasy.miners.miner import Configuration, MinerPlugin
+from releasy.miners.miner import MinerPlugin
 
 
 class JsonMiner(MinerPlugin):
-    def __init__(self, json: Dict):
+    def __init__(self, json: Dict, config: Optional[Configuration] = None):
+        super().__init__(config)
         self.json = json
 
-    def mine(self, project, config: Configuration):
-        project = self._mine_commits(project, config)
-        project = self._mine_releases(project, config)
+    def mine(self, project):
+        if self.config is None:
+            raise ValueError("JsonMiner configuration has not been set")
+
+        project = self._mine_commits(project)
+        project = self._mine_releases(project)
         return project
 
-    def _mine_releases(self, project, config: Configuration):
+    def _mine_releases(self, project):
         if 'releases' not in self.json:
             return project 
 
-        #TODO parser from config
-        parser = config.parser
+        parser = self.config.version_format
         for release_data in self.json['releases']:
-            version = parser.parse(release_data['name'])
+            if not parser.parse(release_data['name']):
+                continue
             timestamp = datetime.fromisoformat(release_data['timestamp'])
             contributor = Contributor(release_data.get('author', release_data['name']))
             head_id = release_data['head']
@@ -32,13 +37,13 @@ class JsonMiner(MinerPlugin):
                 name=release_data['name'],
                 timestamp=timestamp,
                 head=head,
-                author=contributor
+                author=contributor,
+                version_format=self.config.version_format,
             )
-            release.version = version
             project.releases.append(release)
         return project
 
-    def _mine_commits(self, project, config: Configuration):
+    def _mine_commits(self, project):
         if 'commits' not in self.json:
             return project 
             

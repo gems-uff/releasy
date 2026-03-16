@@ -2,6 +2,7 @@ from typing import List
 import pygit2
 from datetime import datetime
 
+from releasy.configuration import Configuration
 from releasy.models.release import Release, ReleaseList
 from releasy.models.commit import Commit, CommitList
 from releasy.models.contributor import Contributor
@@ -16,8 +17,11 @@ class GitMiner():
         self.commits = CommitList()  # Will hold CommitList, indexed by id
 
 
-    def mine_releases(self) -> ReleaseList:
+    def mine_releases(self, config: Configuration | None = None) -> ReleaseList:
         """Mine the releases"""
+        if config is None:
+            config = Configuration.default()
+
         repository = pygit2.Repository(self.repository_path)
         releases = ReleaseList()
 
@@ -29,6 +33,9 @@ class GitMiner():
 
         for tag_reference in tag_references:
             release_name = tag_reference.replace('refs/tags/', '')
+            if not config.version_format.parse(release_name):
+                continue
+
             tag = repository.get(
                 repository.references.get(tag_reference).target
             )
@@ -60,7 +67,8 @@ class GitMiner():
                 timestamp=timestamp,
                 author=author,
                 head=head,
-                message=message
+                message=message,
+                version_format=config.version_format,
             )
             releases.append(release)
 
