@@ -7,11 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.14"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Install libgit
-      run: sudo apt install -y libgit2-dev
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    # - name: Install libgit
+      # run: sudo apt install -y libgit2-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -19,8 +21,7 @@ jobs:
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        pip install uv
     - name: Test with pyTest
       run: |
-        poetry run pytest -m 'not local'
+        uv run pytest -m 'not local'
